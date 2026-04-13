@@ -90,8 +90,8 @@
 - [x] **Task 34** (Audit 9.1): Create navigation param list types `RootDrawerParamList`, `MainTabsParamList`, `DashboardStackParamList`, `ProductsStackParamList`, `CustomersStackParamList`, `InvoicesStackParamList`, `PurchaseStackParamList`, `CreditBookStackParamList`, `SettingsStackParamList`, `AuthStackParamList`. Each lists all route names and their expected params.
 
 ### Components Extraction
-- [ ] **Task 35** (Audit 10.3) - `src/screens/Invoices/components/InvoiceMetaStrip.tsx`: Extract the meta strip JSX (L492–L510 original) into its own component. Props: `isEditMode`, `invoiceId`, `invoiceDate`.
-- [ ] **Task 36** (Audit 10.4) - `src/screens/Invoices/components/BillToCard.tsx`: Extract the "Bill To" card (L512–L572 original). Props: `selectedClient`, `onOpenPartySheet`, `tokens`.
+- [x] **Task 35** (Audit 10.3) - `src/screens/Invoices/components/InvoiceMetaStrip.tsx`: Extract the meta strip JSX (L492–L510 original) into its own component. Props: `isEditMode`, `invoiceId`, `invoiceDate`.
+- [x] **Task 36** (Audit 10.4) - `src/screens/Invoices/components/BillToCard.tsx`: Extract the "Bill To" card (L512–L572 original). Props: `selectedClient`, `onOpenPartySheet`, `tokens`.
 - [ ] **Task 37** (Audit 10.6) - `src/screens/Invoices/components/InvoiceTotalsCard.tsx`: Extract totals card + GST pills + Adjustments card. Props: computed values from store.
 - [ ] **Task 38** (Audit 10.7) - `src/screens/Invoices/components/InvoiceBottomBar.tsx`: Extract the bottom CTA bar. Props: `onDraft`, `onGenerate`, `isSubmitting`, `isEditMode`, `mode`.
 

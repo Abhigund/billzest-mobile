@@ -29,6 +29,8 @@ import { useOrderDetail } from "../../logic/orderLogic";
 import { useOrganization } from "../../contexts/OrganizationContext";
 import { useInvoiceFlow } from "./hooks/useInvoiceFlow";
 import InvoiceItemsList from "./components/InvoiceItemsList";
+import InvoiceMetaStrip from "./components/InvoiceMetaStrip";
+import BillToCard from "./components/BillToCard";
 import Button from "../../components/ui/Button";
 import {
   ArrowLeft,
@@ -218,15 +220,6 @@ const AddSaleScreen = () => {
 
 
 
-  const getInitials = (name?: string) => {
-    if (!name) return "";
-    return name
-      .split(" ")
-      .slice(0, 2)
-      .map((w) => w.charAt(0).toUpperCase())
-      .join("");
-  };
-
 
 
   return (
@@ -259,87 +252,19 @@ const AddSaleScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* 1. Invoice Meta Strip */}
-        <View style={styles.metaStrip}>
-          <View>
-            <Text style={styles.metaInvoiceNo}>
-              INVOICE #{isEditMode ? (invoiceId?.slice(-4) ?? "—") : "NEW"}
-            </Text>
-            <Text style={styles.metaDate}>
-              {new Date(invoiceDate).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}{" "}
-              • Due: 7 days
-            </Text>
-          </View>
-          <Pressable style={styles.metaEditBtn} onPress={() => {}}>
-            <Text style={styles.metaEditText}>EDIT </Text>
-            <Edit2 size={12} color={tokens.primary} strokeWidth={2.5} />
-          </Pressable>
-        </View>
+        <InvoiceMetaStrip
+          isEditMode={isEditMode}
+          invoiceId={invoiceId}
+          invoiceDate={invoiceDate}
+          tokens={tokens}
+        />
 
         {/* 2. Bill To */}
-        <View style={styles.card}>
-          <Text style={styles.cardSectionLabel}>BILL TO</Text>
-          <Pressable
-            style={styles.partyRow}
-            onPress={() => setPartySheetVisible(true)}
-          >
-            {selectedClient ? (
-              <>
-                <View style={styles.partyAvatar}>
-                  <Text style={styles.partyAvatarText}>
-                    {getInitials(selectedClient.name)}
-                  </Text>
-                </View>
-                <View style={styles.partyInfo}>
-                  <Text style={styles.partyName}>{selectedClient.name}</Text>
-                  <Text style={styles.partyMeta}>
-                    {(selectedClient as any).gstin ??
-                      (selectedClient as any).gst_number ??
-                      selectedClient.phone ??
-                      "Tap to view details"}
-                  </Text>
-                </View>
-              </>
-            ) : (
-              <>
-                <View
-                  style={[
-                    styles.partyAvatar,
-                    { backgroundColor: tokens.muted },
-                  ]}
-                >
-                  <User size={20} color={tokens.mutedForeground} />
-                </View>
-                <View style={styles.partyInfo}>
-                  <Text
-                    style={[
-                      styles.partyName,
-                      { color: tokens.mutedForeground },
-                    ]}
-                  >
-                    Select Party
-                  </Text>
-                  <Text style={styles.partyMeta}>
-                    Tap to choose customer / vendor
-                  </Text>
-                </View>
-              </>
-            )}
-            <ChevronDown size={20} color={tokens.mutedForeground} />
-          </Pressable>
-          <Pressable
-            style={styles.editPartyLink}
-            onPress={() => setPartySheetVisible(true)}
-          >
-            <PlusCircle size={14} color={tokens.primary} />
-            <Text style={[styles.editPartyText, { marginLeft: 6 }]}>
-              {selectedClient ? "Change Party" : "Select Party"}
-            </Text>
-          </Pressable>
-        </View>
+        <BillToCard
+          selectedClient={selectedClient}
+          onOpenPartySheet={() => setPartySheetVisible(true)}
+          tokens={tokens}
+        />
 
         {/* 3. Items */}
         <InvoiceItemsList
@@ -582,32 +507,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingBottom: 120,
     },
 
-    // Meta Strip
-    metaStrip: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      paddingHorizontal: 4,
-    },
-    metaInvoiceNo: {
-      fontSize: 11,
-      fontWeight: "700",
-      color: tokens.mutedForeground,
-      letterSpacing: 1,
-      textTransform: "uppercase",
-    },
-    metaDate: { fontSize: 11, color: tokens.mutedForeground, marginTop: 2 },
-    metaEditBtn: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 12,
-      paddingVertical: 5,
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: tokens.primary + "50",
-      backgroundColor: tokens.primary + "08",
-    },
-    metaEditText: { fontSize: 11, fontWeight: "700", color: tokens.primary },
+    // Meta Strip removed and extracted to InvoiceMetaStrip
 
     // Card
     card: {
@@ -631,37 +531,7 @@ const createStyles = (tokens: ThemeTokens) =>
       marginBottom: 12,
     },
 
-    // Party
-    partyRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      backgroundColor: tokens.muted,
-      borderRadius: 10,
-      padding: 12,
-      borderWidth: 1,
-      borderColor: tokens.border + "18",
-    },
-    partyAvatar: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: tokens.primary + "18",
-      alignItems: "center",
-      justifyContent: "center",
-      marginRight: 12,
-    },
-    partyAvatarText: { fontSize: 14, fontWeight: "700", color: tokens.primary },
-    partyInfo: { flex: 1 },
-    partyName: { fontSize: 15, fontWeight: "700", color: tokens.foreground },
-    partyMeta: { fontSize: 11, color: tokens.mutedForeground, marginTop: 2 },
-    expandIcon: { fontSize: 18, color: tokens.mutedForeground },
-    editPartyLink: {
-      flexDirection: "row",
-      alignItems: "center",
-      marginTop: 12,
-    },
-    editPartyText: { fontSize: 13, fontWeight: "600", color: tokens.primary },
-
+    // Party styles extracted to BillToCard
     // Search Bar
     searchBar: {
       flexDirection: "row",
