@@ -252,7 +252,8 @@ export const ordersService = {
    */
   async updateOrder(
     id: string,
-    updates: Partial<Pick<Order, 'status' | 'payment_status' | 'notes'>>,
+    updates: Partial<Omit<Order, 'id' | 'organization_id' | 'items' | 'party'>>,
+    itemsPayload?: CreateOrderPayload['items']
   ): Promise<Order> {
     const { data, error } = await supabase
       .from('orders')
@@ -263,6 +264,19 @@ export const ordersService = {
 
     if (error) {
       throw toAppError('orders.update', error, 'Unable to update order.');
+    }
+
+    if (itemsPayload) {
+      const orgId = data.organization_id;
+      // Delete existing items
+      await supabase.from('order_items').delete().eq('order_id', id);
+      // Insert new items
+      const orderItems = itemsPayload.map(item => ({
+        ...item,
+        order_id: id,
+        organization_id: orgId,
+      }));
+      await supabase.from('order_items').insert(orderItems);
     }
 
     return data as Order;

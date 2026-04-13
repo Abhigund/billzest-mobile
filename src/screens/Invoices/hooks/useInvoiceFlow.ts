@@ -1,7 +1,7 @@
 import { Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useInvoiceStore } from '../../../stores/invoiceStore';
-import { useCreateOrder, useUpdateOrderStatus } from '../../../logic/orderLogic';
+import { useCreateOrder, useUpdateOrder, useUpdateOrderStatus } from '../../../logic/orderLogic';
 import { useCreatePurchase } from '../../../logic/purchaseLogic';
 import { useOrganization } from '../../../contexts/OrganizationContext';
 import {
@@ -39,7 +39,7 @@ export const useInvoiceFlow = ({
   const { organizationId } = useOrganization();
   
   const createInvoice = useCreateOrder();
-  const updateInvoice = useUpdateOrderStatus();
+  const updateInvoice = useUpdateOrder();
   const createPurchase = useCreatePurchase();
 
   const invoiceId = route.params?.invoiceId as string | undefined;
@@ -230,7 +230,21 @@ export const useInvoiceFlow = ({
       if (isEditMode && invoiceId) {
         const updated = await updateInvoice.mutateAsync({
           orderId: invoiceId,
-          status: "sent",
+          order: {
+            status: "sent",
+            subtotal,
+            tax_amount: taxAmount,
+            total_amount: finalTotal,
+          },
+          items: lineItems.map((i) => ({
+            product_id: i.product.id,
+            product_name: i.product.name,
+            quantity: i.quantity,
+            unit_price: i.rate,
+            total_price: i.total,
+            tax_amount: i.taxAmount,
+            tax_rate: i.taxRate,
+          })),
         });
         resetInvoice();
         setMode(null);

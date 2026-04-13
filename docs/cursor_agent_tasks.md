@@ -18,7 +18,7 @@
 - [ ] **Task 2** (Audit 2.4): Modify `cancelOrder` (L309–L343). Replace the manual stock restoration loop with a call to `supabase.rpc('cancel_order_restore_stock', { p_order_id: id })`. *(Note: Requires `cancel_order_restore_stock` RPC from Task 7)*
 
 ### `src/screens/Invoices/AddSaleScreen.tsx`
-- [ ] **Task 3** (Audit 2.6): Modify `handleGenerateBill` edit-mode branch (L394–L398). Currently only updates status to `'sent'`. Change to also send the current `lineItems` (mapped to `items` payload) and updated totals to `ordersService.updateOrder`.
+- [x] **Task 3** (Audit 2.6): Modify `handleGenerateBill` edit-mode branch (L394–L398). Currently only updates status to `'sent'`. Change to also send the current `lineItems` (mapped to `items` payload) and updated totals to `ordersService.updateOrder`.
 - [x] **Task 4** (Audit 10.2): Refactor `AddSaleScreen.tsx`. Replace extracted functions (`validateInvoice()`, `handleGenerateBill()`, `handleBack()`, `handleScan()`, and mutation hooks) with calls to the newly created `useInvoiceFlow()`. Verify identical behavior. *(Note: Requires Task 5)*
 
 ### `src/screens/Invoices/hooks/useInvoiceFlow.ts`
