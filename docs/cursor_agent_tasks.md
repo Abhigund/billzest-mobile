@@ -37,7 +37,7 @@
 
 ### `src/navigation/RootNavigator.tsx`
 - [x] **Task 9** (Audit 6.1): Wrap the `Vendors` drawer screen's `SuppliersListScreen` (L313–L315) in a small `VendorsStack` navigator so it has a proper back button and can push to detail screens.
-- [ ] **Task 10** (Audit 9.2): Apply the param list types (`RootDrawerParamList`, `MainTabsParamList`, etc.) to all navigator calls (`createNativeStackNavigator<...>()`, `createBottomTabNavigator<...>()`, `createDrawerNavigator<...>()`).
+- [x] **Task 10** (Audit 9.2): Apply the param list types (`RootDrawerParamList`, `MainTabsParamList`, etc.) to all navigator calls (`createNativeStackNavigator<...>()`, `createBottomTabNavigator<...>()`, `createDrawerNavigator<...>()`).
 
 ### `src/screens/Invoices/AddSaleScreen.tsx`
 - [x] **Task 11** (Audit 6.2): Wrap the root `<View>` in `<KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>`. Import `KeyboardAvoidingView` and `Platform`.
@@ -87,7 +87,7 @@
 - [ ] **Task 33** (Audit 11.6): Remove `rotateAnim` from the `useEffect` dependency array (L228–L240) to fix animation restart issue.
 
 ### `src/navigation/types.ts`
-- [ ] **Task 34** (Audit 9.1): Create navigation param list types `RootDrawerParamList`, `MainTabsParamList`, `DashboardStackParamList`, `ProductsStackParamList`, `CustomersStackParamList`, `InvoicesStackParamList`, `PurchaseStackParamList`, `CreditBookStackParamList`, `SettingsStackParamList`, `AuthStackParamList`. Each lists all route names and their expected params.
+- [x] **Task 34** (Audit 9.1): Create navigation param list types `RootDrawerParamList`, `MainTabsParamList`, `DashboardStackParamList`, `ProductsStackParamList`, `CustomersStackParamList`, `InvoicesStackParamList`, `PurchaseStackParamList`, `CreditBookStackParamList`, `SettingsStackParamList`, `AuthStackParamList`. Each lists all route names and their expected params.
 
 ### Components Extraction
 - [ ] **Task 35** (Audit 10.3) - `src/screens/Invoices/components/InvoiceMetaStrip.tsx`: Extract the meta strip JSX (L492–L510 original) into its own component. Props: `isEditMode`, `invoiceId`, `invoiceDate`.
@@ -101,3 +101,11 @@
 - [ ] **Task 41** (Audit 11.3) - `src/screens/Products/ProductsListScreen.tsx`: Replace `rgba(220,76,70,0.9)` (L630) with `tokens.destructive` + opacity.
 
 ---
+
+## 🎨 Stitch Design Integration - Create Invoice Flow
+*Note: These tasks represent the uncompleted Stitch designs and should be executed alongside or after the component extractions (Tasks 35-38).*
+
+- [ ] **Task 42** (Stitch UI - Base Layout): Integrate **"Create Invoice (Green)"** design into the `AddSaleScreen` shell. Implement the "Architectural Editor" base, using `tokens.background`, removing 1px solid borders in favor of the "No-Line" rule with tonal surface layers.
+- [ ] **Task 43** (Stitch UI - Party Selector): Integrate **"Select Party (Green)"** design into the `BillToCard` and the party selection list. Apply deep green `primary` tokens and Manrope typography for the customer names and balances.
+- [ ] **Task 44** (Stitch UI - Adjustments): Integrate **"Edit Adjustments Bottom Sheet"** design into the invoice adjustments modal. Use functional glassmorphism, ambient shadows for the floating sheet, and soft `on_surface_variant` labels.
+- [ ] **Task 45** (Stitch UI - CTAs): Integrate **"Updated Invoice Summary Buttons"** into the `InvoiceBottomBar` component. Build the sticky HUD footer with `surface_container_lowest` at 80% opacity and backdrop-blur, utilizing the refined green primary/secondary button specs.

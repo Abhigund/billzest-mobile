@@ -50,228 +50,250 @@ import LoginScreen from "../screens/Auth/LoginScreen";
 import CustomDrawer from "./CustomDrawer";
 import { useOfflineSync } from "../hooks/useOfflineSync";
 import ErrorBoundary from "../components/ErrorBoundary";
+import {
+  DashboardStackParamList,
+  ProductsStackParamList,
+  CustomersStackParamList,
+  InvoicesStackParamList,
+  PurchaseStackParamList,
+  ExpensesStackParamList,
+  VendorsStackParamList,
+  CreditBookStackParamList,
+  MainTabsParamList,
+  RootDrawerParamList,
+  AuthStackParamList,
+  SettingsStackParamList,
+} from "./types";
 
-const Tab = createBottomTabNavigator();
-const Drawer = createDrawerNavigator();
-const Stack = createNativeStackNavigator();
-const AuthStack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator<MainTabsParamList>();
+const Drawer = createDrawerNavigator<RootDrawerParamList>();
+const AuthStack = createNativeStackNavigator<AuthStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
+const DashboardStack = createNativeStackNavigator<DashboardStackParamList>();
 const DashboardTabStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <DashboardStack.Navigator screenOptions={{ headerShown: false }}>
+    <DashboardStack.Screen
       name="DashboardMain"
       component={DashboardScreen}
       options={{ title: "Dashboard" }}
     />
-    <Stack.Screen
+    <DashboardStack.Screen
       name="MobileLogin"
       component={MobileLoginScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <DashboardStack.Screen
       name="VerifyOTP"
       component={VerifyOTPScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-  </Stack.Navigator>
+  </DashboardStack.Navigator>
 );
 
+const ProductsStack = createNativeStackNavigator<ProductsStackParamList>();
 const ProductsTabStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <ProductsStack.Navigator screenOptions={{ headerShown: false }}>
+    <ProductsStack.Screen
       name="ProductsMain"
       component={ProductsListScreen}
       options={{ title: "Products" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="ProductDetail"
       component={ProductDetailScreen}
       options={{ title: "Product Details" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="ProductForm"
       component={ProductFormScreen}
       options={{ title: "Product Form" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="StockSummary"
       component={StockSummaryScreen}
       options={{ title: "Stock Summary" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="CategoriesList"
       component={CategoriesListScreen}
       options={{ title: "Categories" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="CategoryFormSheet"
       component={CategoryFormSheet}
       options={{ headerShown: false, presentation: "formSheet" }}
     />
-    <Stack.Screen
+    <ProductsStack.Screen
       name="BarcodeGenerator"
       component={BarcodeGeneratorScreen}
       options={{ title: "Barcode Generator", headerShown: false }}
     />
     {/* OUT OF SCOPE FOR V1 — retained for future releases
-    <Stack.Screen
+    <ProductsStack.Screen
       name="StockAdjust"
       component={ProductStockAdjustScreen}
       options={{ title: 'Stock Adjustment' }}
     />
     */}
-  </Stack.Navigator>
+  </ProductsStack.Navigator>
 );
 
+const CustomersStack = createNativeStackNavigator<CustomersStackParamList>();
 const CustomersTabStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <CustomersStack.Navigator screenOptions={{ headerShown: false }}>
+    <CustomersStack.Screen
       name="CustomersMain"
       component={CustomersListScreen}
       options={{ title: "Customers" }}
     />
-    <Stack.Screen
+    <CustomersStack.Screen
       name="CustomerDetail"
       component={CustomerDetailScreen}
       options={{ title: "Customer Details" }}
     />
-    <Stack.Screen
+    <CustomersStack.Screen
       name="CustomerForm"
       component={CustomerFormScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <CustomersStack.Screen
       name="AddPartySheet"
       component={AddPartySheet}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-  </Stack.Navigator>
+  </CustomersStack.Navigator>
 );
 
+const InvoicesStack = createNativeStackNavigator<InvoicesStackParamList>();
 const InvoicesTabStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <InvoicesStack.Navigator screenOptions={{ headerShown: false }}>
+    <InvoicesStack.Screen
       name="InvoicesMain"
       component={InvoicesListScreen}
       options={{ title: "Invoices" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="InvoiceDetail"
       component={InvoiceDetailScreen}
       options={{ title: "Invoice Detail" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="AddSale"
       component={AddSaleScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="InvoiceSummary"
       component={InvoiceSummaryScreen}
       options={{ headerShown: false }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="AddItems"
       component={AddItemsScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="CustomerForm"
       component={CustomerFormScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="AddPartySheet"
       component={AddPartySheet}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <InvoicesStack.Screen
       name="SimplifiedPOS"
       component={SimplifiedPOSScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-  </Stack.Navigator>
+  </InvoicesStack.Navigator>
 );
 
+const PurchaseStackNav = createNativeStackNavigator<PurchaseStackParamList>();
 const PurchaseStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <PurchaseStackNav.Navigator screenOptions={{ headerShown: false }}>
+    <PurchaseStackNav.Screen
       name="PurchaseList"
       component={PurchaseListScreen}
       options={{ title: "Purchases" }}
     />
-    <Stack.Screen
+    <PurchaseStackNav.Screen
       name="PurchaseDetail"
       component={PurchaseDetailScreen}
       options={{ title: "Purchase Detail" }}
     />
-    <Stack.Screen
+    <PurchaseStackNav.Screen
       name="PurchaseCreate"
       component={AddSaleScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
       initialParams={{ initialMode: "purchase" }}
     />
-    <Stack.Screen
+    <PurchaseStackNav.Screen
       name="PurchaseCreateVendor"
       component={CustomerFormScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <PurchaseStackNav.Screen
       name="SuppliersList"
       component={SuppliersListScreen}
       options={{ title: "Suppliers" }}
     />
-    <Stack.Screen
+    <PurchaseStackNav.Screen
       name="AddPartySheet"
       component={AddPartySheet}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-  </Stack.Navigator>
+  </PurchaseStackNav.Navigator>
 );
 
+const ExpensesStackNav = createNativeStackNavigator<ExpensesStackParamList>();
 const ExpensesStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <ExpensesStackNav.Navigator screenOptions={{ headerShown: false }}>
+    <ExpensesStackNav.Screen
       name="ExpensesMain"
       component={ExpensesScreen}
       options={{ title: "Expenses" }}
     />
-  </Stack.Navigator>
+  </ExpensesStackNav.Navigator>
 );
 
+const VendorsStackNav = createNativeStackNavigator<VendorsStackParamList>();
 const VendorsStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <VendorsStackNav.Navigator screenOptions={{ headerShown: false }}>
+    <VendorsStackNav.Screen
       name="SuppliersList"
       component={SuppliersListScreen}
       options={{ title: "Vendors / Suppliers" }}
     />
-  </Stack.Navigator>
+  </VendorsStackNav.Navigator>
 );
 
+const CreditBookStackNav = createNativeStackNavigator<CreditBookStackParamList>();
 const CreditBookStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
+  <CreditBookStackNav.Navigator screenOptions={{ headerShown: false }}>
+    <CreditBookStackNav.Screen
       name="CreditBookMain"
       component={CreditBookScreen}
       options={{ title: "Credit Book" }}
     />
-    <Stack.Screen
+    <CreditBookStackNav.Screen
       name="PartyLedgerScreen"
       component={PartyLedgerScreen}
       options={{ title: "Party Ledger" }}
     />
-    <Stack.Screen
+    <CreditBookStackNav.Screen
       name="AddPartySheet"
       component={AddPartySheet}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-    <Stack.Screen
+    <CreditBookStackNav.Screen
       name="AddCreditTransactionSheet"
       component={AddCreditTransactionSheet}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
-  </Stack.Navigator>
+  </CreditBookStackNav.Navigator>
 );
 
 const MainTabs = () => (
@@ -412,7 +434,6 @@ const AuthStackNavigator = () => (
   </AuthStack.Navigator>
 );
 
-const SettingsStack = createNativeStackNavigator();
 const SettingsStackNavigator = () => (
   <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
     <SettingsStack.Screen
