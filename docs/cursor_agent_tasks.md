@@ -1,6 +1,7 @@
 # Cursor Agent Task List
 
 **Agent Instructions:**
+- **DATABASE DEPENDENT TASKS ARE CURRENTLY OUT OF SCOPE. Please completely ignore tasks involving RPC or SQL modifications.**
 - You have access to the full codebase in Cursor.
 - Execute ONE task at a time. Do not combine multiple tasks into a single run.
 - Stop and ask for review after completing each task.
@@ -32,7 +33,7 @@
 - [ ] **Task 7** (Audit 2.2): Create and test the `cancel_order_restore_stock` RPC function that takes `order_id` and restores stock atomically. Test with a cancelled order.
 
 ### `src/supabase/ordersService.ts`
-- [ ] **Task 8** (Audit 2.5): Modify `deleteOrder` (L357–L365). Add error check on `order_items` delete. If either delete fails, throw and don't leave orphans.
+- [x] **Task 8** (Audit 2.5): Modify `deleteOrder` (L357–L365). Add error check on `order_items` delete. If either delete fails, throw and don't leave orphans.
 
 ### `src/navigation/RootNavigator.tsx`
 - [x] **Task 9** (Audit 6.1): Wrap the `Vendors` drawer screen's `SuppliersListScreen` (L313–L315) in a small `VendorsStack` navigator so it has a proper back button and can push to detail screens.
@@ -43,7 +44,7 @@
 - [ ] **Task 12** (Audit 10.8): Final assembly. Convert `AddSaleScreen` to a ~200 line shell that wires up the `useInvoiceFlow` hook and renders the newly extracted components. *(Note: Do this after minor components are extracted)*
 
 ### `src/screens/Invoices/components/InvoiceItemsList.tsx`
-- [ ] **Task 13** (Audit 10.5): Create new component. Extract the items card (L574–L654 original) into its own component. Props: `lineItems`, `updateQuantity`, `removeLineItem`, `onAddItems`, `formatCurrency`, `tokens`.
+- [x] **Task 13** (Audit 10.5): Create new component. Extract the items card (L574–L654 original) into its own component. Props: `lineItems`, `updateQuantity`, `removeLineItem`, `onAddItems`, `formatCurrency`, `tokens`.
 
 ### Global / Batch Refactoring
 - [ ] **Task 14** (Audit 9.3): Replace `useNavigation<any>()` with typed `useNavigation<NativeStackNavigationProp<XxxParamList>>()` across all screens. (Perform in batches of 5-6 screens).

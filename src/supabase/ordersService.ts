@@ -356,7 +356,10 @@ export const ordersService = {
    */
   async deleteOrder(id: string): Promise<void> {
     // Delete items first
-    await supabase.from('order_items').delete().eq('order_id', id);
+    const { error: itemsError } = await supabase.from('order_items').delete().eq('order_id', id);
+    if (itemsError) {
+      throw toAppError('orders.delete.items', itemsError, 'Unable to delete order items.');
+    }
 
     const { error } = await supabase.from('orders').delete().eq('id', id);
     if (error) {
