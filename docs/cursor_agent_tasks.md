@@ -71,7 +71,7 @@
 - [ ] **Task 15** (Audit 9.4): Replace `useRoute<any>()` with typed `useRoute<RouteProp<XxxParamList, 'ScreenName'>>()` across all screens.
 
 ### `src/screens/Products/StockSummaryScreen.tsx`
-- [/] **Task 50** (Audit): Address dead handlers in the UI. Wire up the "Show stock as on Date" Switch (`onValueChange`), the Filter pill (`onPress`), and the Header Export buttons so they trigger functional flows instead of empty functions or placeholders.
+- [x] **Task 50** (Audit): Address dead handlers in the UI. Wire up the "Show stock as on Date" Switch (`onValueChange`), the Filter pill (`onPress`), and the Header Export buttons so they trigger functional flows instead of empty functions or placeholders.
 
 ### `src/navigation/` & Routing Refactoring
 - [ ] **Task 51** (Audit): Eliminate `useNavigation<any>()` instances strictly in `ProductFormScreen.tsx`, `ProductDetailScreen.tsx`, `ProductsListScreen.tsx`, `StockSummaryScreen.tsx`, `CategoriesListScreen.tsx`, and `useRoute<any>()` in `CategoryFormSheet.tsx` using precise `NativeStackNavigationProp`.
