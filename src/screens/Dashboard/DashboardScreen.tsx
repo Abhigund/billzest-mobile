@@ -240,7 +240,7 @@ const DashboardScreen: React.FC = () => {
     } else {
       rotateAnim.setValue(0);
     }
-  }, [refreshing, isRefetching, rotateAnim]);
+  }, [refreshing, isRefetching]);
 
   const rotateInterpolate = rotateAnim.interpolate({
     inputRange: [0, 1],
