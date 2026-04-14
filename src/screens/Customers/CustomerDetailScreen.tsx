@@ -1,19 +1,18 @@
-import React from 'react';
+import React from "react";
 import {
   ScrollView,
   View,
   Text,
   StyleSheet,
   Pressable,
-  Pressable,
   Alert,
   Share,
-} from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useThemeTokens } from '../../theme/ThemeProvider';
-import { ThemeTokens } from '../../theme/tokens';
-import DetailHeader from '../../components/DetailHeader';
+} from "react-native";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useThemeTokens } from "../../theme/ThemeProvider";
+import { ThemeTokens } from "../../theme/tokens";
+import DetailHeader from "../../components/DetailHeader";
 import {
   Share2,
   MessageCircle,
@@ -23,13 +22,16 @@ import {
   ReceiptText,
   Edit2,
   Trash2,
-} from 'lucide-react-native';
-import DetailRow from '../../components/ui/DetailRow';
-import Button from '../../components/ui/Button';
-import { useCustomerFinancialSummary, useClientMutations } from '../../logic/partyLogic';
-import { CustomersStackParamList } from '../../navigation/types';
-import { useQuery } from '@tanstack/react-query';
-import { partiesService } from '../../supabase/partiesService';
+} from "lucide-react-native";
+import DetailRow from "../../components/ui/DetailRow";
+import Button from "../../components/ui/Button";
+import {
+  useCustomerFinancialSummary,
+  useClientMutations,
+} from "../../logic/partyLogic";
+import { CustomersStackParamList } from "../../navigation/types";
+import { useQuery } from "@tanstack/react-query";
+import { partiesService } from "../../supabase/partiesService";
 
 type CustomerProfile = {
   id: string;
@@ -42,20 +44,17 @@ type CustomerProfile = {
   lastInvoice: string;
 };
 
-type CustomerDetailRoute = RouteProp<
-  CustomersStackParamList,
-  'CustomerDetail'
->;
+type CustomerDetailRoute = RouteProp<CustomersStackParamList, "CustomerDetail">;
 
 const EMPTY_CUSTOMER: CustomerProfile = {
-  id: '',
-  name: '',
-  businessType: '',
-  location: '',
-  phone: '',
+  id: "",
+  name: "",
+  businessType: "",
+  location: "",
+  phone: "",
   dueAmount: 0,
   totalSale: 0,
-  lastInvoice: '',
+  lastInvoice: "",
 };
 
 const ACTIVITY_LOG: {
@@ -66,9 +65,9 @@ const ACTIVITY_LOG: {
 }[] = [];
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     maximumFractionDigits: 2,
   }).format(value);
 
@@ -91,28 +90,38 @@ const RECENT_INVOICES: {
 const CustomerDetailScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
   const route = useRoute<CustomerDetailRoute>();
-  const customerId = route.params?.customerId || (route.params?.customer as any)?.id;
+  const customerId =
+    route.params?.customerId || (route.params?.customer as any)?.id;
 
   const { data: fetchedCustomer } = useQuery({
-    queryKey: ['party', customerId],
+    queryKey: ["party", customerId],
     queryFn: () => partiesService.getPartyById(customerId!),
     enabled: !!customerId && !route.params?.customer,
   });
 
   const customerData = route.params?.customer || fetchedCustomer;
 
-  const customer: CustomerProfile = customerData ? {
-    id: customerData.id,
-    name: customerData.name ?? 'Unknown',
-    businessType: customerData.party_type === 'vendor' ? 'Supplier' : (customerData.businessType || 'Customer'),
-    location: customerData.address || customerData.location || '—',
-    phone: customerData.phone || customerData.mobile || '—',
-    dueAmount: customerData.balance || (route.params?.customer as any)?.dueAmount || 0,
-    totalSale: (route.params?.customer as any)?.totalSale || 0,
-    lastInvoice: (route.params?.customer as any)?.lastInvoice || '—',
-  } : EMPTY_CUSTOMER;
+  const customer: CustomerProfile = customerData
+    ? {
+        id: customerData.id,
+        name: customerData.name ?? "Unknown",
+        businessType:
+          customerData.party_type === "vendor"
+            ? "Supplier"
+            : customerData.businessType || "Customer",
+        location: customerData.address || customerData.location || "—",
+        phone: customerData.phone || customerData.mobile || "—",
+        dueAmount:
+          customerData.balance ||
+          (route.params?.customer as any)?.dueAmount ||
+          0,
+        totalSale: (route.params?.customer as any)?.totalSale || 0,
+        lastInvoice: (route.params?.customer as any)?.lastInvoice || "—",
+      }
+    : EMPTY_CUSTOMER;
 
   const { data: summary, isLoading: summaryLoading } =
     useCustomerFinancialSummary(customerId);
@@ -120,36 +129,36 @@ const CustomerDetailScreen: React.FC = () => {
   const { deleteClient } = useClientMutations();
 
   const jumpToInvoices = React.useCallback(() => {
-    (navigation.getParent() as any)?.navigate?.('InvoicesTab');
+    (navigation.getParent() as any)?.navigate?.("InvoicesTab");
   }, [navigation]);
 
   const handleRecordPayment = React.useCallback(() => {
     if (!customerId) return;
-    (navigation as any).navigate('CreditBook', {
-      screen: 'PartyLedgerScreen',
+    (navigation as any).navigate("CreditBook", {
+      screen: "PartyLedgerScreen",
       params: { partyId: customerId, partyName: customer.name },
     });
   }, [navigation, customerId, customer.name]);
 
   const handleEdit = React.useCallback(() => {
     if (customerId) {
-      navigation.navigate('CustomerForm', { customerId });
+      navigation.navigate("CustomerForm", { customerId });
     }
   }, [navigation, customerId]);
 
   const handleDelete = React.useCallback(() => {
-    Alert.alert('Delete Party', 'Are you sure you want to delete this party?', [
-      { text: 'Cancel', style: 'cancel' },
-      { 
-        text: 'Delete', 
-        style: 'destructive', 
+    Alert.alert("Delete Party", "Are you sure you want to delete this party?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        style: "destructive",
         onPress: async () => {
           if (customerId) {
             await deleteClient.mutateAsync(customerId);
             navigation.goBack();
           }
-        }
-      }
+        },
+      },
     ]);
   }, [deleteClient, customerId, navigation]);
 
@@ -161,21 +170,21 @@ const CustomerDetailScreen: React.FC = () => {
           {
             icon: <Share2 size={18} color={tokens.foreground} />,
             onPress: () => {
-               Share.share({
-                  message: `Customer Details:\nName: ${customer.name}\nPhone: ${customer.phone}\nDue: ₹${summary?.outstanding || customer.dueAmount}`,
-               });
+              Share.share({
+                message: `Customer Details:\nName: ${customer.name}\nPhone: ${customer.phone}\nDue: ₹${summary?.outstanding || customer.dueAmount}`,
+              });
             },
-            accessibilityLabel: 'Share party',
+            accessibilityLabel: "Share party",
           },
           {
             icon: <Edit2 size={18} color={tokens.foreground} />,
             onPress: handleEdit,
-            accessibilityLabel: 'Edit',
+            accessibilityLabel: "Edit",
           },
           {
             icon: <Trash2 size={18} color={tokens.destructive} />,
             onPress: handleDelete,
-            accessibilityLabel: 'Delete',
+            accessibilityLabel: "Delete",
           },
         ]}
       />
@@ -214,7 +223,7 @@ const CustomerDetailScreen: React.FC = () => {
             </Text>
             <Text style={styles.summaryHint}>
               {summaryLoading
-                ? 'Loading invoices…'
+                ? "Loading invoices…"
                 : `${summary?.orderCount ?? 0} invoices`}
             </Text>
           </View>
@@ -277,7 +286,7 @@ const CustomerDetailScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Statements & Activity</Text>
             <ReceiptText color={tokens.primary} size={18} />
           </View>
-          {ACTIVITY_LOG.map(item => (
+          {ACTIVITY_LOG.map((item) => (
             <View key={item.id} style={styles.timelineRow}>
               <View style={styles.timelineDot} />
               <View style={styles.timelineCopy}>
@@ -296,8 +305,8 @@ const CustomerDetailScreen: React.FC = () => {
               ₹12,850 outstanding · next due in 3 days
             </Text>
           </View>
-          {CREDIT_ENTRIES.map(entry => {
-            const isOverdue = entry.status === 'overdue';
+          {CREDIT_ENTRIES.map((entry) => {
+            const isOverdue = entry.status === "overdue";
             return (
               <View key={entry.id} style={styles.creditRow}>
                 <View>
@@ -329,7 +338,7 @@ const CustomerDetailScreen: React.FC = () => {
               <Text style={styles.sectionLink}>View all</Text>
             </Pressable>
           </View>
-          {RECENT_INVOICES.map(invoice => (
+          {RECENT_INVOICES.map((invoice) => (
             <Pressable
               key={invoice.id}
               style={styles.invoiceRow}
@@ -371,7 +380,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingBottom: 32,
     },
     heroCard: {
-      flexDirection: 'row',
+      flexDirection: "row",
       borderRadius: 22,
       borderWidth: 1,
       borderColor: tokens.border,
@@ -380,7 +389,7 @@ const createStyles = (tokens: ThemeTokens) =>
       marginBottom: 16,
     },
     ctaRow: {
-      flexDirection: 'row',
+      flexDirection: "row",
       marginBottom: 16,
     },
     primaryCta: {
@@ -389,11 +398,11 @@ const createStyles = (tokens: ThemeTokens) =>
       borderRadius: 14,
       backgroundColor: tokens.primary,
       paddingVertical: 12,
-      alignItems: 'center',
+      alignItems: "center",
     },
     primaryCtaText: {
       color: tokens.primaryForeground,
-      fontWeight: '700',
+      fontWeight: "700",
     },
     secondaryCta: {
       flex: 1,
@@ -401,19 +410,19 @@ const createStyles = (tokens: ThemeTokens) =>
       borderWidth: 1,
       borderColor: tokens.border,
       paddingVertical: 12,
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: tokens.card,
     },
     secondaryCtaText: {
       color: tokens.foreground,
-      fontWeight: '700',
+      fontWeight: "700",
     },
     heroCopy: {
       flex: 1,
     },
     customerName: {
       fontSize: 20,
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
     },
     customerMeta: {
@@ -428,9 +437,9 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 12,
       paddingVertical: 4,
       color: tokens.warning,
-      fontWeight: '600',
+      fontWeight: "600",
       fontSize: 12,
-      alignSelf: 'flex-start',
+      alignSelf: "flex-start",
     },
     heroAmountBlock: {
       width: 140,
@@ -439,7 +448,7 @@ const createStyles = (tokens: ThemeTokens) =>
       borderWidth: 1,
       borderColor: tokens.border,
       backgroundColor: tokens.background,
-      alignItems: 'flex-start',
+      alignItems: "flex-start",
     },
     heroLabel: {
       color: tokens.mutedForeground,
@@ -447,7 +456,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     heroAmount: {
       fontSize: 22,
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
     },
     heroHint: {
@@ -456,7 +465,7 @@ const createStyles = (tokens: ThemeTokens) =>
       fontSize: 12,
     },
     summaryRow: {
-      flexDirection: 'row',
+      flexDirection: "row",
       marginHorizontal: -6,
       marginBottom: 16,
     },
@@ -475,7 +484,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     summaryValue: {
       fontSize: 20,
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
     },
     summaryHint: {
@@ -491,14 +500,14 @@ const createStyles = (tokens: ThemeTokens) =>
       marginBottom: 16,
     },
     sectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       marginBottom: 14,
     },
     sectionTitle: {
       fontSize: 16,
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
     },
     sectionHint: {
@@ -507,10 +516,10 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     sectionLink: {
       color: tokens.primary,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     sectionActions: {
-      flexDirection: 'row',
+      flexDirection: "row",
     },
     iconButtonSmallSpacer: {
       marginLeft: 8,
@@ -521,12 +530,12 @@ const createStyles = (tokens: ThemeTokens) =>
       borderRadius: 16,
       borderWidth: 1,
       borderColor: tokens.border,
-      alignItems: 'center',
-      justifyContent: 'center',
+      alignItems: "center",
+      justifyContent: "center",
       backgroundColor: tokens.background,
     },
     contactRow: {
-      flexDirection: 'row',
+      flexDirection: "row",
       marginHorizontal: -6,
       marginBottom: 10,
     },
@@ -545,18 +554,18 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     contactValue: {
       color: tokens.foreground,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     addressRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
     },
     addressText: {
       marginLeft: 6,
     },
     timelineRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       marginBottom: 16,
     },
     timelineDot: {
@@ -570,7 +579,7 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
     },
     timelineLabel: {
-      fontWeight: '600',
+      fontWeight: "600",
       color: tokens.foreground,
     },
     timelineMeta: {
@@ -580,18 +589,18 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     timelineAmount: {
       color: tokens.foreground,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     creditRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       paddingVertical: 10,
       borderBottomWidth: 1,
       borderBottomColor: tokens.border,
     },
     creditInvoice: {
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
     },
     creditMeta: {
@@ -599,14 +608,14 @@ const createStyles = (tokens: ThemeTokens) =>
       marginTop: 4,
     },
     creditActions: {
-      alignItems: 'flex-end',
+      alignItems: "flex-end",
     },
     creditAmount: {
-      fontWeight: '700',
+      fontWeight: "700",
     },
     creditActionLink: {
       color: tokens.primary,
-      fontWeight: '600',
+      fontWeight: "600",
       marginTop: 4,
     },
     destructiveText: {
@@ -616,28 +625,28 @@ const createStyles = (tokens: ThemeTokens) =>
       color: tokens.accent,
     },
     invoiceRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
       paddingVertical: 12,
       borderBottomWidth: 1,
       borderBottomColor: tokens.border,
     },
     invoiceLabel: {
       color: tokens.foreground,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     invoiceMeta: {
       color: tokens.mutedForeground,
       marginTop: 4,
     },
     invoiceAmount: {
-      textAlign: 'right',
+      textAlign: "right",
       color: tokens.foreground,
-      fontWeight: '700',
+      fontWeight: "700",
     },
     invoiceStatus: {
-      textAlign: 'right',
+      textAlign: "right",
       color: tokens.mutedForeground,
       fontSize: 12,
       marginTop: 4,
