@@ -80,7 +80,7 @@ Only after both pass, mark `[x]` and ask for review.
 
 ### Global / Batch Refactoring
 - [x] **Task 14** (Audit 9.3): Replace `useNavigation<any>()` with typed `useNavigation<NativeStackNavigationProp<XxxParamList>>()` across all screens. (Perform in batches of 5-6 screens). locked-by: codex-session | 2026-04-14 21:43:08 +05:30
-- [ ] **Task 15** (Audit 9.4): Replace `useRoute<any>()` with typed `useRoute<RouteProp<XxxParamList, 'ScreenName'>>()` across all screens.
+- [x] **Task 15** (Audit 9.4): Replace `useRoute<any>()` with typed `useRoute<RouteProp<XxxParamList, 'ScreenName'>>()` across all screens. locked-by: codex-session | 2026-04-14 22:14:08 +05:30
 
 ### `src/screens/Products/StockSummaryScreen.tsx`
 - [x] **Task 50** (Audit): Address dead handlers in the UI. Wire up the "Show stock as on Date" Switch (`onValueChange`), the Filter pill (`onPress`), and the Header Export buttons so they trigger functional flows instead of empty functions or placeholders.

@@ -9,6 +9,8 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -19,12 +21,14 @@ import { useAddCreditTransaction } from '../../hooks/useCredit';
 import ClientSelectionSheet from '../../components/modals/ClientSelectionSheet';
 import { Party } from '../../types/domain';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const AddCreditTransactionSheet: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation();
-  const route = useRoute<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
+  const route =
+    useRoute<RouteProp<AppNavigationParamList, 'AddCreditTransactionSheet'>>();
 
   // Pre-fill party if passed from Ledger screen
   const prefilledParty = route.params?.party;

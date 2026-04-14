@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -30,7 +30,7 @@ const BillingScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
-  const route = useRoute<any>();
+  const route = useRoute<RouteProp<AppNavigationParamList, 'AddSale'>>();
   const createPurchase = useCreatePurchase();
   const createInvoice = useCreateOrder();
 

@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
+import type { NavigationProp, RouteProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -34,7 +34,7 @@ import type { AppNavigationParamList } from '../../navigation/types';
 const PartyLedgerScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const route = useRoute<any>();
+  const route = useRoute<RouteProp<AppNavigationParamList, 'PartyLedgerScreen'>>();
   const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   // Params passed from list
