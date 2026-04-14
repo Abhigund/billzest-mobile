@@ -11,6 +11,14 @@
   on the same line before doing any code work.
 - Before picking a task, if `[/]` is present, check the timestamp.
   If under 30 min, skip it. If over 30 min, it is stale — you may claim it.
+- Before marking a task `[x]`, run in order:
+1. `npx tsc --noEmit` — fix any type errors first
+2. `npx expo lint` — fix all lint warnings/errors
+- When committing, stage ONLY files directly modified by the current task.
+  Do not stage unrelated files even if they show as modified in git status.
+  Commit message format: `task(N): <one line description of what was done>`
+  Example: `task(5): extract useInvoiceFlow hook from AddSaleScreen`
+Only after both pass, mark `[x]` and ask for review.
 *Note: The tasks are strictly ordered by Priority (Critical -> High -> Medium -> Low), and then grouped by file to minimize context switching. If a High priority task has dependencies on a lower priority task (e.g., calling an SQL RPC that must be created first), take care of the dependency first if possible.*
 
 ---
@@ -29,7 +37,7 @@
 - [x] **Task 5** (Audit 10.1): Create new file. Extract `validateInvoice()`, `handleGenerateBill()`, `handleBack()`, `handleScan()`, and all mutation hook calls (`useCreateOrder`, `useUpdateOrderStatus`, `useCreatePurchase`) from AddSaleScreen into a custom hook that returns `{ validate, submitInvoice, handleBack, handleScan, isSubmitting }`.
 - [x] **Task 57** (Audit 1.1): `src/screens/Customers/CustomerFormScreen.tsx` implement edit mode using the `customerId` route param, prefill existing customer fields, and call `updateClient` when editing instead of always creating a new party.
 - [x] **Task 58** (Audit 1.2): `src/screens/Customers/CustomersListScreen.tsx` fix navigation to pass only `customerId` into `CustomerDetail`, not the full customer object, and align list/detail routing with typed params.
-- [/] **Task 59** (Audit 1.3): `src/screens/Customers/CustomerDetailScreen.tsx` fetch the customer by `customerId` from route params, replace placeholder `handleRecordPayment` and empty header button handlers with real payment/navigation behavior, and add actionable edit/delete controls.
+- [x] **Task 59** (Audit 1.3): `src/screens/Customers/CustomerDetailScreen.tsx` fetch the customer by `customerId` from route params, replace placeholder `handleRecordPayment` and empty header button handlers with real payment/navigation behavior, and add actionable edit/delete controls.
 
 ### `src/screens/Products/ProductDetailScreen.tsx`
 - [x] **Task 46** (Audit): Replace hardcoded `DS` hex color object (`green: '#006e2d'`, `surface: '#f8f9fa'`) with exact `tokens.*` mappings from `useThemeTokens()`.
@@ -74,7 +82,7 @@
 - [x] **Task 50** (Audit): Address dead handlers in the UI. Wire up the "Show stock as on Date" Switch (`onValueChange`), the Filter pill (`onPress`), and the Header Export buttons so they trigger functional flows instead of empty functions or placeholders.
 
 ### `src/navigation/` & Routing Refactoring
-- [ ] **Task 51** (Audit): Eliminate `useNavigation<any>()` instances strictly in `ProductFormScreen.tsx`, `ProductDetailScreen.tsx`, `ProductsListScreen.tsx`, `StockSummaryScreen.tsx`, `CategoriesListScreen.tsx`, and `useRoute<any>()` in `CategoryFormSheet.tsx` using precise `NativeStackNavigationProp`.
+- [x] **Task 51** (Audit): Eliminate `useNavigation<any>()` instances strictly in `ProductFormScreen.tsx`, `ProductDetailScreen.tsx`, `ProductsListScreen.tsx`, `StockSummaryScreen.tsx`, `CategoriesListScreen.tsx`, and `useRoute<any>()` in `CategoryFormSheet.tsx` using precise `NativeStackNavigationProp`.
 
 ### `src/components/modals/ProductOptionsSheet.tsx`
 - [ ] **Task 52** (Audit): Remove or functionally replace the dead "Units" and "Categories" placeholder alerts so the UI reflects shipping-readiness.
@@ -85,7 +93,7 @@
 - [ ] **Task 64** (Audit 2.5): `src/offline/syncEngine.ts` add `credit_transaction` processing support to `processQueue` so manual payment/credit mutations can sync when connectivity returns.
 
 ### `src/screens/Invoices/InvoicesListScreen.tsx`
-- [ ] **Task 72** (Audit Invoices): Modify `FlatList` rendering. Implement `onEndReached` handling to fetch invoices incrementally within `useOrders` or bounded queries instead of exhaustive fetching.
+- [/] **Task 72** (Audit Invoices): Modify `FlatList` rendering. Implement `onEndReached` handling to fetch invoices incrementally within `useOrders` or bounded queries instead of exhaustive fetching. locked-by: codex-session | 2026-04-14 21:07:06 +05:30
 
 ### `src/navigation/` & Routing Refactoring
 - [ ] **Task 73** (Audit Invoices): Replace `useNavigation<any>()` and `useRoute<any>()` instances with explicit `<NativeStackNavigationProp>` generics inside `InvoicesListScreen.tsx`, `InvoiceDetailScreen.tsx`, and `AddSaleScreen.tsx`.
