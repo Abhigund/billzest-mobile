@@ -11,7 +11,7 @@
   on the same line before doing any code work.
 - Before picking a task, if `[/]` is present, check the timestamp.
   If under 30 min, skip it. If over 30 min, it is stale — you may claim it.
-- If any task is pending then avoid picking any task related to it which might cause conflict between two agents.
+  - If any task is pending then avoid picking any task related to it which might cause conflict between two agents.
 - Before marking a task `[x]`, run in order:
 1. `npx tsc --noEmit` — fix any type errors first
 2. `npx expo lint` — fix all lint warnings/errors
@@ -49,8 +49,8 @@ Only after both pass, mark `[x]` and ask for review.
 - [x] **Task 49** (Audit): Wire up a true "Delete Item" interface calling the `deleteProduct` mutation (which correctly sets `deleted_at`), bridging the gap where only a superficial "Archive" button exists.
 
 ### `src/supabase/ordersService.ts` (Invoices)
-- [/] **Task 68** (Audit Invoices): Modify `createOrder` (L234–L247). Intercept the offline state, generate a temporary UUID, attach it to the `mutation_queue` with a pending flag, and resolve the mock order instead of throwing an error to the UI. locked-by: codex-session | 2026-04-14 21:28:02 +05:30
-- [/] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption. locked-by: antigravity-session | 2026-04-14 21:33:40 +05:30
+- [x] **Task 68** (Audit Invoices): Modify `createOrder` (L234–L247). Intercept the offline state, generate a temporary UUID, attach it to the `mutation_queue` with a pending flag, and resolve the mock order instead of throwing an error to the UI. locked-by: codex-session | 2026-04-14 21:28:02 +05:30
+- [ ] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption.
 - [ ] **Task 70** (Audit Invoices): Modify `createOrder`. Inject a call to `partyBalanceService` to create a `credit_transactions` entry representing the unpaid portion of the new invoice for the customer's ledger.
 
 ---
