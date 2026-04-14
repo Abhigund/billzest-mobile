@@ -94,7 +94,7 @@
 - [ ] **Task 25** (Audit 8.8): Add `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` to all stepper buttons (L215, L240).
 
 ### `src/utils/formatting.ts`
-- [ ] **Task 26** (Audit 7.1): Create file with `formatCurrency(val: number): string` and `getInitials(name: string): string` extracted from `AddSaleScreen`.
+- [x] **Task 26** (Audit 7.1): Create file with `formatCurrency(val: number): string` and `getInitials(name: string): string` extracted from `AddSaleScreen`.
 
 ### `src/screens/Invoices/InvoicesListScreen.tsx`
 - [ ] **Task 27** (Audit 7.4): If `formatCurrency` is defined locally, replace with import from `utils/formatting`.
