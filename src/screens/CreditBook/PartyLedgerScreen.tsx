@@ -21,8 +21,6 @@ import {
   FileText,
   ArrowDownLeft,
   ArrowUpRight,
-  Search,
-  Plus,
   Receipt,
   CreditCard,
 } from 'lucide-react-native';
@@ -88,10 +86,6 @@ const PartyLedgerScreen: React.FC = () => {
         text,
       )}`,
     ).catch(() => Alert.alert('Error', 'WhatsApp not installed'));
-  };
-
-  const handleAddTransaction = () => {
-    navigation.navigate('AddCreditTransactionSheet', { party });
   };
 
   return (
@@ -237,12 +231,6 @@ const PartyLedgerScreen: React.FC = () => {
                     </TouchableOpacity>
                   </>
                 )}
-                <TouchableOpacity
-                  style={styles.iconButton}
-                  onPress={() => Alert.alert('Info', 'Generate PDF Report')}
-                >
-                  <FileText color={tokens.primary} size={20} />
-                </TouchableOpacity>
               </View>
             </View>
 
@@ -251,11 +239,6 @@ const PartyLedgerScreen: React.FC = () => {
               <Text style={styles.sectionTitle}>
                 Transactions ({ledger?.transactions.length || 0})
               </Text>
-              <TouchableOpacity
-                onPress={() => Alert.alert('Info', 'Search transactions')}
-              >
-                <Search size={20} color={tokens.mutedForeground} />
-              </TouchableOpacity>
             </View>
 
             {!ledger || ledger.transactions.length === 0 ? (

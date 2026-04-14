@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9fa",
+                        "outline-variant": "#bccbb9",
+                        "on-background": "#191c1d",
+                        "on-error": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "surface-dim": "#d9dadb",
+                        "primary-fixed": "#72fe8f",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#a8353e",
+                        "background": "#f8f9fa",
+                        "secondary-fixed-dim": "#cfc4c4",
+                        "on-secondary-fixed-variant": "#4c4545",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#f3f4f5",
+                        "on-primary-fixed": "#002108",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "on-surface-variant": "#3d4a3d",
+                        "on-primary-fixed-variant": "#005320",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#edeeef",
+                        "on-tertiary-fixed": "#400009",
+                        "tertiary-fixed": "#ffdad9",
+                        "on-tertiary-fixed-variant": "#881d28",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-container": "#ff767b",
+                        "secondary-fixed": "#ebe0df",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#730a1b",
+                        "secondary-container": "#e8dddd",
+                        "error-container": "#ffdad6",
+                        "secondary": "#645d5c",
+                        "on-primary-container": "#004118",
+                        "inverse-primary": "#53e076",
+                        "surface": "#f8f9fa",
+                        "surface-tint": "#006e2d",
+                        "primary": "#006e2d",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-container": "#696161",
+                        "inverse-on-surface": "#f0f1f2",
+                        "primary-container": "#1db954",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "primary-fixed-dim": "#53e076",
+                        "outline": "#6d7b6c",
+                        "on-secondary-fixed": "#201a1a",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e7e8e9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope", "sans-serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface overflow-hidden h-screen w-screen flex flex-col">
+<!-- Header Navigation -->
+<header class="bg-[#edeeef] dark:bg-[#201a1a] transition-colors flex items-center justify-between px-6 py-4 w-full z-10">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#1DB954]">menu</span>
+<h1 class="text-xl font-bold tracking-tight text-[#201a1a] dark:text-[#ffffff]">Parties</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<span class="material-symbols-outlined text-[#1DB954]">filter_list</span>
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</div>
+</header>
+<!-- Main Content Canvas (Dimmed) -->
+<main class="flex-1 overflow-y-auto px-6 pt-4 pb-24 relative">
+<!-- Background Overlay for Modal State -->
+<div class="absolute inset-0 bg-on-background/40 z-20"></div>
+<!-- Party List Content (Behind Overlay) -->
+<div class="space-y-1">
+<div class="p-4 bg-surface-container-lowest rounded-xl flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold">AS</div>
+<div>
+<p class="font-semibold text-on-surface">Acme Solutions</p>
+<p class="text-xs text-on-surface-variant">+91 98765 43210</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase tracking-tighter text-on-surface-variant font-bold">To Collect</p>
+<p class="text-primary font-bold">₹12,450.00</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center text-tertiary font-bold">BT</div>
+<div>
+<p class="font-semibold text-on-surface">Blueberry Traders</p>
+<p class="text-xs text-on-surface-variant">+91 98221 00445</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase tracking-tighter text-on-surface-variant font-bold">To Pay</p>
+<p class="text-tertiary font-bold">₹3,200.00</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl flex items-center justify-between mb-2 border-l-4 border-primary">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center text-primary-container font-bold">GC</div>
+<div>
+<p class="font-semibold text-on-surface">Global Corp</p>
+<p class="text-xs text-on-surface-variant">+91 91100 22334</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase tracking-tighter text-on-surface-variant font-bold">To Collect</p>
+<p class="text-primary font-bold">₹45,000.00</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-lowest rounded-xl flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-on-surface-variant/10 flex items-center justify-center text-on-surface-variant font-bold">NK</div>
+<div>
+<p class="font-semibold text-on-surface">Nova Kitchens</p>
+<p class="text-xs text-on-surface-variant">+91 88776 55443</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-xs uppercase tracking-tighter text-on-surface-variant font-bold">Overdue</p>
+<p class="text-error font-bold">₹8,900.00</p>
+</div>
+</div>
+</div>
+<!-- FAB (Behind Overlay) -->
+<button class="fixed bottom-24 right-6 w-14 h-14 bg-gradient-to-br from-primary to-primary-container text-white rounded-2xl shadow-xl flex items-center justify-center scale-102 transition-transform">
+<span class="material-symbols-outlined">add</span>
+</button>
+</main>
+<!-- Bottom Sheet Container -->
+<div class="fixed inset-0 flex items-end justify-center z-50 pointer-events-none">
+<div class="w-full bg-surface-container-lowest rounded-t-[20px] shadow-[0px_-12px_32px_rgba(25,28,29,0.15)] flex flex-col pointer-events-auto max-h-[751px]">
+<!-- Grab Handle -->
+<div class="w-full flex justify-center py-3">
+<div class="w-10 h-1.5 bg-outline-variant/30 rounded-full"></div>
+</div>
+<!-- Sheet Header -->
+<div class="px-6 pb-4 flex items-center justify-between">
+<h2 class="text-xl font-bold text-on-surface">Filter Parties</h2>
+<button class="text-primary font-semibold text-sm px-2 py-1 hover:bg-primary/5 rounded-lg">Clear</button>
+</div>
+<!-- Sheet Content -->
+<div class="px-6 py-4 space-y-8 overflow-y-auto">
+<!-- Section 1: Balance Type -->
+<section>
+<h3 class="text-[0.6875rem] uppercase tracking-wider font-bold text-secondary mb-4">BALANCE TYPE</h3>
+<div class="flex flex-wrap gap-3">
+<button class="px-5 py-2.5 rounded-full bg-primary text-white font-semibold text-sm transition-all shadow-md shadow-primary/20">
+                            To Collect
+                        </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">
+                            To Pay
+                        </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant font-semibold text-sm hover:bg-surface-container-highest transition-all">
+                            Overdue
+                        </button>
+</div>
+</section>
+<!-- Section 2: Party Groups -->
+<section>
+<h3 class="text-[0.6875rem] uppercase tracking-wider font-bold text-secondary mb-4">PARTY GROUPS</h3>
+<div class="space-y-2">
+<label class="flex items-center justify-between p-4 bg-surface-container-low rounded-xl cursor-pointer">
+<span class="font-medium text-on-surface">General</span>
+<div class="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-sm" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+</label>
+<label class="flex items-center justify-between p-4 bg-surface-container-low/50 rounded-xl cursor-pointer border border-transparent hover:border-outline-variant/20">
+<span class="font-medium text-on-surface">Others</span>
+<div class="w-6 h-6 rounded-md border-2 border-outline-variant"></div>
+</label>
+</div>
+</section>
+</div>
+<!-- Sheet Footer -->
+<div class="p-6 flex items-center gap-4 bg-surface-container-lowest border-t border-outline-variant/10">
+<button class="flex-1 py-4 text-primary font-bold hover:bg-surface-container transition-colors rounded-xl">
+                    Cancel
+                </button>
+<button class="flex-1 py-4 bg-gradient-to-r from-primary to-primary-container text-white font-bold rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all">
+                    Apply Filters
+                </button>
+</div>
+<!-- Bottom Safe Area -->
+<div class="h-6 w-full"></div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-3 pb-safe bg-[#ffffff] dark:bg-[#191c1d] border-t border-[#bccbb9]/15 shadow-[0px_-12px_32px_rgba(25,28,29,0.06)] z-[60]">
+<div class="flex flex-col items-center justify-center text-[#1DB954] dark:text-[#1DB954] bg-[#f3f4f5] dark:bg-[#2a2a2a] rounded-xl px-4 py-2 scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] label-sm font-semibold uppercase tracking-wider text-[10px] mt-1">Parties</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3d] dark:text-[#bccbb9] px-4 py-2 hover:text-[#006e2d] transition-colors scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Manrope'] label-sm font-semibold uppercase tracking-wider text-[10px] mt-1">Invoices</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3d] dark:text-[#bccbb9] px-4 py-2 hover:text-[#006e2d] transition-colors scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-['Manrope'] label-sm font-semibold uppercase tracking-wider text-[10px] mt-1">Reports</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#3d4a3d] dark:text-[#bccbb9] px-4 py-2 hover:text-[#006e2d] transition-colors scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Manrope'] label-sm font-semibold uppercase tracking-wider text-[10px] mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

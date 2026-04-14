@@ -1,8 +1,9 @@
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, DrawerActions } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import DashboardScreen from "../screens/Dashboard/DashboardScreen";
 import ProductsListScreen from "../screens/Products/ProductsListScreen";
 import ProductDetailScreen from "../screens/Products/ProductDetailScreen";
@@ -36,11 +37,18 @@ import SettingsScreen from "../screens/Settings/SettingsScreen";
 import BusinessInfoScreen from "../screens/Settings/BusinessInfoScreen";
 import OnlineStoreConfigScreen from "../screens/Settings/OnlineStoreConfigScreen";
 import BillConfigScreen from "../screens/Settings/BillingTemplatesScreen";
-import { View, ActivityIndicator } from "react-native";
+import BillingScreen from "../screens/Billing/BillingScreen";
+import { View, ActivityIndicator, Pressable } from "react-native";
 import { centeredScreenStyles } from "../theme/layout";
 import { DefaultTheme, DarkTheme } from "@react-navigation/native";
 import { useThemeTokens } from "../theme/ThemeProvider";
-import { LayoutDashboard, Package, Users, FileText } from "lucide-react-native";
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  FileText,
+  Menu,
+} from "lucide-react-native";
 import { useSupabase } from "../contexts/SupabaseContext";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import CustomDrawer from "./CustomDrawer";
@@ -292,44 +300,78 @@ const CreditBookStack = () => (
   </CreditBookStackNav.Navigator>
 );
 
-const MainTabs = () => (
-  <Tab.Navigator screenOptions={{ headerShown: false }}>
-    <Tab.Screen
-      name="DashboardTab"
-      component={DashboardTabStack}
-      options={{
-        title: "Dashboard",
-        tabBarIcon: ({ color, size }) => (
-          <LayoutDashboard color={color} size={size} />
+const MainTabs = () => {
+  const { tokens } = useThemeTokens();
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ navigation }) => ({
+        headerShown: true,
+        headerStyle: { backgroundColor: tokens.background },
+        headerTitleStyle: { color: tokens.foreground, fontWeight: "700" },
+        headerTintColor: tokens.foreground,
+        headerShadowVisible: false,
+        headerLeft: () => (
+          <Pressable
+            onPress={() =>
+              navigation.getParent()?.dispatch(DrawerActions.openDrawer())
+            }
+            accessibilityLabel="Open sidebar menu"
+            style={{ paddingHorizontal: 12, paddingVertical: 6 }}
+          >
+            <Menu color={tokens.foreground} size={22} />
+          </Pressable>
         ),
-      }}
-    />
-    <Tab.Screen
-      name="ProductsTab"
-      component={ProductsTabStack}
-      options={{
-        title: "Products",
-        tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
-      }}
-    />
-    <Tab.Screen
-      name="CustomersTab"
-      component={CustomersTabStack}
-      options={{
-        title: "Customers",
-        tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
-      }}
-    />
-    <Tab.Screen
-      name="InvoicesTab"
-      component={InvoicesTabStack}
-      options={{
-        title: "Invoices",
-        tabBarIcon: ({ color, size }) => <FileText color={color} size={size} />,
-      }}
-    />
-  </Tab.Navigator>
-);
+        tabBarHideOnKeyboard: true,
+        sceneStyle: { paddingBottom: 8 },
+        tabBarStyle: {
+          height: 56 + Math.max(insets.bottom, 8),
+          paddingTop: 8,
+          paddingBottom: Math.max(insets.bottom, 8),
+          backgroundColor: tokens.background,
+          borderTopColor: tokens.border,
+        },
+      })}
+    >
+      <Tab.Screen
+        name="DashboardTab"
+        component={DashboardTabStack}
+        options={{
+          title: "Dashboard",
+          tabBarIcon: ({ color, size }) => (
+            <LayoutDashboard color={color} size={size} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="ProductsTab"
+        component={ProductsTabStack}
+        options={{
+          title: "Products",
+          tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="CustomersTab"
+        component={CustomersTabStack}
+        options={{
+          title: "Parties",
+        headerShown: false,
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="InvoicesTab"
+        component={InvoicesTabStack}
+        options={{
+          title: "Invoices",
+          tabBarIcon: ({ color, size }) => <FileText color={color} size={size} />,
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
 
 const AppDrawerNavigator = () => {
   const { tokens } = useThemeTokens();
@@ -348,7 +390,7 @@ const AppDrawerNavigator = () => {
       <Drawer.Screen
         name="Home"
         component={MainTabs}
-        options={{ title: "Home" }}
+        options={{ title: "Home", headerShown: false }}
       />
       <Drawer.Screen
         name="Purchases"
@@ -451,6 +493,11 @@ const SettingsStackNavigator = () => (
       name="BillingTemplates"
       component={BillConfigScreen}
       options={{ title: "Billing Settings" }}
+    />
+    <SettingsStack.Screen
+      name="BillingScreen"
+      component={BillingScreen}
+      options={{ headerShown: false, presentation: "fullScreenModal" }}
     />
   </SettingsStack.Navigator>
 );

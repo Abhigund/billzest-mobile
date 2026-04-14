@@ -16,6 +16,7 @@ type QuickLinksCardProps = {
   title?: string;
   showAllLabel?: string;
   onShowAll?: () => void;
+  maxVisibleItems?: number;
 };
 
 const QuickLinksCard: React.FC<QuickLinksCardProps> = ({
@@ -23,20 +24,44 @@ const QuickLinksCard: React.FC<QuickLinksCardProps> = ({
   title = 'Quick Links',
   showAllLabel = 'Show All',
   onShowAll,
+  maxVisibleItems,
 }) => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const [isExpanded, setExpanded] = React.useState(false);
+
+  const cappedCount =
+    typeof maxVisibleItems === 'number' && maxVisibleItems > 0
+      ? maxVisibleItems
+      : undefined;
+  const hiddenCount = cappedCount ? Math.max(items.length - cappedCount, 0) : 0;
+  const visibleItems =
+    cappedCount && !isExpanded ? items.slice(0, cappedCount) : items;
+  const showOverflowLink = hiddenCount > 0 && !isExpanded;
+  const showHeaderLink = Boolean(onShowAll) || showOverflowLink;
+
+  const handleShowAll = () => {
+    if (onShowAll) {
+      onShowAll();
+      return;
+    }
+    setExpanded(true);
+  };
 
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <Pressable onPress={onShowAll}>
-          <Text style={styles.link}>{showAllLabel}</Text>
-        </Pressable>
+        {showHeaderLink ? (
+          <Pressable onPress={handleShowAll}>
+            <Text style={styles.link}>
+              {showOverflowLink ? `${showAllLabel} (${hiddenCount})` : showAllLabel}
+            </Text>
+          </Pressable>
+        ) : null}
       </View>
       <View style={styles.grid}>
-        {items.map(item => (
+        {visibleItems.map(item => (
           <Pressable key={item.id} style={styles.item} onPress={item.onPress}>
             <View style={styles.iconContainer}>{item.icon}</View>
             <Text style={styles.itemLabel}>{item.label}</Text>

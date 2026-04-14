@@ -75,6 +75,8 @@ const ProductCard = React.memo(
     const isSelected = qty > 0;
     const isOutOfStock = (product.stock_quantity ?? 0) <= 0;
 
+    const hitSlop = { top: 10, bottom: 10, left: 10, right: 10 };
+
     return (
       <View
         style={[
@@ -131,6 +133,8 @@ const ProductCard = React.memo(
             style={styles.stepperBtn}
             onPress={onDecrement}
             disabled={isOutOfStock}
+            accessibilityLabel={`Decrease quantity for ${product.name}`}
+            hitSlop={hitSlop}
           >
             <Minus
               size={16}
@@ -150,6 +154,8 @@ const ProductCard = React.memo(
             style={styles.stepperBtn}
             onPress={onIncrement}
             disabled={isOutOfStock}
+            accessibilityLabel={`Increase quantity for ${product.name}`}
+            hitSlop={hitSlop}
           >
             <Plus
               size={16}
@@ -178,6 +184,7 @@ const SimplifiedPOSScreen: React.FC = () => {
   const { organizationId } = useOrganization();
 
   const [query, setQuery] = useState('');
+  const hitSlop = { top: 10, bottom: 10, left: 10, right: 10 };
   const [isPartySheetVisible, setPartySheetVisible] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Party | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -333,7 +340,12 @@ const SimplifiedPOSScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea}>
       {/* ── Top App Bar ──────────────────────────────────────────────────── */}
       <View style={styles.header}>
-        <Pressable onPress={handleBack} style={styles.backBtn}>
+        <Pressable
+          onPress={handleBack}
+          style={styles.backBtn}
+          accessibilityLabel="Back to invoices"
+          hitSlop={hitSlop}
+        >
           <ArrowLeft size={24} color={tokens.primary} strokeWidth={2.5} />
         </Pressable>
 
@@ -348,12 +360,20 @@ const SimplifiedPOSScreen: React.FC = () => {
             onChangeText={setQuery}
             returnKeyType="search"
           />
-          <Pressable onPress={() => {}}>
+          <Pressable
+            onPress={() => {}}
+            accessibilityLabel="Scan product barcode"
+            hitSlop={hitSlop}
+          >
             <ScanLine size={20} color={tokens.primary} />
           </Pressable>
         </View>
 
-        <Pressable style={styles.micBtn}>
+        <Pressable
+          style={styles.micBtn}
+          accessibilityLabel="Voice search"
+          hitSlop={hitSlop}
+        >
           <Mic size={20} color={tokens.foreground} />
         </Pressable>
       </View>

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   ScrollView,
   FlatList,
@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Pressable,
   Alert,
-  Share,
   RefreshControl,
   ActivityIndicator,
 } from 'react-native';
@@ -16,7 +15,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import InvoiceCard from '../../components/InvoiceCard';
-import QuickLinksCard from '../../components/QuickLinksCard';
 import SearchBar from '../../components/SearchBar';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import FAB from '../../components/ui/FAB';
@@ -28,17 +26,12 @@ import InvoiceFilterSheet, {
   InvoiceFilters,
 } from '../../components/modals/InvoiceFilterSheet';
 import { useAppSettingsStore } from '../../stores/appSettingsStore';
+import { useScreenContentPadding } from '../../components/layout/ScreenContent';
 import {
-  FilePlus,
-  Share2,
-  Banknote,
-  MoreHorizontal,
-  Filter,
   ArrowUpDown,
-  Eye,
-  CreditCard,
   Plus,
   FileText,
+  BarChart3,
 } from 'lucide-react-native';
 import type { InvoicesStackParamList } from '../../navigation/types';
 
@@ -48,6 +41,10 @@ const INVOICES_PAGE_SIZE = 20;
 const InvoicesListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const contentContainerStyle = useScreenContentPadding({
+    top: 'none',
+    bottom: 120,
+  });
   const navigation = useNavigation<NativeStackNavigationProp<InvoicesStackParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(STATUS_FILTERS[0]);
@@ -134,34 +131,6 @@ const InvoicesListScreen: React.FC = () => {
         },
       });
     },
-    [navigation, invoices],
-  );
-
-  const handleQuickLinkPress = useCallback(
-    (id: string) => {
-      switch (id) {
-        case 'create':
-          if (simplifiedPOSEnabled) {
-            navigation.navigate('SimplifiedPOS' as any);
-          } else {
-            navigation.navigate('AddSale' as any, { initialMode: 'sale' });
-          }
-          break;
-        case 'share':
-          // Share functionality should be called from individual invoice cards
-          Alert.alert('Info', 'Select an invoice to share it.');
-          break;
-        case 'collect':
-          // Payment collection should be called from individual invoice cards
-          Alert.alert('Info', 'Select an invoice to collect payment.');
-          break;
-        case 'more':
-          Alert.alert('Show All', 'Showing all invoices.');
-          break;
-        default:
-          break;
-      }
-    },
     [navigation],
   );
 
@@ -189,7 +158,7 @@ const InvoicesListScreen: React.FC = () => {
     <ScreenWrapper>
       <FlatList
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={contentContainerStyle}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -202,6 +171,18 @@ const InvoicesListScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <>
+            <View style={styles.headerRow}>
+              <Text style={styles.headerTitle}>Invoices</Text>
+              <Pressable
+                style={styles.headerAction}
+                onPress={() => navigation.navigate('Reports')}
+                accessibilityLabel="Open reports"
+              >
+                <BarChart3 color={tokens.primary} size={18} />
+                <Text style={styles.headerActionText}>Reports</Text>
+              </Pressable>
+            </View>
+
             <View style={styles.summaryRow}>
               {kpis.map(card => (
                 <View key={card.id} style={styles.summaryCard}>
@@ -210,50 +191,6 @@ const InvoicesListScreen: React.FC = () => {
                 </View>
               ))}
             </View>
-
-            <View style={styles.heroCard}>
-              <View style={styles.heroContent}>
-                <Text style={styles.heroTitle}>View Reports</Text>
-                <Text style={styles.heroSubtitle}>
-                  Send branded invoices, collect payments, and reconcile faster.
-                </Text>
-              </View>
-              <Pressable
-                style={styles.heroButton}
-                onPress={() => navigation.navigate('Reports')}
-              >
-                <Text style={styles.heroButtonText}>See Reports</Text>
-              </Pressable>
-            </View>
-
-            <QuickLinksCard
-              items={[
-                {
-                  id: 'create',
-                  label: 'Create Invoice',
-                  icon: <FilePlus color={tokens.primary} size={24} />,
-                  onPress: () => handleQuickLinkPress('create'),
-                },
-                {
-                  id: 'share',
-                  label: 'Share PDF',
-                  icon: <Share2 color={tokens.primary} size={24} />,
-                  onPress: () => handleQuickLinkPress('share'),
-                },
-                {
-                  id: 'collect',
-                  label: 'Collect Payment',
-                  icon: <Banknote color={tokens.primary} size={24} />,
-                  onPress: () => handleQuickLinkPress('collect'),
-                },
-                {
-                  id: 'more',
-                  label: 'Show All',
-                  icon: <MoreHorizontal color={tokens.primary} size={24} />,
-                  onPress: () => handleQuickLinkPress('more'),
-                },
-              ]}
-            />
 
             <SearchBar
               value={searchTerm}
@@ -313,14 +250,14 @@ const InvoicesListScreen: React.FC = () => {
             />
           ) : invoices.length === 0 ? (
             <EmptyState
-              icon={<FilePlus color={tokens.primary} size={28} />}
+              icon={<Plus color={tokens.primary} size={28} />}
               title="No invoices yet"
               description="Create your first invoice to see it here."
               actionLabel="New Invoice"
               onAction={() =>
                 simplifiedPOSEnabled
-                  ? navigation.navigate('SimplifiedPOS' as any)
-                  : navigation.navigate('AddSale' as any, { initialMode: 'sale' })
+                  ? navigation.navigate('SimplifiedPOS')
+                  : navigation.navigate('AddSale', { initialMode: 'sale' })
               }
             />
           ) : null
@@ -372,8 +309,8 @@ const InvoicesListScreen: React.FC = () => {
         icon={<Plus color="#fff" size={24} />}
         onPress={() =>
           simplifiedPOSEnabled
-            ? navigation.navigate('SimplifiedPOS' as any)
-            : navigation.navigate('AddSale' as any, { initialMode: 'sale' })
+            ? navigation.navigate('SimplifiedPOS')
+            : navigation.navigate('AddSale', { initialMode: 'sale' })
         }
         accessibilityLabel="Create new invoice"
       />
@@ -386,14 +323,40 @@ const createStyles = (tokens: ThemeTokens) =>
     container: {
       flex: 1,
     },
-    content: {
-      padding: 20,
-      paddingBottom: 120,
-    },
     summaryRow: {
       flexDirection: 'row',
       marginHorizontal: -6,
       marginBottom: 18,
+    },
+    headerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 14,
+    },
+    headerTitle: {
+      color: tokens.foreground,
+      fontWeight: '700',
+      fontSize: 20,
+    },
+    headerAction: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderRadius: 999,
+      backgroundColor: tokens.card,
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    headerActionText: {
+      color: tokens.primary,
+      fontWeight: '600',
+      fontSize: 13,
     },
     summaryCard: {
       flex: 1,
@@ -416,44 +379,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '700',
       fontSize: 18,
     },
-    heroCard: {
-      backgroundColor: tokens.card,
-      borderRadius: 20,
-      padding: 18,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 18,
-      shadowColor: tokens.shadowColor,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.05,
-      shadowRadius: 4,
-      elevation: 2,
-    },
-    heroContent: {
-      flex: 1,
-      paddingRight: 12,
-    },
-    heroTitle: {
-      color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 16,
-    },
-    heroSubtitle: {
-      color: tokens.mutedForeground,
-      marginTop: 6,
-    },
-    heroButton: {
-      backgroundColor: tokens.primary,
-      borderRadius: 999,
-      paddingHorizontal: 16,
-      paddingVertical: 10,
-    },
-    heroButtonText: {
-      color: tokens.primaryForeground,
-      fontWeight: '600',
-    },
-
     searchRow: {
       flexDirection: 'row',
       alignItems: 'center',

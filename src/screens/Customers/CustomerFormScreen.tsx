@@ -1,53 +1,56 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
   ScrollView,
-  TextInput,
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Switch,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import {
   ChevronLeft,
-  Building2,
-  User,
-  Phone,
+  MoreVertical,
+  CheckCircle2,
+  X,
   Wallet,
-  Tag,
-  Check,
+  MapPin,
+  Info,
 } from 'lucide-react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
-import DetailHeader from '../../components/DetailHeader';
 import { useClientMutations } from '../../logic/partyLogic';
 import { partiesService } from '../../supabase/partiesService';
 import { useOrganization } from '../../contexts/OrganizationContext';
 import { Party } from '../../types/domain';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CustomersStackParamList } from '../../navigation/types';
+import TonalInput from '../../components/ui/TonalInput';
 
 type PartyFormState = {
   businessName: string;
-  contactPerson: string;
   phone: string;
-  type: 'customer' | 'vendor'; // Added type toggle logic
+  email: string;
+  gstin: string;
+  openingBalance: string;
+  balanceType: 'RECEIVABLE' | 'PAYABLE';
+  creditLimit: string;
+  isCreditEnabled: boolean;
+  address: string;
+  type: 'customer' | 'vendor';
 };
 
-type CustomerFormRoute = RouteProp<
-  CustomersStackParamList,
-  'CustomerForm'
->;
+type CustomerFormRoute = RouteProp<CustomersStackParamList, 'CustomerForm'>;
 
 const CustomerFormScreen = () => {
   const { tokens } = useThemeTokens();
-  const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation =
-    useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
+  const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const navigation = useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
   const route = useRoute<CustomerFormRoute>();
   const { createClient, updateClient } = useClientMutations();
   const { organizationId } = useOrganization();
@@ -58,52 +61,18 @@ const CustomerFormScreen = () => {
   const [isLoadingCustomer, setIsLoadingCustomer] = useState(isEditMode);
   const [formState, setFormState] = useState<PartyFormState>({
     businessName: '',
-    contactPerson: '',
     phone: '',
+    email: '',
+    gstin: '',
+    openingBalance: '',
+    balanceType: 'RECEIVABLE',
+    creditLimit: '',
+    isCreditEnabled: false,
+    address: '',
     type: 'customer',
   });
 
-  const handleChange = (field: keyof PartyFormState, value: string) => {
-    setFormState(prev => ({ ...prev, [field]: value }));
-  };
-
-  const validateForm = (): {
-    isValid: boolean;
-    errors: Record<string, string>;
-  } => {
-    const errors: Record<string, string> = {};
-
-    // Business name validation
-    if (!formState.businessName.trim()) {
-      errors.businessName = 'Business name is required';
-    } else if (formState.businessName.trim().length < 2) {
-      errors.businessName = 'Business name must be at least 2 characters';
-    }
-
-    // Phone validation
-    const phoneDigits = formState.phone.replace(/\D/g, '');
-    if (!formState.phone.trim()) {
-      errors.phone = 'Phone number is required';
-    } else if (phoneDigits.length !== 10) {
-      errors.phone = 'Phone number must be exactly 10 digits';
-    } else if (!/^[6-9]\d{9}$/.test(phoneDigits)) {
-      errors.phone = 'Please enter a valid Indian mobile number';
-    }
-
-    // Contact person validation (optional but if provided, should be valid)
-    if (
-      formState.contactPerson.trim() &&
-      formState.contactPerson.trim().length < 2
-    ) {
-      errors.contactPerson =
-        'Contact person name must be at least 2 characters';
-    }
-
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-    };
-  };
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -119,23 +88,27 @@ const CustomerFormScreen = () => {
         if (!isMounted) return;
 
         if (!customer) {
-          Alert.alert('Not found', 'Customer record could not be loaded.');
+          Alert.alert('Not found', 'Party record could not be loaded.');
           navigation.goBack();
           return;
         }
 
-        setFormState(prev => ({
-          ...prev,
+        const balance = customer.balance ?? 0;
+        setFormState({
           businessName: customer.name ?? '',
-          contactPerson: '',
           phone: customer.mobile ?? customer.phone ?? '',
+          email: customer.email ?? '',
+          gstin: customer.gst_number ?? '',
+          openingBalance: Math.abs(balance).toString(),
+          balanceType: balance >= 0 ? 'RECEIVABLE' : 'PAYABLE',
+          creditLimit: (customer.credit_limit ?? '').toString(),
+          isCreditEnabled: customer.credit_limit_enabled ?? false,
+          address: customer.address ?? '',
           type: customer.type === 'vendor' ? 'vendor' : 'customer',
-        }));
+        });
       } catch (error) {
         if (!isMounted) return;
-        const message =
-          error instanceof Error ? error.message : 'Unable to load customer.';
-        Alert.alert('Load failed', message);
+        Alert.alert('Load failed', 'Unable to load party details.');
         navigation.goBack();
       } finally {
         if (isMounted) setIsLoadingCustomer(false);
@@ -143,354 +116,457 @@ const CustomerFormScreen = () => {
     };
 
     loadCustomer();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [customerId, navigation]);
 
-  const handleSave = async () => {
-    if (
-      isSubmitting ||
-      isLoadingCustomer ||
-      createClient.isPending ||
-      updateClient.isPending
-    ) {
-      return;
+  const handleChange = (field: keyof PartyFormState, value: any) => {
+    setFormState(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[field];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formState.businessName.trim()) newErrors.businessName = 'Name is required';
+    if (!formState.phone.trim()) newErrors.phone = 'Phone is required';
+    else if (formState.phone.replace(/\D/g, '').length !== 10) {
+      newErrors.phone = 'Enter a valid 10-digit number';
     }
 
-    const validation = validateForm();
-    if (!validation.isValid) {
-      const firstError = Object.values(validation.errors)[0];
-      Alert.alert('Validation Error', firstError);
-      return;
-    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSave = async () => {
+    if (isSubmitting || isLoadingCustomer) return;
+
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     const phoneNormalized = formState.phone.replace(/\D/g, '').trim();
 
     try {
-      // Check for duplicate in parties
-      const existing = await partiesService.findPartyByPhone(
-        organizationId!,
-        phoneNormalized,
-      );
-      if (existing && existing.id !== customerId) {
-        Alert.alert(
-          'Duplicate party',
-          'A party with this phone already exists.',
-        );
-        return;
+      if (!isEditMode) {
+        const existing = await partiesService.findPartyByPhone(organizationId!, phoneNormalized);
+        if (existing) {
+          Alert.alert('Duplicate Party', 'A party with this phone already exists.');
+          setIsSubmitting(false);
+          return;
+        }
       }
 
-      // Insert into parties
-      const payload: Omit<
-        Party,
-        'id' | 'created_at' | 'updated_at' | 'user_id' | 'balance'
-      > = {
-        organization_id: organizationId!,
-        type: formState.type,
+      const balanceValue = parseFloat(formState.openingBalance) || 0;
+      const finalBalance = formState.balanceType === 'RECEIVABLE' ? balanceValue : -balanceValue;
+
+      const payload: Partial<Party> = {
         name: formState.businessName.trim(),
-        party_type: formState.type,
         mobile: phoneNormalized,
-        phone: phoneNormalized, // Keeping explicit phone field for compatibility
-        email: null,
-        address: null,
-        notes: null,
+        phone: phoneNormalized,
+        email: formState.email.trim() || null,
+        gst_number: formState.gstin.trim() || null,
+        balance: finalBalance,
+        credit_limit: parseFloat(formState.creditLimit) || 0,
+        credit_limit_enabled: formState.isCreditEnabled,
+        address: formState.address.trim() || null,
+        type: formState.type,
       };
 
       if (isEditMode && customerId) {
-        await updateClient.mutateAsync({
-          id: customerId,
-          updates: payload,
-        });
+        await updateClient.mutateAsync({ id: customerId, updates: payload });
       } else {
-        await createClient.mutateAsync(payload as any); // Using mutateAsync from hook
+        await createClient.mutateAsync({ ...payload, organization_id: organizationId! } as any);
       }
 
-      Alert.alert('Success', `Party ${isEditMode ? 'updated' : 'created'} successfully`, [
-        {
-          text: 'OK',
-          onPress: () => {
-            navigation.goBack();
-          },
-        },
-      ]);
+      navigation.goBack();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Unable to save party.';
-      Alert.alert('Save failed', message);
+      Alert.alert('Save failed', 'Unable to save party.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const headerTitle = isEditMode
-    ? `Edit ${formState.type === 'customer' ? 'Customer' : 'Supplier'}`
-    : `New ${formState.type === 'customer' ? 'Customer' : 'Supplier'}`;
-
   return (
     <ScreenWrapper>
-      <DetailHeader
-        title={headerTitle}
-        actions={[
-          {
-            icon: <Check size={18} color={tokens.foreground} />,
-            onPress: handleSave,
-            accessibilityLabel: 'Save',
-          },
-        ]}
-      />
-      <View style={styles.container}>
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined} 
-          style={{ flex: 1 }}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerBtn}>
+          <ChevronLeft color={tokens.foreground} size={24} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{isEditMode ? 'Edit Party' : 'Add Party'}</Text>
+        <TouchableOpacity style={styles.headerBtn}>
+          <MoreVertical color={tokens.foreground} size={20} />
+        </TouchableOpacity>
+      </View>
+
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
+      >
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView style={styles.content}>
-          {/* Party Type Toggle */}
-          <View style={styles.toggleContainer}>
-            <Pressable
-              style={[
-                styles.toggleBtn,
-                formState.type === 'customer' && styles.toggleBtnActive,
-              ]}
-              onPress={() =>
-                setFormState(prev => ({ ...prev, type: 'customer' }))
-              }
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  formState.type === 'customer' && styles.toggleTextActive,
-                ]}
-              >
-                Customer
-              </Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.toggleBtn,
-                formState.type === 'vendor' && styles.toggleBtnActive,
-              ]}
-              onPress={() =>
-                setFormState(prev => ({ ...prev, type: 'vendor' }))
-              }
-            >
-              <Text
-                style={[
-                  styles.toggleText,
-                  formState.type === 'vendor' && styles.toggleTextActive,
-                ]}
-              >
-                Vendor / Supplier
-              </Text>
-            </Pressable>
-          </View>
-
-          {/* Form Fields - Matches AddSaleScreen card style */}
-          <View style={styles.sectionCard}>
-            <View style={styles.inputRow}>
-              <Building2 color={tokens.primary} size={18} />
-              <View style={styles.copyBlock}>
-                <Text style={styles.inputLabel}>Business / Store Name</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formState.businessName}
-                  onChangeText={value => handleChange('businessName', value)}
-                  placeholder="e.g. Rahul Traders"
-                  placeholderTextColor={tokens.mutedForeground}
-                />
+          {/* Basic Info Section */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>BASIC INFO</Text>
+                <View style={[styles.sectionIndicator, { backgroundColor: tokens.primary }]} />
               </View>
+              <Info size={14} color={tokens.mutedForeground} />
             </View>
-            <View style={styles.divider} />
 
-            <View style={styles.inputRow}>
-              <User color={tokens.primary} size={18} />
-              <View style={styles.copyBlock}>
-                <Text style={styles.inputLabel}>Contact Person (Optional)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formState.contactPerson}
-                  onChangeText={value => handleChange('contactPerson', value)}
-                  placeholder="e.g. Rahul Kumar"
-                  placeholderTextColor={tokens.mutedForeground}
-                />
-              </View>
-            </View>
-            <View style={styles.divider} />
+            <TonalInput
+              label="Party Name *"
+              placeholder="Enter party name"
+              value={formState.businessName}
+              onChangeText={val => handleChange('businessName', val)}
+              error={errors.businessName}
+            />
 
-            <View style={styles.inputRow}>
-              <Phone color={tokens.primary} size={18} />
-              <View style={styles.copyBlock}>
-                <Text style={styles.inputLabel}>Phone Number</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={formState.phone}
-                  onChangeText={value => handleChange('phone', value)}
-                  placeholder="00000 00000"
-                  placeholderTextColor={tokens.mutedForeground}
-                  keyboardType="number-pad"
-                  maxLength={10}
-                />
-              </View>
-            </View>
-          </View>
+            <TonalInput
+              label="Phone *"
+              placeholder="Mobile number"
+              prefix="+91"
+              keyboardType="number-pad"
+              maxLength={10}
+              value={formState.phone}
+              onChangeText={val => handleChange('phone', val)}
+              error={errors.phone}
+            />
 
-          {/* Additional Details */}
-          <View style={styles.fieldRow}>
-            <View style={styles.fieldCard}>
-              <Wallet color={tokens.primary} size={18} />
-              <Text style={styles.fieldLabel}>Opening Balance</Text>
-              <TextInput
-                style={styles.fieldValueInput}
-                placeholder="₹0"
-                placeholderTextColor={tokens.mutedForeground}
-                keyboardType="numeric"
+            <View style={styles.row}>
+              <TonalInput
+                label="Email"
+                placeholder="Optional"
+                keyboardType="email-address"
+                value={formState.email}
+                onChangeText={val => handleChange('email', val)}
+                containerStyle={{ flex: 1, marginRight: 8 }}
+              />
+              <TonalInput
+                label="GSTIN"
+                placeholder="22AAAAA0000A1Z5"
+                autoCapitalize="characters"
+                value={formState.gstin}
+                onChangeText={val => handleChange('gstin', val)}
+                containerStyle={{ flex: 1 }}
               />
             </View>
-            <View style={styles.fieldCard}>
-              <Tag color={tokens.primary} size={18} />
-              <Text style={styles.fieldLabel}>Group</Text>
-              <Text style={styles.fieldValue}>
-                {formState.type === 'customer' ? 'Retail' : 'Wholesale'}
-              </Text>
-            </View>
           </View>
 
-          {/* Preferences */}
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionHeader}>Preferences</Text>
-            <View style={styles.rowBetween}>
-              <Text style={styles.prefLabel}>Send payment reminders</Text>
-              <Check size={18} color={tokens.primary} />
+          {/* Financial Setup Section */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>FINANCIAL SETUP</Text>
+                <Wallet size={14} color={tokens.primary} style={{ marginLeft: 8 }} />
+              </View>
             </View>
+
+            <View style={styles.balanceContainer}>
+              <Text style={styles.inputLabel}>Opening Balance</Text>
+              <View style={styles.balanceInputRow}>
+                <TonalInput
+                  label=""
+                  placeholder="₹ 0.00"
+                  keyboardType="numeric"
+                  value={formState.openingBalance}
+                  onChangeText={val => handleChange('openingBalance', val)}
+                  containerStyle={{ flex: 1, marginBottom: 0 }}
+                  inputStyle={styles.hugeInput}
+                />
+                <View style={styles.toggleGroup}>
+                  <TouchableOpacity
+                    style={[
+                      styles.toggleBtn,
+                      formState.balanceType === 'RECEIVABLE' && styles.toggleBtnActive,
+                    ]}
+                    onPress={() => handleChange('balanceType', 'RECEIVABLE')}
+                  >
+                    <Text
+                      style={[
+                        styles.toggleBtnText,
+                        formState.balanceType === 'RECEIVABLE' && styles.toggleBtnTextActive,
+                      ]}
+                    >
+                      YOU&apos;LL GET
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[
+                      styles.toggleBtn,
+                      formState.balanceType === 'PAYABLE' && [styles.toggleBtnActive, { backgroundColor: tokens.destructive }],
+                    ]}
+                    onPress={() => handleChange('balanceType', 'PAYABLE')}
+                  >
+                    <Text
+                      style={[
+                        styles.toggleBtnText,
+                        formState.balanceType === 'PAYABLE' && styles.toggleBtnTextActive,
+                      ]}
+                    >
+                      YOU&apos;LL GIVE
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.switchRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.switchLabel}>Enable Credit Limit</Text>
+                <Text style={styles.switchSublabel}>Control exposure for this party</Text>
+              </View>
+              <Switch
+                value={formState.isCreditEnabled}
+                onValueChange={val => handleChange('isCreditEnabled', val)}
+                trackColor={{ false: tokens.muted, true: tokens.primary }}
+              />
+            </View>
+
+            {formState.isCreditEnabled && (
+              <TonalInput
+                label="Credit Limit Amount"
+                placeholder="Set limit"
+                keyboardType="numeric"
+                value={formState.creditLimit}
+                onChangeText={val => handleChange('creditLimit', val)}
+              />
+            )}
           </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </View>
+
+          {/* Location Section */}
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <View style={styles.sectionTitleRow}>
+                <Text style={styles.sectionTitle}>LOCATION & LOGISTICS</Text>
+                <MapPin size={14} color={tokens.primary} style={{ marginLeft: 8 }} />
+              </View>
+            </View>
+
+            <TonalInput
+              label="Billing Address"
+              placeholder="Street name, building, area..."
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              inputStyle={{ minHeight: 80 }}
+              value={formState.address}
+              onChangeText={val => handleChange('address', val)}
+            />
+          </View>
+          
+          <View style={{ height: 100 }} />
+        </ScrollView>
+
+        <View style={styles.actionBar}>
+          <TouchableOpacity 
+            style={styles.discardBtn} 
+            onPress={() => navigation.goBack()}
+          >
+            <X size={20} color={tokens.mutedForeground} />
+            <Text style={styles.discardBtnText}>DISCARD</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.saveBtn, isSubmitting && { opacity: 0.7 }]} 
+            onPress={handleSave}
+            disabled={isSubmitting}
+          >
+            <CheckCircle2 size={20} color="#fff" />
+            <Text style={styles.saveBtnText}>SAVE PARTY</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
     </ScreenWrapper>
   );
 };
 
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
-    container: {
-      flex: 1,
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
       backgroundColor: tokens.background,
+    },
+    headerBtn: {
+      padding: 8,
+    },
+    headerTitle: {
+      fontSize: 18,
+      fontWeight: '700',
+      color: tokens.foreground,
     },
     content: {
       flex: 1,
+    },
+    scrollContent: {
       padding: 16,
     },
-    toggleContainer: {
-      flexDirection: 'row',
-      backgroundColor: tokens.card,
-      padding: 4,
-      borderRadius: 12,
-      marginBottom: 16,
-      borderWidth: 1,
-      borderColor: tokens.border,
-    },
-    toggleBtn: {
-      flex: 1,
-      paddingVertical: 10,
-      alignItems: 'center',
-      borderRadius: 8,
-    },
-    toggleBtnActive: {
-      backgroundColor: tokens.background,
-      // elevation: 1
-      borderWidth: 1,
-      borderColor: tokens.border,
-    },
-    toggleText: {
-      color: tokens.mutedForeground,
-      fontWeight: '600',
-    },
-    toggleTextActive: {
-      color: tokens.foreground,
-      fontWeight: '700',
-    },
-    sectionCard: {
-      backgroundColor: tokens.card,
-      borderRadius: 16,
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      marginBottom: 16,
-      borderWidth: 1,
-      borderColor: tokens.border,
-    },
-    inputRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 10,
-    },
-    copyBlock: {
-      flex: 1,
-      marginLeft: 12,
-    },
-    inputLabel: {
-      fontSize: 12,
-      color: tokens.mutedForeground,
-      marginBottom: 4,
-    },
-    textInput: {
-      fontSize: 15,
-      fontWeight: '600',
-      color: tokens.foreground,
-      padding: 0,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: tokens.border,
-    },
-    fieldRow: {
-      flexDirection: 'row',
-      marginBottom: 16,
-    },
-    fieldCard: {
-      flex: 1,
-      marginRight: 12,
-      borderRadius: 14,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      backgroundColor: tokens.card,
+    section: {
+      backgroundColor: tokens.surface_container_lowest,
+      borderRadius: 24,
       padding: 12,
-    },
-    fieldLabel: {
-      color: tokens.mutedForeground,
-      marginTop: 8,
-      fontSize: 12,
-    },
-    fieldValue: {
-      color: tokens.foreground,
-      fontWeight: '700',
-      marginTop: 6,
-      fontSize: 16,
-    },
-    fieldValueInput: {
-      color: tokens.foreground,
-      fontWeight: '700',
-      marginTop: 2,
-      fontSize: 16,
-      padding: 0,
+      marginBottom: 12,
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.03,
+      shadowRadius: 12,
+      elevation: 2,
     },
     sectionHeader: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: tokens.mutedForeground,
-      marginBottom: 12,
-      marginTop: 4,
-    },
-    rowBetween: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 8,
+      justifyContent: 'space-between',
+      marginBottom: 12,
     },
-    prefLabel: {
+    sectionTitleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    sectionTitle: {
+      fontSize: 10,
+      fontWeight: '800',
+      color: tokens.secondary,
+      letterSpacing: 1.5,
+    },
+    sectionIndicator: {
+      height: 4,
+      width: 48,
+      borderRadius: 2,
+      marginLeft: 12,
+    },
+    row: {
+      flexDirection: 'row',
+    },
+    inputLabel: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: tokens.mutedForeground,
+      marginBottom: 4,
+      marginLeft: 4,
+    },
+    balanceContainer: {
+      marginBottom: 14,
+    },
+    balanceInputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: tokens.secondary,
+      borderRadius: 20,
+      padding: 6,
+    },
+    hugeInput: {
+      fontSize: 20,
+      fontWeight: '800',
+      paddingVertical: 8,
+    },
+    toggleGroup: {
+      flexDirection: 'row',
+      backgroundColor: tokens.background,
+      borderRadius: 14,
+      padding: 4,
+      borderWidth: 1,
+      borderColor: tokens.secondary,
+    },
+    toggleBtn: {
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 10,
+    },
+    toggleBtnActive: {
+      backgroundColor: tokens.primary,
+      shadowColor: tokens.primary,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.2,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    toggleBtnText: {
+      fontSize: 9,
+      fontWeight: '800',
+      color: tokens.mutedForeground,
+    },
+    toggleBtnTextActive: {
+      color: '#fff',
+    },
+    switchRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 4,
+      marginBottom: 4,
+    },
+    switchLabel: {
+      fontSize: 14,
+      fontWeight: '700',
       color: tokens.foreground,
-      fontSize: 15,
+    },
+    switchSublabel: {
+      fontSize: 10,
+      fontWeight: '500',
+      color: tokens.mutedForeground,
+      marginTop: 2,
+    },
+    actionBar: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 24,
+      paddingVertical: 20,
+      paddingBottom: Platform.OS === 'ios' ? 40 : 24,
+      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+      borderTopWidth: 1,
+      borderTopColor: 'rgba(188, 203, 185, 0.15)',
+    },
+    discardBtn: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 12,
+    },
+    discardBtnText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: tokens.mutedForeground,
+      marginLeft: 8,
+      letterSpacing: 1,
+    },
+    saveBtn: {
+      flex: 1.5,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: tokens.primary,
+      borderRadius: 14,
+      paddingVertical: 14,
+      marginLeft: 12,
+      shadowColor: tokens.primary,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.2,
+      shadowRadius: 16,
+      elevation: 6,
+    },
+    saveBtnText: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: '#fff',
+      marginLeft: 8,
+      letterSpacing: 1,
     },
   });
 

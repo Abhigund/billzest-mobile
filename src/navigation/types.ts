@@ -44,6 +44,7 @@ export type InvoicesStackParamList = {
   };
   CustomerForm: { customerId?: string };
   AddPartySheet: { type?: 'customer' | 'supplier' };
+  Reports: undefined;
 };
 
 export type PurchaseStackParamList = {
@@ -75,6 +76,7 @@ export type SettingsStackParamList = {
   BusinessInfo: undefined;
   OnlineStoreConfig: undefined;
   BillingTemplates: undefined;
+  BillingScreen: undefined;
 };
 
 export type AuthStackParamList = {
@@ -154,5 +156,6 @@ export type AppNavigationParamList = {
   BusinessInfo: undefined;
   OnlineStoreConfig: undefined;
   BillingTemplates: undefined;
+  BillingScreen: undefined;
   Login: undefined;
 };

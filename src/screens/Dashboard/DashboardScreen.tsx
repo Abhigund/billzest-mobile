@@ -41,10 +41,15 @@ import RecentActivityList, {
   CashSummary,
 } from "../../components/dashboard/RecentActivityList";
 import type { AppNavigationParamList } from "../../navigation/types";
+import { useScreenContentPadding } from "../../components/layout/ScreenContent";
 
 const DashboardScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const contentContainerStyle = useScreenContentPadding({
+    top: "compact",
+    bottom: 100,
+  });
   const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const { user } = useSupabase();
 
@@ -54,6 +59,7 @@ const DashboardScreen: React.FC = () => {
     "Today" | "Week" | "Month" | "Year"
   >("Today");
   const [refreshing, setRefreshing] = useState(false);
+  const [insightsExpanded, setInsightsExpanded] = useState(false);
   const [rotateAnim] = useState(new Animated.Value(0));
 
   // Logic
@@ -264,7 +270,7 @@ const DashboardScreen: React.FC = () => {
       <View style={styles.screen}>
         <ScrollView
           style={styles.container}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={contentContainerStyle}
           showsVerticalScrollIndicator={false}
         >
           <DashboardSkeleton />
@@ -278,7 +284,7 @@ const DashboardScreen: React.FC = () => {
       <View style={styles.screen}>
         <ScrollView
           style={styles.container}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={contentContainerStyle}
           showsVerticalScrollIndicator={false}
         >
           <EmptyState
@@ -300,7 +306,7 @@ const DashboardScreen: React.FC = () => {
       <View style={styles.screen}>
         <ScrollView
           style={styles.container}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={contentContainerStyle}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -332,7 +338,7 @@ const DashboardScreen: React.FC = () => {
     <View style={styles.screen}>
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={contentContainerStyle}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -425,33 +431,37 @@ const DashboardScreen: React.FC = () => {
               icon: <Scan color={tokens.primary} size={24} />,
               onPress: () => handleQuickLinkPress("scan-item"),
             },
-            {
-              id: "test-login",
-              label: "Test Mobile Login",
-              icon: <UserPlus color={tokens.primary} size={24} />,
-              onPress: () => navigation.navigate("MobileLogin"),
-            },
           ]}
         />
 
-        {/* Business Insights */}
-        <Text style={styles.sectionTitle}>Business Insights</Text>
-        <BusinessInsightsCards
-          inventoryValue={kpis?.inventoryValue ?? 0}
-          totalExpenses={kpis?.totalExpenses ?? 0}
-          isLoading={isLoading && !refreshing}
-        />
-
-        {/* Purchase Report */}
-        <View style={styles.purchaseReportContainer}>
-          <PurchaseReportCard
-            totalPurchases={kpis?.totalPurchases ?? 0}
-            isLoading={isLoading && !refreshing}
-          />
-        </View>
-
         {/* Recent Activity */}
         <RecentActivityList activities={recentActivities} />
+
+        {/* Expandable Insights */}
+        <Pressable
+          style={styles.expandableSectionHeader}
+          onPress={() => setInsightsExpanded(prev => !prev)}
+          accessibilityLabel="Toggle business insights section"
+        >
+          <Text style={styles.sectionTitle}>
+            {insightsExpanded ? "Hide Insights" : "Show Insights"}
+          </Text>
+        </Pressable>
+        {insightsExpanded ? (
+          <>
+            <BusinessInsightsCards
+              inventoryValue={kpis?.inventoryValue ?? 0}
+              totalExpenses={kpis?.totalExpenses ?? 0}
+              isLoading={isLoading && !refreshing}
+            />
+            <View style={styles.purchaseReportContainer}>
+              <PurchaseReportCard
+                totalPurchases={kpis?.totalPurchases ?? 0}
+                isLoading={isLoading && !refreshing}
+              />
+            </View>
+          </>
+        ) : null}
 
         <View style={styles.footerSpacer} />
 
@@ -481,11 +491,6 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     container: {
       flex: 1,
-    },
-    content: {
-      padding: 20,
-      paddingTop: 10,
-      paddingBottom: 100,
     },
     header: {
       marginBottom: 20,
@@ -547,6 +552,9 @@ const createStyles = (tokens: ThemeTokens) =>
       fontSize: 18,
       marginTop: 24, // Added to space out sections
       marginBottom: 16,
+    },
+    expandableSectionHeader: {
+      marginTop: 8,
     },
     footerSpacer: {
       height: 30,

@@ -35,7 +35,7 @@ import BillToCard from "./components/BillToCard";
 import InvoiceTotalsCard from "./components/InvoiceTotalsCard";
 import InvoiceBottomBar from "./components/InvoiceBottomBar";
 import { formatCurrency } from "../../utils/formatting";
-import { ArrowLeft, Settings, Search, ScanLine } from "lucide-react-native";
+import { ArrowLeft, MoreVertical, Search, ScanLine } from "lucide-react-native";
 import type { InvoicesStackParamList } from "../../navigation/types";
 
 type Mode = "sale" | "purchase";
@@ -140,7 +140,7 @@ const AddSaleScreen = () => {
   const [isItemSheetVisible, setItemSheetVisible] = useState(false);
   const [isScannerVisible, setScannerVisible] = useState(false);
 
-  const openAddItems = () => navigation.navigate("AddItems");
+  const openAddItems = () => setItemSheetVisible(true);
   // New Stitch UI state
   const [isPartySheetVisible, setPartySheetVisible] = useState(false);
   const [isAdjustmentsSheetVisible, setAdjustmentsSheetVisible] =
@@ -200,6 +200,31 @@ const AddSaleScreen = () => {
       existingInvoice,
     });
 
+  const handleDiscardInvoice = () => {
+    Alert.alert(
+      "Discard Invoice?",
+      "This will remove all selected items and unsaved changes.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Discard",
+          style: "destructive",
+          onPress: () => {
+            resetInvoice();
+            navigation.goBack();
+          },
+        },
+      ],
+    );
+  };
+
+  const handleAppBarAction = () => {
+    Alert.alert("More Options", "Choose an action", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Discard Invoice", style: "destructive", onPress: handleDiscardInvoice },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView
@@ -218,8 +243,8 @@ const AddSaleScreen = () => {
                 ? "Create Invoice"
                 : "Create Purchase"}
           </Text>
-          <Pressable onPress={() => resetInvoice()} style={styles.appBarAction}>
-            <Settings
+          <Pressable onPress={handleAppBarAction} style={styles.appBarAction}>
+            <MoreVertical
               size={22}
               color={tokens.mutedForeground}
               strokeWidth={2}
@@ -260,7 +285,7 @@ const AddSaleScreen = () => {
           />
 
           {/* 4. Search Bar */}
-          <Pressable style={styles.searchBar} onPress={() => openAddItems()}>
+          <Pressable style={styles.searchBar} onPress={openAddItems}>
             <Search size={18} color={tokens.mutedForeground} />
             <TextInput
               style={styles.searchInput}

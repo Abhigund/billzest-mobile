@@ -176,3 +176,43 @@ Only after both pass, mark `[x]` and ask for review.
 - [ ] **Task 43** (Stitch UI - Party Selector): Integrate **"Select Party (Green)"** design into the `BillToCard` and the party selection list. Apply deep green `primary` tokens and Manrope typography for the customer names and balances.
 - [ ] **Task 44** (Stitch UI - Adjustments): Integrate **"Edit Adjustments Bottom Sheet"** design into the invoice adjustments modal. Use functional glassmorphism, ambient shadows for the floating sheet, and soft `on_surface_variant` labels.
 - [ ] **Task 45** (Stitch UI - CTAs): Integrate **"Updated Invoice Summary Buttons"** into the `InvoiceBottomBar` component. Build the sticky HUD footer with `surface_container_lowest` at 80% opacity and backdrop-blur, utilizing the refined green primary/secondary button specs.
+
+---
+
+## 🟥 High Priority
+
+### `src/screens/Invoices/AddSaleScreen.tsx`
+- [x] **Task 78** (Audit UX 3.1): Update `openAddItems` and search-row handlers (L143, L263–L276) to open the existing `ItemSelectionSheet` inline (`setItemSheetVisible(true)`) instead of navigating to `AddItems`, so invoice creation stays on one screen. locked-by: codex-session | 2026-04-15 00:21:55 +05:30  
+- [x] **Task 79** (Audit UX 6.1): Replace the app-bar `Settings` reset action (L221) with a non-destructive overflow action and add a guarded "Discard Invoice" confirmation path to prevent accidental data loss. locked-by: codex-session | 2026-04-15 00:24:51 +05:30
+
+### `src/screens/Invoices/InvoicesListScreen.tsx`
+- [x] **Task 80** (Audit UX 1.1): Remove the "View Reports" hero card block (L210–L223) and shift report navigation into a compact header action to reduce above-the-fold clutter. locked-by: codex-session | 2026-04-15 00:26:42 +05:30
+
+## 🟧 Medium Priority
+
+### `src/screens/Invoices/InvoicesListScreen.tsx`
+- [x] **Task 81** (Audit UX 3.2): Replace alert-only quick links in `handleQuickLinkPress` (L146–L156) with direct actionable flows (`create`, `collect`) and remove dead quick-link IDs that do not complete tasks. locked-by: codex-session | 2026-04-15 00:30:32 +05:30
+
+### `src/screens/Dashboard/DashboardScreen.tsx`
+- [x] **Task 82** (Audit UX 1.2): Remove the `test-login` quick action item (L429–L433) from production quick links and keep dashboard shortcuts restricted to core retail actions. locked-by: codex-session | 2026-04-15 00:37:10 +05:30
+- [x] **Task 83** (Audit UX 2.1): Reduce initial dashboard cognitive load by collapsing "Business Insights" + "Purchase Report" into a single expandable section rendered below "Recent Activity". locked-by: codex-session | 2026-04-15 00:37:10 +05:30
+
+### `src/screens/Products/ProductsListScreen.tsx`
+- [x] **Task 84** (Audit UX 1.3): Remove placeholder quick-link actions (`online-store`, `all`) that currently show informational alerts (L260–L263, L281) and replace with functional destinations or hide them. locked-by: codex-session | 2026-04-15 00:37:10 +05:30
+
+### `src/screens/CreditBook/PartyLedgerScreen.tsx`
+- [x] **Task 85** (Audit UX 6.2): Replace placeholder alert actions for PDF/search (`Alert.alert('Info', ...)` at L242 and L255) with either real handlers or hide/disable those controls until implemented. locked-by: codex-session | 2026-04-15 00:37:10 +05:30
+
+## 🟨 Low Priority
+
+### `src/components/QuickLinksCard.tsx`
+- [x] **Task 86** (Audit UX 4.1): Add an optional `maxVisibleItems` prop and overflow handling so only top-priority actions are visible by default and excess actions move to a secondary menu. locked-by: codex-session | 2026-04-15 01:07:10 +05:30
+
+### `src/screens/Invoices/AddItemsScreen.tsx`
+- [x] **Task 87** (Audit UX 5.1): Add `accessibilityLabel` and `hitSlop` to back, clear-search, mic, and quantity stepper buttons (L116, L132, L137, L213, L238) to improve fat-finger reliability. locked-by: codex-session | 2026-04-15 01:07:10 +05:30
+
+### `src/screens/Invoices/SimplifiedPOSScreen.tsx`
+- [x] **Task 88** (Audit UX 5.2): Add `accessibilityLabel` and `hitSlop` to back, scan, mic, and stepper controls (L336, L351, L356, L130, L149) and ensure all icon-only actions meet minimum touch target size. locked-by: codex-session | 2026-04-15 01:07:10 +05:30
+
+### `src/screens/Billing/BillingScreen.tsx`
+- [x] **Task 89** (Audit UX 3.3): Move `BillingScreen` entrypoints behind an "Advanced Billing" affordance and remove it from primary quick flows to avoid duplicate billing paradigms in day-to-day cashier operation. locked-by: codex-session | 2026-04-15 01:07:10 +05:30

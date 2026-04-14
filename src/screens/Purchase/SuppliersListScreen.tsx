@@ -6,17 +6,18 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
-import CustomerCard, { Customer } from '../../components/CustomerCard';
+import PartyCard, { PartyModel, PartyStatus } from '../../components/PartyCard';
 import FAB from '../../components/ui/FAB';
-import { Linking, Share } from 'react-native';
+import { Linking } from 'react-native';
 import { useSuppliers } from '../../logic/partyLogic';
 import { useOrganization } from '../../contexts/OrganizationContext';
-import { Users, AlertTriangle, UserPlus } from 'lucide-react-native';
+import { Users, AlertTriangle, UserPlus, Menu, Search } from 'lucide-react-native';
 import EmptyState from '../../components/EmptyState';
 import SearchBar from '../../components/SearchBar';
 import type { PurchaseStackParamList } from '../../navigation/types';
@@ -37,23 +38,22 @@ const SuppliersListScreen = () => {
     refetch();
   }, [refetch]);
 
-  const normalizedSuppliers: Customer[] = useMemo(() => {
-    return suppliers.map(party => ({
-      id: party.id,
-      name: party.name ?? 'Untitled Vendor',
-      businessType: 'Supplier',
-      location: party.address ?? '—',
-      dueAmount: party.balance ?? 0, 
-      totalSale: 0,
-      lastInvoice: party.updated_at
-        ? new Date(party.updated_at).toLocaleDateString('en-IN', {
-            month: 'short',
-            day: '2-digit',
-          })
-        : '—',
-      status: (party.balance ?? 0) > 0 ? 'due' : 'clear',
-      phone: party.phone || party.mobile || 'N/A',
-    }));
+  const normalizedSuppliers: PartyModel[] = useMemo(() => {
+    return suppliers.map(party => {
+      const balance = party.balance ?? 0;
+      let status: PartyStatus = 'SETTLED';
+      if (balance > 0) status = 'RECEIVABLE'; // In context of vendor, positive usually means we owe them (payable), but logic depends on app-wide balance sign convention
+      if (balance < 0) status = 'PAYABLE';
+      
+      return {
+        id: party.id,
+        name: party.name ?? 'Untitled Vendor',
+        phone: party.phone || party.mobile || '—',
+        balance: balance,
+        status: balance < 0 ? 'PAYABLE' : (balance > 0 ? 'RECEIVABLE' : 'SETTLED'),
+        partyType: 'VENDOR',
+      };
+    });
   }, [suppliers]);
 
   const filteredSuppliers = useMemo(() => {
@@ -62,19 +62,20 @@ const SuppliersListScreen = () => {
     );
   }, [normalizedSuppliers, searchTerm]);
 
-  const handlePhonePress = useCallback((phone: string) => {
-    Linking.openURL(`tel:${phone}`);
-  }, []);
-
-  const handleMessagePress = useCallback((phone: string) => {
-    Linking.openURL(`sms:${phone}`);
-  }, []);
-
   return (
     <View style={styles.screen}>
+      <View style={styles.header}>
+          <TouchableOpacity style={styles.headerIcon}>
+              <Menu color={tokens.foreground} size={22} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Vendors</Text>
+          <View style={{ width: 40 }} />
+      </View>
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        stickyHeaderIndices={[0]}
         refreshControl={
           <RefreshControl
             refreshing={isRefetching}
@@ -86,7 +87,7 @@ const SuppliersListScreen = () => {
         <SearchBar
           value={searchTerm}
           onChangeText={setSearchTerm}
-          placeholder="Search suppliers..."
+          placeholder="Search vendors..."
         />
 
         <View style={styles.summaryRow}>
@@ -98,10 +99,15 @@ const SuppliersListScreen = () => {
             <Text style={styles.summaryLabel}>Total Payable</Text>
             <Text style={[styles.summaryValue, { color: tokens.destructive }]}>
               {formatMetricCurrency(
-                suppliers.reduce((acc, curr) => acc + (curr.balance ?? 0), 0)
+                suppliers.reduce((acc, curr) => acc + Math.abs(curr.balance ?? 0), 0)
               )}
             </Text>
           </View>
+        </View>
+
+        <View style={styles.listHeader}>
+            <Text style={styles.listHeaderLabel}>VENDOR DETAILS</Text>
+            <Text style={styles.listHeaderLabel}>CURRENT BALANCE</Text>
         </View>
 
         <View style={styles.listContainer}>
@@ -112,7 +118,7 @@ const SuppliersListScreen = () => {
           {!isLoading && error && (
             <EmptyState
               icon={<AlertTriangle color={tokens.destructive} size={32} />}
-              title="Unable to load suppliers"
+              title="Unable to load vendors"
               description="Check your connection and try again."
               actionLabel="Retry"
               onAction={refetch}
@@ -123,22 +129,19 @@ const SuppliersListScreen = () => {
             <EmptyState
               icon={<UserPlus color={tokens.primary} size={32} />}
               title="No vendors found"
-              description="You haven't added any vendors. Add one to track purchases."
+              description="Add your first vendor to track purchases."
               actionLabel="Add Vendor"
               onAction={() => navigation.navigate('PurchaseCreateVendor', {})}
             />
           )}
 
           {filteredSuppliers.map(supplier => (
-            <CustomerCard
+            <PartyCard
               key={supplier.id}
-              customer={supplier}
+              party={supplier}
               onPress={() => {
                 // Future Implementation for Supplier Detail
-                // navigation.navigate('SupplierDetail', { supplier }) 
               }}
-              onPhonePress={() => handlePhonePress(supplier.phone)}
-              onMessagePress={() => handleMessagePress(supplier.phone)}
             />
           ))}
         </View>
@@ -161,11 +164,30 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       backgroundColor: tokens.background,
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 16,
+        paddingTop: 12,
+        paddingBottom: 8,
+        backgroundColor: tokens.background,
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: tokens.foreground,
+    },
+    headerIcon: {
+        padding: 8,
+        marginLeft: -8,
+    },
     container: {
       flex: 1,
     },
     content: {
-      padding: 20,
+      paddingHorizontal: 16,
+      paddingTop: 8,
     },
     summaryRow: {
       flexDirection: 'row',
@@ -176,11 +198,15 @@ const createStyles = (tokens: ThemeTokens) =>
     summaryCard: {
       flex: 1,
       marginHorizontal: 6,
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 16,
       padding: 16,
-      borderWidth: 1,
-      borderColor: tokens.border,
+      // Using shadow instead of borders
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
     summaryLabel: {
       color: tokens.mutedForeground,
@@ -192,9 +218,27 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '700',
       fontSize: 18,
     },
+    listHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 16,
+        backgroundColor: tokens.muted,
+        marginHorizontal: -16,
+        marginBottom: 8,
+    },
+    listHeaderLabel: {
+        fontSize: 10,
+        fontWeight: '700',
+        color: tokens.mutedForeground,
+        letterSpacing: 0.5,
+    },
     listContainer: {
-      marginTop: 4,
+      backgroundColor: tokens.surface_container_lowest,
+      borderRadius: 16,
+      overflow: 'hidden',
     },
   });
 
 export default SuppliersListScreen;
+

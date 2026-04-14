@@ -66,6 +66,7 @@ const AddItemsScreen = () => {
     useInvoiceStore();
 
   const [query, setQuery] = useState("");
+  const hitSlop = { top: 10, bottom: 10, left: 10, right: 10 };
 
   const filtered = useMemo(() => {
     if (!query.trim()) return products;
@@ -113,7 +114,12 @@ const AddItemsScreen = () => {
       >
         {/* ── Top App Bar ────────────────────────────────────────────────────── */}
       <View style={styles.header}>
-        <Pressable onPress={handleDone} style={styles.backBtn}>
+        <Pressable
+          onPress={handleDone}
+          style={styles.backBtn}
+          accessibilityLabel="Back to invoice"
+          hitSlop={hitSlop}
+        >
           <ArrowLeft size={24} color={tokens.primary} strokeWidth={2.5} />
         </Pressable>
         {/* Search bar */}
@@ -129,12 +135,20 @@ const AddItemsScreen = () => {
             returnKeyType="search"
           />
           {query.length > 0 && (
-            <Pressable onPress={() => setQuery("")}>
+            <Pressable
+              onPress={() => setQuery("")}
+              accessibilityLabel="Clear search"
+              hitSlop={hitSlop}
+            >
               <X size={16} color={tokens.mutedForeground + "80"} />
             </Pressable>
           )}
         </View>
-        <Pressable style={styles.micBtn}>
+        <Pressable
+          style={styles.micBtn}
+          accessibilityLabel="Voice search"
+          hitSlop={hitSlop}
+        >
           <Mic size={20} color={tokens.foreground} />
         </Pressable>
       </View>
@@ -213,6 +227,8 @@ const AddItemsScreen = () => {
                 <Pressable
                   style={styles.stepperBtn}
                   onPress={() => decrement(product)}
+                  accessibilityLabel={`Decrease quantity for ${product.name}`}
+                  hitSlop={hitSlop}
                 >
                   <MinusCircle
                     size={24}
@@ -238,6 +254,8 @@ const AddItemsScreen = () => {
                 <Pressable
                   style={styles.stepperBtn}
                   onPress={() => increment(product)}
+                  accessibilityLabel={`Increase quantity for ${product.name}`}
+                  hitSlop={hitSlop}
                 >
                   <PlusCircle
                     size={24}

@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeTokens } from "../../theme/ThemeProvider";
 import { ThemeTokens } from "../../theme/tokens";
 import PartyCard, { PartyModel, PartyStatus } from "../../components/PartyCard";
@@ -29,6 +31,8 @@ import PartyFilterSheet, {
   PartyFilters,
 } from "../../components/modals/PartyFilterSheet";
 import { MoreVertical, Plus, Users, Menu } from "lucide-react-native";
+import { useScreenContentPadding } from "../../components/layout/ScreenContent";
+import ScreenWrapper from "../../components/ScreenWrapper";
 
 const formatMetricCurrency = (value: number): string =>
   `₹${value.toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
@@ -42,6 +46,13 @@ interface AugmentedParty extends Party {
 const CustomersListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
+  const contentContainerStyle = useScreenContentPadding({
+    horizontal: 16,
+    top: 8,
+    bottom: tabBarHeight + 40,
+  });
   const navigation =
     useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
   const [searchTerm, setSearchTerm] = useState("");
@@ -158,7 +169,8 @@ const CustomersListScreen: React.FC = () => {
   }, [searchTerm, filters, normalizedParties]);
 
   return (
-    <View style={styles.screen}>
+    <ScreenWrapper>
+      <View style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerIcon}>
           <Menu color={tokens.foreground} size={22} />
@@ -169,7 +181,7 @@ const CustomersListScreen: React.FC = () => {
 
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={contentContainerStyle}
         stickyHeaderIndices={[1]}
         refreshControl={
           <RefreshControl
@@ -238,6 +250,7 @@ const CustomersListScreen: React.FC = () => {
         label="Add New Party"
         icon={<Plus color="#fff" size={24} />}
         onPress={() => navigation.navigate("CustomerForm", {})}
+        style={{ bottom: tabBarHeight + Math.max(insets.bottom, 8) + 12 }}
       />
 
       <PartyFilterSheet
@@ -246,7 +259,8 @@ const CustomersListScreen: React.FC = () => {
         initialFilters={filters}
         onApply={setFilters}
       />
-    </View>
+      </View>
+    </ScreenWrapper>
   );
 };
 
@@ -276,11 +290,6 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     container: {
       flex: 1,
-    },
-    content: {
-      paddingHorizontal: 16,
-      paddingTop: 8,
-      paddingBottom: 120,
     },
     listHeader: {
       flexDirection: "row",

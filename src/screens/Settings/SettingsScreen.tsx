@@ -45,6 +45,7 @@ const SECTIONS = [
       { id: 'store', label: 'Business Details', icon: <Building size={18} /> },
       { id: 'online_store', label: 'Online Store', icon: <Globe size={18} /> },
       { id: 'billing', label: 'Billing Settings', icon: <Printer size={18} /> },
+      { id: 'advanced_billing', label: 'Advanced Billing', icon: <Printer size={18} /> },
       /* { id: 'gst', label: 'GST & Compliance', icon: <ShieldCheck size={18} /> }, */
     ],
   },
@@ -158,6 +159,7 @@ const SettingsScreen: React.FC = () => {
                   if (row.id === 'store') navigation.navigate('BusinessInfo');
                   if (row.id === 'online_store') navigation.navigate('OnlineStoreConfig');
                   if (row.id === 'billing') navigation.navigate('BillingTemplates');
+                  if (row.id === 'advanced_billing') navigation.navigate('BillingScreen');
                   if (row.id === 'barcodes') navigation.navigate('ProductsTab', { screen: 'BarcodeGenerator' });
                 }}
               >

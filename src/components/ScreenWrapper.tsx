@@ -21,7 +21,7 @@ const ScreenWrapper: React.FC<ScreenWrapperProps> = ({ children, style }) => {
   const barStyle = mode === 'dark' ? 'light-content' : 'dark-content';
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right', 'bottom']}>
       <StatusBar backgroundColor={tokens.background} barStyle={barStyle} />
       <View style={[styles.container, style]}>{children}</View>
     </SafeAreaView>

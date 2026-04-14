@@ -31,6 +31,7 @@ import ProductFilterSheet from '../../components/modals/ProductFilterSheet';
 import ProductOptionsSheet from '../../components/modals/ProductOptionsSheet';
 import BarcodeScanner from '../../components/Scanner/BarcodeScanner';
 import SearchBar from '../../components/SearchBar';
+import { useScreenContentPadding } from '../../components/layout/ScreenContent';
 import {
   MoreHorizontal,
   Plus,
@@ -38,9 +39,6 @@ import {
   AlertTriangle,
   Scan,
   MoreVertical,
-  Store,
-  Settings,
-  Grid,
   Printer,
 } from 'lucide-react-native';
 
@@ -51,6 +49,10 @@ const formatCurrency = (amount: number) => {
 const ProductsListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
+  const contentContainerStyle = useScreenContentPadding({
+    top: 'none',
+    bottom: 120,
+  });
   const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const { organizationId } = useOrganization();
 
@@ -238,7 +240,7 @@ const ProductsListScreen: React.FC = () => {
       <View style={styles.screen}>
         <FlatList
           style={styles.container}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={contentContainerStyle}
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
@@ -253,16 +255,6 @@ const ProductsListScreen: React.FC = () => {
               <QuickLinksCard
                 items={[
                   {
-                    id: 'online-store',
-                    icon: <Store color={tokens.primary} size={24} />,
-                    label: 'Online Store',
-                    onPress: () => {
-                      // Navigate to Settings via drawer root navigation
-                      // TODO: Use drawer navigation or restructure app navigation to support cross-stack navigation
-                      Alert.alert('Info', 'Online Store settings will be available soon.');
-                    },
-                  },
-                  {
                     id: 'stock',
                     icon: <Package color={tokens.primary} size={24} />,
                     label: 'Stock Summary',
@@ -273,12 +265,6 @@ const ProductsListScreen: React.FC = () => {
                     icon: <Printer color={tokens.primary} size={24} />,
                     label: 'Barcodes',
                     onPress: () => navigation.navigate('BarcodeGenerator', {}),
-                  },
-                  {
-                    id: 'all',
-                    icon: <Grid color={tokens.primary} size={24} />,
-                    label: 'Show All',
-                    onPress: () => Alert.alert('Info', 'Showing all items.'),
                   },
                 ]}
               />
@@ -433,10 +419,6 @@ const createStyles = (tokens: ThemeTokens) =>
     container: {
       flex: 1,
       backgroundColor: tokens.background,
-    },
-    content: {
-      padding: 20,
-      paddingBottom: 120,
     },
     actionsRow: {
       flexDirection: 'row',
