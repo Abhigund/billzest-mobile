@@ -19,7 +19,9 @@
   Do not stage unrelated files even if they show as modified in git status.
   Commit message format: `task(N): <one line description of what was done>`
   Example: `task(5): extract useInvoiceFlow hook from AddSaleScreen`
-  also include Tasks.md in commit but only task part not complete file.
+- When committing, include ONLY the specific task line(s) that were modified (e.g., status change [ ] → [/] → [x]) from tasks.md.
+- Do NOT include the entire tasks.md file in the commit.
+- Use partial staging (e.g., `git add -p`) to ensure only relevant task lines are committed.
 Only after both pass, mark `[x]` and ask for review.
 *Note: The tasks are strictly ordered by Priority (Critical -> High -> Medium -> Low), and then grouped by file to minimize context switching. If a High priority task has dependencies on a lower priority task (e.g., calling an SQL RPC that must be created first), take care of the dependency first if possible.*
 
