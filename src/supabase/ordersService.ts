@@ -228,11 +228,14 @@ export const ordersService = {
           .insert(orderItems);
 
         if (itemsError) {
-          logger.error('[Orders] Failed to create order items', itemsError);
+          logger.error('[Orders] Failed to create order items, deleting orphaned header', itemsError);
+          // Manually delete the orphaned order header
+          await supabase.from('orders').delete().eq('id', orderId);
+
           throw toAppError(
             'orders.create.items',
             itemsError,
-            'Order saved, but adding items failed.',
+            'Failed to add items, order header deleted to prevent corruption.',
           );
         }
       }

@@ -50,7 +50,7 @@ Only after both pass, mark `[x]` and ask for review.
 
 ### `src/supabase/ordersService.ts` (Invoices)
 - [x] **Task 68** (Audit Invoices): Modify `createOrder` (L234–L247). Intercept the offline state, generate a temporary UUID, attach it to the `mutation_queue` with a pending flag, and resolve the mock order instead of throwing an error to the UI. locked-by: codex-session | 2026-04-14 21:28:02 +05:30
-- [ ] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption.
+- [x] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption.
 - [ ] **Task 70** (Audit Invoices): Modify `createOrder`. Inject a call to `partyBalanceService` to create a `credit_transactions` entry representing the unpaid portion of the new invoice for the customer's ledger.
 
 ---
@@ -76,7 +76,7 @@ Only after both pass, mark `[x]` and ask for review.
 - [x] **Task 13** (Audit 10.5): Create new component. Extract the items card (L574–L654 original) into its own component. Props: `lineItems`, `updateQuantity`, `removeLineItem`, `onAddItems`, `formatCurrency`, `tokens`.
 
 ### Global / Batch Refactoring
-- [ ] **Task 14** (Audit 9.3): Replace `useNavigation<any>()` with typed `useNavigation<NativeStackNavigationProp<XxxParamList>>()` across all screens. (Perform in batches of 5-6 screens).
+- [/] **Task 14** (Audit 9.3): Replace `useNavigation<any>()` with typed `useNavigation<NativeStackNavigationProp<XxxParamList>>()` across all screens. (Perform in batches of 5-6 screens). locked-by: codex-session | 2026-04-14 21:43:08 +05:30
 - [ ] **Task 15** (Audit 9.4): Replace `useRoute<any>()` with typed `useRoute<RouteProp<XxxParamList, 'ScreenName'>>()` across all screens.
 
 ### `src/screens/Products/StockSummaryScreen.tsx`
