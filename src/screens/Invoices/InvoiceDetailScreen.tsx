@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import DetailHeader from '../../components/DetailHeader';
@@ -31,6 +32,7 @@ import {
 import { pdfService } from '../../services/pdfService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { Send, CheckCircle, ArrowRight } from 'lucide-react-native';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const formatCurrency = (value: number) =>
   `₹${(value ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
@@ -110,7 +112,7 @@ const getStatusBadgeType = (
 const InvoiceDetailScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const route = useRoute<InvoiceDetailRoute>();
   const routeInvoice = route.params?.invoice ?? EMPTY_INVOICE;
 

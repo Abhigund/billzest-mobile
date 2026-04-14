@@ -1,10 +1,12 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import InvoiceCard from '../InvoiceCard';
 import { ShoppingBag } from 'lucide-react-native';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 // Reuse the type definition or import it if it were shared
 export type CashSummary = {
@@ -26,7 +28,7 @@ const RecentActivityList: React.FC<RecentActivityListProps> = ({
 }) => {
   const { tokens } = useThemeTokens();
   const styles = createStyles(tokens);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   return (
     <View>

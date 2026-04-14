@@ -7,12 +7,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { ArrowDownLeft, ArrowUpRight } from 'lucide-react-native';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../supabase/supabaseClient';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const formatCurrency = (value: number): string => {
   return `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
@@ -21,7 +23,7 @@ const formatCurrency = (value: number): string => {
 const CreditSummaryCards: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = createStyles(tokens);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const { organizationId } = useOrganization();
 
   // Fetch orders to calculate receivables and payables accurately
@@ -92,13 +94,13 @@ const CreditSummaryCards: React.FC = () => {
         label: "You'll Get",
         value: creditSummary?.receivables ?? 0,
         type: 'positive' as const,
-        route: 'CreditBook',
+        route: 'CreditBook' as const,
       },
       {
         label: "You'll Give",
         value: creditSummary?.payables ?? 0,
         type: 'negative' as const,
-        route: 'CreditBook',
+        route: 'CreditBook' as const,
       },
     ],
     [creditSummary],

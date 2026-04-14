@@ -12,11 +12,13 @@ import {
   Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
 import { useThemeTokens } from "../../theme/ThemeProvider";
 import { ThemeTokens } from "../../theme/tokens";
 import { Party } from "../../types/domain";
 import { useParties } from "../../hooks/useParties";
 import { Check, ChevronRight, X, Search, Plus } from "lucide-react-native";
+import type { AppNavigationParamList } from "../../navigation/types";
 
 type SelectPartyBottomSheetProps = {
   visible: boolean;
@@ -35,7 +37,7 @@ const SelectPartyBottomSheet: React.FC<SelectPartyBottomSheetProps> = ({
 }) => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: parties = [], isLoading } = useParties();

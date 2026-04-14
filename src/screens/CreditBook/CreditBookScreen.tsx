@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -32,11 +33,12 @@ import CreditBookSkeleton from '../../components/skeletons/CreditBookSkeleton';
 import RecordPaymentSheet from '../../components/modals/RecordPaymentSheet';
 import { Banknote } from 'lucide-react-native';
 import { Party } from '../../types/domain';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const CreditBookScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   const [activeTab, setActiveTab] = useState<'customer' | 'vendor' | 'expense'>(
     'customer',

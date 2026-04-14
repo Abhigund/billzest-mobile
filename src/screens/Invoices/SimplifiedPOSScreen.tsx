@@ -22,6 +22,7 @@ import {
   LayoutAnimation,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { useProducts } from '../../logic/productLogic';
@@ -44,6 +45,7 @@ import {
 } from 'lucide-react-native';
 import SelectPartyBottomSheet from '../../components/modals/SelectPartyBottomSheet';
 import { Party } from '../../types/domain';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 // Enable LayoutAnimation on Android
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -167,7 +169,7 @@ ProductCard.displayName = 'ProductCard';
 const SimplifiedPOSScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   const { data: products = [] } = useProducts();
   const { lineItems, addItem, updateQuantity, removeLineItem, setClient, setMode, resetInvoice } =

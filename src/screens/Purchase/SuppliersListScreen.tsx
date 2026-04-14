@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import CustomerCard, { Customer } from '../../components/CustomerCard';
@@ -18,6 +19,7 @@ import { useOrganization } from '../../contexts/OrganizationContext';
 import { Users, AlertTriangle, UserPlus } from 'lucide-react-native';
 import EmptyState from '../../components/EmptyState';
 import SearchBar from '../../components/SearchBar';
+import type { PurchaseStackParamList } from '../../navigation/types';
 
 const formatMetricCurrency = (value: number): string =>
   `₹${value.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
@@ -25,7 +27,8 @@ const formatMetricCurrency = (value: number): string =>
 const SuppliersListScreen = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<PurchaseStackParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: suppliers = [], isLoading, isRefetching, refetch, error } = useSuppliers();
@@ -122,7 +125,7 @@ const SuppliersListScreen = () => {
               title="No vendors found"
               description="You haven't added any vendors. Add one to track purchases."
               actionLabel="Add Vendor"
-              onAction={() => navigation.navigate('PurchaseCreateVendor', { intent: 'purchase' })}
+              onAction={() => navigation.navigate('PurchaseCreateVendor', {})}
             />
           )}
 
@@ -145,7 +148,7 @@ const SuppliersListScreen = () => {
 
       <FAB
         label="Add Vendor"
-        onPress={() => navigation.navigate('PurchaseCreateVendor', { intent: 'purchase' })}
+        onPress={() => navigation.navigate('PurchaseCreateVendor', {})}
         icon={<UserPlus color="#fff" size={24} />}
       />
     </View>

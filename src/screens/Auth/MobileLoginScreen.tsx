@@ -11,12 +11,15 @@ import {
   SafeAreaView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CheckCircle2, ArrowRight } from 'lucide-react-native';
+import type { DashboardStackParamList } from '../../navigation/types';
 
 const { width, height } = Dimensions.get('window');
 
 const MobileLoginScreen = () => {
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<DashboardStackParamList>>();
   const [mobileNumber, setMobileNumber] = useState('');
 
   const handleSendOTP = () => {

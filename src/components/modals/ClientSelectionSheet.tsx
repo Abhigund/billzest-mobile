@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import ActionSheet from './ActionSheet';
 import SearchBar from '../SearchBar';
 import { useThemeTokens } from '../../theme/ThemeProvider';
@@ -15,6 +16,7 @@ import { ThemeTokens } from '../../theme/tokens';
 import { Party } from '../../types/domain';
 import { User, UserPlus } from 'lucide-react-native';
 import { useParties } from '../../hooks/useParties'; // Replaced useClients
+import type { AppNavigationParamList } from '../../navigation/types';
 
 type ClientSelectionSheetProps = {
   visible: boolean;
@@ -33,7 +35,7 @@ const ClientSelectionSheet: React.FC<ClientSelectionSheetProps> = ({
 }) => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: clients = [], isLoading } = useParties();

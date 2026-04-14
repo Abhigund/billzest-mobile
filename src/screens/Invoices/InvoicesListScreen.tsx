@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import InvoiceCard from '../../components/InvoiceCard';
@@ -38,6 +39,7 @@ import {
   Plus,
   FileText,
 } from 'lucide-react-native';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const STATUS_FILTERS = ['All', 'Paid', 'Sent', 'Overdue', 'Draft'];
 const INVOICES_PAGE_SIZE = 20;
@@ -45,7 +47,7 @@ const INVOICES_PAGE_SIZE = 20;
 const InvoicesListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(STATUS_FILTERS[0]);
   const [isFilterSheetVisible, setFilterSheetVisible] = useState(false);

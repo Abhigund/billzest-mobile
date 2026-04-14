@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -28,12 +29,13 @@ import {
 import Button from '../../components/ui/Button';
 import { usePartyLedger } from '../../hooks/useCredit';
 import EmptyState from '../../components/EmptyState';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const PartyLedgerScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const route = useRoute<any>();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   // Params passed from list
   const party = route.params?.party || {

@@ -11,6 +11,7 @@ import {
 import { useThemeTokens } from "../../theme/ThemeProvider";
 import { ThemeTokens } from "../../theme/tokens";
 import { useNavigation } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
 import QuickLinksCard from "../../components/QuickLinksCard";
 import { useSupabase } from "../../contexts/SupabaseContext";
 import { useOrganization } from "../../contexts/OrganizationContext";
@@ -43,11 +44,12 @@ import PurchaseReportCard from "../../components/dashboard/PurchaseReportCard";
 import RecentActivityList, {
   CashSummary,
 } from "../../components/dashboard/RecentActivityList";
+import type { AppNavigationParamList } from "../../navigation/types";
 
 const DashboardScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const { user } = useSupabase();
 
   // State

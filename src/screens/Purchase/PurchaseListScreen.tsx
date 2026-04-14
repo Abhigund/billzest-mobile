@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, Pressable, ActivityIndicator, RefreshControl } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import FAB from '../../components/ui/FAB';
 import { useThemeTokens } from '../../theme/ThemeProvider';
@@ -10,13 +11,15 @@ import EmptyState from '../../components/EmptyState';
 import PurchaseListSkeleton from '../../components/skeletons/PurchaseListSkeleton';
 import { usePurchases } from '../../logic/purchaseLogic';
 import StatusBadge, { StatusType } from '../../components/ui/StatusBadge';
+import type { PurchaseStackParamList } from '../../navigation/types';
 
 const STATUS_FILTERS = ['All', 'Pending', 'Received', 'Draft'];
 
 const PurchaseListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<PurchaseStackParamList>>();
   const [selectedStatus, setSelectedStatus] = useState(STATUS_FILTERS[0]);
 
   const {
@@ -65,7 +68,7 @@ const PurchaseListScreen: React.FC = () => {
   };
 
   const handleNewPurchase = () => {
-    navigation.navigate('PurchaseCreate');
+    navigation.navigate('PurchaseCreate', {});
   };
 
   const getPurchaseStatusType = (status?: string | null): StatusType => {

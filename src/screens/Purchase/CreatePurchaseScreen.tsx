@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -24,6 +25,7 @@ import { Product } from '../../types/domain';
 import { generatePurchaseOrderNumber } from '../../utils/invoiceNumberGenerator';
 import EmptyState from '../../components/EmptyState';
 import { RefreshControl } from 'react-native';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const DEFAULT_ITEMS = [
   {
@@ -39,7 +41,7 @@ const DEFAULT_ITEMS = [
 const CreatePurchaseScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const createPurchase = useCreatePurchase();
   const [isProductSheetVisible, setProductSheetVisible] = React.useState(false);
   const [activeItemId, setActiveItemId] = React.useState<string | null>(null);

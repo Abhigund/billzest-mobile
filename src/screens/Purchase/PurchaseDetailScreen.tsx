@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { ScrollView, View, Text, StyleSheet, Pressable, Alert, ActivityIndicator, Platform } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import Button from '../../components/ui/Button';
 import { useThemeTokens } from '../../theme/ThemeProvider';
@@ -15,6 +16,7 @@ import { pdfService } from '../../services/pdfService';
 import DetailHeader from '../../components/DetailHeader';
 import PurchaseReceiveSheet from '../../components/modals/PurchaseReceiveSheet';
 import { useReceiveItems } from '../../logic/purchaseLogic';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 type PurchaseDetailRoute = RouteProp<
   {
@@ -29,7 +31,7 @@ type PurchaseDetailRoute = RouteProp<
 const PurchaseDetailScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const route = useRoute<PurchaseDetailRoute>();
   const purchaseId = route.params?.purchaseId ?? route.params?.purchase?.id;
 

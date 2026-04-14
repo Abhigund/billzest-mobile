@@ -9,6 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -26,6 +27,7 @@ import {
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { supabase } from '../../supabase/supabaseClient';
 import { logger } from '../../utils/logger';
+import type { AppNavigationParamList } from '../../navigation/types';
 
 const SECTIONS = [
   {
@@ -70,7 +72,7 @@ const SECTIONS = [
 
 const SettingsScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const [darkMode, setDarkMode] = React.useState(false);
   const { user } = useSupabase();

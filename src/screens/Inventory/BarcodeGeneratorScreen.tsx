@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, Alert, Platform, Modal } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DetailHeader from '../../components/DetailHeader';
 import Button from '../../components/ui/Button';
@@ -11,6 +12,7 @@ import { useThemeTokens } from '../../theme/ThemeProvider';
 import { Search, Plus, Minus, Trash2, Printer } from 'lucide-react-native';
 import * as Print from 'expo-print';
 import { shareAsync } from 'expo-sharing';
+import type { ProductsStackParamList } from '../../navigation/types';
 
 interface SelectedProduct {
   id: string;
@@ -38,7 +40,8 @@ type BarcodeGeneratorRoute = RouteProp<
 const BarcodeGeneratorScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const route = useRoute<BarcodeGeneratorRoute>();
   const { organizationId } = useOrganization();
   const { data: products } = useProducts();

@@ -1,11 +1,13 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../theme/ThemeProvider';
 import { ThemeTokens } from '../theme/tokens';
 import DetailHeader from './DetailHeader';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react-native';
 import { logger } from '../utils/logger';
+import type { AppNavigationParamList } from '../navigation/types';
 
 interface Props {
   children: ReactNode;
@@ -80,7 +82,7 @@ interface ErrorFallbackProps {
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
 
   const handleGoHome = () => {
     // Try multiple navigation strategies

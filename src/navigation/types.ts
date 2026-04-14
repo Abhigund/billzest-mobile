@@ -1,7 +1,11 @@
 export type DashboardStackParamList = {
   DashboardMain: undefined;
   MobileLogin: undefined;
-  VerifyOTP: { phone?: string; verificationId?: string };
+  VerifyOTP: {
+    phone?: string;
+    mobileNumber?: string;
+    verificationId?: string;
+  };
 };
 
 export type ProductsStackParamList = {
@@ -86,11 +90,69 @@ export type MainTabsParamList = {
 
 export type RootDrawerParamList = {
   Home: undefined;
-  Purchases: undefined;
+  Purchases: { screen?: string; params?: object } | undefined;
   Vendors: undefined;
-  Expenses: undefined;
+  Expenses: { screen?: string; params?: object } | undefined;
   CreditBook: undefined;
   Reports: undefined;
   SettingsStack: undefined;
   SimplifiedPOS: undefined;
+};
+
+export type AppNavigationParamList = {
+  Home: undefined;
+  Purchases: { screen?: string; params?: object } | undefined;
+  Vendors: undefined;
+  Expenses: { screen?: string; params?: object } | undefined;
+  CreditBook: undefined;
+  Reports: undefined;
+  SettingsStack: undefined;
+  SimplifiedPOS: undefined;
+  DashboardTab: undefined;
+  ProductsTab: { screen?: string; params?: object } | undefined;
+  CustomersTab: { screen?: string; params?: object } | undefined;
+  InvoicesTab: { screen?: string; params?: object } | undefined;
+  DashboardMain: undefined;
+  MobileLogin: undefined;
+  VerifyOTP: { phone?: string; mobileNumber?: string; verificationId?: string } | undefined;
+  ProductsMain: undefined;
+  ProductsList: undefined;
+  ProductDetail: { product?: any } | undefined;
+  ProductForm: { mode?: 'create' | 'edit'; product?: any } | undefined;
+  StockSummary: undefined;
+  CategoriesList: undefined;
+  CategoryFormSheet: { categoryId?: string; category?: any } | undefined;
+  BarcodeGenerator: { product?: any; initialItems?: any[] } | undefined;
+  CustomersMain: undefined;
+  CustomerDetail: { customerId: string; customer?: any } | undefined;
+  CustomerForm: { customerId?: string } | undefined;
+  AddPartySheet: { type?: 'customer' | 'supplier'; intent?: 'sale' | 'purchase' } | undefined;
+  InvoicesMain: undefined;
+  InvoiceDetail: { orderId: string; invoice?: any; invoiceId?: string } | undefined;
+  AddSale: { initialMode?: 'sale' | 'purchase'; invoiceId?: string; orderId?: string } | undefined;
+  InvoiceSummary: {
+    invoiceId: string;
+    invoiceNumber: string;
+    subtotal: number;
+    discount: number;
+    cgst: number;
+    sgst: number;
+    totalAmount: number;
+    amountReceived: number;
+    dueDate: string;
+  } | undefined;
+  AddItems: undefined;
+  PurchaseList: undefined;
+  PurchaseDetail: { purchaseId?: string; purchase?: any } | undefined;
+  PurchaseCreate: { initialMode?: 'sale' | 'purchase'; invoiceId?: string; purchase?: any } | undefined;
+  PurchaseCreateVendor: { customerId?: string; intent?: 'sale' | 'purchase' } | undefined;
+  SuppliersList: undefined;
+  CreditBookMain: undefined;
+  PartyLedgerScreen: { partyId?: string; partyName?: string; party?: any } | undefined;
+  AddCreditTransactionSheet: { partyId?: string; party?: any; mode?: 'given' | 'received' } | undefined;
+  SettingsMain: undefined;
+  BusinessInfo: undefined;
+  OnlineStoreConfig: undefined;
+  BillingTemplates: undefined;
+  Login: undefined;
 };

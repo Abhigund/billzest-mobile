@@ -1,5 +1,6 @@
 import { Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import type { NavigationProp } from '@react-navigation/native';
 import { useInvoiceStore } from '../../../stores/invoiceStore';
 import { useCreateOrder, useUpdateOrder, useUpdateOrderStatus } from '../../../logic/orderLogic';
 import { useCreatePurchase } from '../../../logic/purchaseLogic';
@@ -8,6 +9,7 @@ import {
   generateInvoiceNumber,
   generatePurchaseOrderNumber,
 } from '../../../utils/invoiceNumberGenerator';
+import type { AppNavigationParamList } from '../../../navigation/types';
 
 export interface UseInvoiceFlowProps {
   finalTotal: number;
@@ -34,7 +36,7 @@ export const useInvoiceFlow = ({
   setScannerVisible,
   existingInvoice,
 }: UseInvoiceFlowProps) => {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const route = useRoute<any>();
   const { organizationId } = useOrganization();
   
