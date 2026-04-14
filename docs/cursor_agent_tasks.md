@@ -35,6 +35,11 @@
 - [ ] **Task 48** (Audit): Completely refactor the hardcoded `DS` mappings and wire all UI components to `useThemeTokens()` to guarantee dynamic application of the Stitch Design system.
 - [ ] **Task 49** (Audit): Wire up a true "Delete Item" interface calling the `deleteProduct` mutation (which correctly sets `deleted_at`), bridging the gap where only a superficial "Archive" button exists.
 
+### `src/supabase/ordersService.ts` (Invoices)
+- [ ] **Task 68** (Audit Invoices): Modify `createOrder` (L234–L247). Intercept the offline state, generate a temporary UUID, attach it to the `mutation_queue` with a pending flag, and resolve the mock order instead of throwing an error to the UI.
+- [ ] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption.
+- [ ] **Task 70** (Audit Invoices): Modify `createOrder`. Inject a call to `partyBalanceService` to create a `credit_transactions` entry representing the unpaid portion of the new invoice for the customer's ledger.
+
 ---
 
 ## 🟧 Medium Priority
@@ -75,20 +80,29 @@
 - [ ] **Task 63** (Audit 2.4): `src/supabase/partyBalanceService.ts` extend `getCustomerFinancialSummary` to include `credit_transactions` data so outstanding balance matches the party ledger.
 - [ ] **Task 64** (Audit 2.5): `src/offline/syncEngine.ts` add `credit_transaction` processing support to `processQueue` so manual payment/credit mutations can sync when connectivity returns.
 
+### `src/screens/Invoices/InvoiceDetailScreen.tsx`
+- [ ] **Task 71** (Audit Invoices): Modify `handleEdit` (L298–L308). Add a status threshold check at the beginning of the function to block editing if `invoice.status !== 'draft'`.
+
+### `src/screens/Invoices/InvoicesListScreen.tsx`
+- [ ] **Task 72** (Audit Invoices): Modify `FlatList` rendering. Implement `onEndReached` handling to fetch invoices incrementally within `useOrders` or bounded queries instead of exhaustive fetching.
+
+### `src/navigation/` & Routing Refactoring
+- [ ] **Task 73** (Audit Invoices): Replace `useNavigation<any>()` and `useRoute<any>()` instances with explicit `<NativeStackNavigationProp>` generics inside `InvoicesListScreen.tsx`, `InvoiceDetailScreen.tsx`, and `AddSaleScreen.tsx`.
+
 ---
 
 ## 🟨 Low Priority
 
 ### `src/screens/Invoices/AddSaleScreen.tsx`
 - [x] **Task 16** (Audit 6.4): Replace `<View style={{ height: 120 }} />` (L758) with `paddingBottom: 120` on `scrollContent` style and remove the spacer View.
-- [ ] **Task 17** (Audit 7.2): Replace local `formatCurrency` (L274) and `getInitials` (L324) with imports from `utils/formatting`. *(Requires Task 26)*
+- [x] **Task 17** (Audit 7.2): Replace local `formatCurrency` (L274) and `getInitials` (L324) with imports from `utils/formatting`. *(Requires Task 26)*
 - [ ] **Task 18** (Audit 8.2): Replace `'#fff'` with `tokens.white` (or `tokens.primaryForeground`), `'#1a1a2e'` with `tokens.shadowColor`.
 - [ ] **Task 19** (Audit 8.4): Add `accessibilityLabel` to: back button, party selector row, each stepper `−` button, each stepper `+` button, Generate Bill button, Save Draft button.
 - [ ] **Task 20** (Audit 8.7): Add `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` to all stepper buttons (L609, L628).
 
 ### `src/screens/Invoices/AddItemsScreen.tsx`
 - [ ] **Task 21** (Audit 6.3): Wrap content in `KeyboardAvoidingView` (same pattern as 6.2).
-- [ ] **Task 22** (Audit 7.3): Replace local `formatCurrency` (L83) and `getInitials` (L52) with imports from `utils/formatting`.
+- [x] **Task 22** (Audit 7.3): Replace local `formatCurrency` (L83) and `getInitials` (L52) with imports from `utils/formatting`.
 - [ ] **Task 23** (Audit 8.3): Replace `'#fff'` with `tokens.white` (or `tokens.primaryForeground`) and `'#1a1a2e'` with `tokens.shadowColor`.
 - [ ] **Task 24** (Audit 8.5): Add `accessibilityLabel` to: stepper `−` buttons, stepper `+` buttons, back button, "Add to Invoice" button, mic button.
 - [ ] **Task 25** (Audit 8.8): Add `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` to all stepper buttons (L215, L240).
@@ -133,6 +147,11 @@
 - [ ] **Task 65** (Audit 3.1): `src/screens/Customers/CustomerFormScreen.tsx` replace generic `Alert.alert` validation feedback with inline field-specific error messages and disable the save button while submission is pending.
 - [ ] **Task 66** (Audit 3.2): `src/components/CustomerCard.tsx` remove `borderWidth: 1` and hardcoded `rgba(...)` styling, switching to token-driven tonal surfaces and shadows.
 - [ ] **Task 67** (Audit 3.3): `src/components/ui/PartyDropdown.tsx` remove hard 1px borders and replace them with theme surface styling for the party selection modal and trigger row.
+
+### UI / UX Global Updates (Invoices)
+- [ ] **Task 74** (Audit Invoices): Remove all occurrences of `borderWidth: 1` inside `InvoicesListScreen.tsx` and `InvoiceDetailScreen.tsx` to align strictly with the Stitch "No-Line Rule", substituting with tonal surface layers.
+- [ ] **Task 75** (Audit Invoices): Strip hardcoded color properties such as `#fff` or `rgba(0,0,0,0.15)` inside `InvoicesListScreen.tsx` and `InvoiceDetailScreen.tsx`, replacing them with exact `tokens.*` maps.
+- [ ] **Task 76** (Audit Invoices): Add native `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` padding to standalone functional action icons (Filter, Search, Scan, etc.) inside `InvoicesListScreen.tsx` and `InvoiceDetailScreen.tsx`.
 
 ---
 

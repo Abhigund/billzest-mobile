@@ -10,6 +10,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import CustomerCard, { Customer } from '../../components/CustomerCard';
@@ -24,6 +25,7 @@ import { useClients } from '../../logic/partyLogic';
 import { Party } from '../../types/domain';
 import { supabase } from '../../supabase/supabaseClient';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import { CustomersStackParamList } from '../../navigation/types';
 import {
   Phone,
   MessageSquare,
@@ -53,7 +55,7 @@ const formatMetricCurrency = (value: number): string =>
 const CustomersListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSegment, setSelectedSegment] = useState(CUSTOMER_SEGMENTS[0]);
   const [addPartySheetVisible, setAddPartySheetVisible] = useState(false);
@@ -136,7 +138,7 @@ const CustomersListScreen: React.FC = () => {
         id: party.id,
         name: party.name ?? 'Untitled Party',
         businessType: party.party_type === 'vendor' ? 'Supplier' : 'Customer',
-        location: party.address ?? 'â€”',
+        location: party.address ?? '—',
         dueAmount: outstanding,
         totalSale: totalSale,
         lastInvoice: lastInvoiceDate
@@ -145,7 +147,7 @@ const CustomersListScreen: React.FC = () => {
               day: '2-digit',
               year: 'numeric',
             })
-          : 'â€”',
+          : '—',
         status:
           outstanding > 0 ? (outstanding > 10000 ? 'overdue' : 'due') : 'clear',
         phone: party.phone || party.mobile || 'N/A',
@@ -166,7 +168,7 @@ const CustomersListScreen: React.FC = () => {
   const handleSharePress = useCallback(async (customer: Customer) => {
     try {
       await Share.share({
-        message: `Customer Details:\nName: ${customer.name}\nPhone: ${customer.phone}\nDue: â‚¹${customer.dueAmount}`,
+        message: `Customer Details:\nName: ${customer.name}\nPhone: ${customer.phone}\nDue: ₹${customer.dueAmount}`,
       });
     } catch (error) {
       console.error(error);
@@ -202,7 +204,7 @@ const CustomersListScreen: React.FC = () => {
           customer={customer}
           onPress={() =>
             navigation.navigate('CustomerDetail', {
-              customer,
+              customerId: customer.id,
             })
           }
           onPhonePress={() => handlePhonePress(customer.phone)}

@@ -216,7 +216,7 @@ const OverviewTab: React.FC<{
       {/* Action row */}
       <View style={s.actionRow}>
         <Pressable style={s.primaryBtn} onPress={onEdit}>
-          <Edit2 size={15} color="#fff" />
+          <Edit2 size={15} color={s.tokens.primaryForeground} />
           <Text style={s.primaryBtnText}>Edit Item</Text>
         </Pressable>
       </View>
