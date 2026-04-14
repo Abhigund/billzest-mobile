@@ -7,7 +7,7 @@
 
 ## 1. High-Level Overview
 
-BillZest Mobile V1 is the essential native companion for retail businesses, designed for speed and offline reliability. It focuses on the core daily operations: creating invoices (billing), managing a unified directory of parties (customers & vendors), tracking the "Credit Book" (udhar/jama), managing product inventory with barcode scanning, and recording business expenses.
+BillZest Mobile V1 is the essential native companion for retail businesses, designed for speed and real-time reliability. It focuses on the core daily operations: creating invoices (billing), managing a unified directory of parties (customers & vendors), tracking the "Credit Book" (udhar/jama), managing product inventory with barcode scanning, and recording business expenses.
 
 The app mirrors the BillZest Web "Credit Management" approach by treating Customers and Vendors as "Parties" and integrates seamless syncing with Supabase.
 
@@ -32,7 +32,7 @@ The app mirrors the BillZest Web "Credit Management" approach by treating Custom
 
 - **Login**:
   - Secure login using email & Password.
-  - Session persistence for offline access implies a long-lived token or secure local storage of credentials/session.
+  - Session persistence using long-lived tokens for seamless access.
 
 ### 3.2 Dashboard
 
@@ -140,8 +140,8 @@ The app mirrors the BillZest Web "Credit Management" approach by treating Custom
 
 ## 5. Acceptance Criteria (V1)
 
-- **Offline Functionality**:
-  - User can create Invoices and Parties while offline. Data syncs when internet returns.
+- **Cloud Sync**:
+  - All data operations rely on direct synchronization with the Supabase backend. Data changes must reflect in real-time.
 - **Data Accuracy**:
   - Dashboard KPIs (Sales, Purchase, Expenses) must match the sum of individual records.
   - Inventory Cost must reflect (Stock Qty \* Cost Price).
@@ -153,8 +153,7 @@ The app mirrors the BillZest Web "Credit Management" approach by treating Custom
 
 ## 6. Non-Functional Requirements
 
-- **Offline First**: Crucial for retail environments with spotty internet.
-- **Data Integrity**: No duplicates created during sync.
+- **Data Integrity**: Ensure consistent transactions across all service modules.
 - **UI/UX**: Clean, large tap targets for "Fat Finger" usage in busy shops. Dark/Light mode support.
 
 ---

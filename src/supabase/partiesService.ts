@@ -1,6 +1,5 @@
 import { supabase } from './supabaseClient';
 import { Party } from '../types/domain';
-import { offlineStorage } from '../offline/storage';
 import { toAppError, AppError } from '../utils/appError';
 import { logger } from '../utils/logger';
 
@@ -34,44 +33,25 @@ export const partiesService = {
    * Fetch parties for the organization, optionally filtered by type.
    */
   async getParties(orgId: string, type?: string): Promise<Party[]> {
-    try {
-      let query = supabase
-        .from('parties')
-        .select('*')
-        .eq('organization_id', orgId)
-        .is('deleted_at', null)
-        .order('updated_at', { ascending: false });
+    let query = supabase
+      .from('parties')
+      .select('*')
+      .eq('organization_id', orgId)
+      .is('deleted_at', null)
+      .order('updated_at', { ascending: false });
 
-      if (type) {
-        query = query.eq('type', type);
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        logger.error('[Parties] Failed to fetch parties', error);
-        throw toAppError('parties.list', error, 'Unable to load parties.');
-      }
-
-      const mapped = (data ?? []).map(mapPartyRow);
-      await offlineStorage.setCache('parties', mapped);
-      return mapped;
-    } catch (error) {
-      logger.error('[Parties] Falling back to offline cache', error);
-      const cached = await offlineStorage.getCache<Party[]>('parties');
-      if (cached) {
-        if (type) return cached.filter(p => p.type === type);
-        return cached;
-      }
-      throw toAppError(
-        'parties.offline',
-        error,
-        'Unable to load parties. Please check your connection.',
-        {
-          code: 'offline',
-        },
-      );
+    if (type) {
+      query = query.eq('type', type);
     }
+
+    const { data, error } = await query;
+
+    if (error) {
+      logger.error('[Parties] Failed to fetch parties', error);
+      throw toAppError('parties.list', error, 'Unable to load parties.');
+    }
+
+    return (data ?? []).map(mapPartyRow);
   },
 
   /**
@@ -126,42 +106,25 @@ export const partiesService = {
     orgId: string,
     party: Omit<Party, 'id' | 'organization_id' | 'created_at' | 'updated_at'>,
   ): Promise<Party> {
-    try {
-      const { data, error } = await supabase
-        .from('parties')
-        .insert({
-          ...party,
-          organization_id: orgId,
-        })
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('parties')
+      .insert({
+        ...party,
+        organization_id: orgId,
+      })
+      .select()
+      .single();
 
-      if (error) {
-        throw toAppError('parties.create', error, 'Unable to save party.');
-      }
-
-      return mapPartyRow(data);
-    } catch (err: any) {
-      if (err?.code === '23505') {
+    if (error) {
+      if (error?.code === '23505') {
         throw new AppError('conflict', 'This party already exists.', {
-          cause: err,
+          cause: error,
         });
       }
-      const appError = toAppError(
-        'parties.create',
-        err,
-        'Unable to save party.',
-      );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('party', 'create', {
-          ...party,
-          organization_id: orgId,
-        });
-        logger.log('[Offline] Queued party creation for sync');
-      }
-      throw appError;
+      throw toAppError('parties.create', error, 'Unable to save party.');
     }
+
+    return mapPartyRow(data);
   },
 
   /**
@@ -181,17 +144,11 @@ export const partiesService = {
       .single();
 
     if (error) {
-      const appError = toAppError(
+      throw toAppError(
         'parties.update',
         error,
         'Unable to update party details.',
       );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('party', 'update', { id, updates });
-        logger.log('[Offline] Queued party update for sync');
-      }
-      throw appError;
     }
 
     return mapPartyRow(data);
@@ -201,27 +158,13 @@ export const partiesService = {
    * Soft-delete a party.
    */
   async deleteParty(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('parties')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', id);
+    const { error } = await supabase
+      .from('parties')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id);
 
-      if (error) {
-        throw toAppError('parties.delete', error, 'Unable to delete party.');
-      }
-    } catch (error: any) {
-      const appError = toAppError(
-        'parties.delete',
-        error,
-        'Unable to delete party.',
-      );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('party', 'delete', { id });
-        logger.log('[Offline] Queued party deletion for sync');
-      }
-      throw appError;
+    if (error) {
+      throw toAppError('parties.delete', error, 'Unable to delete party.');
     }
   },
 };

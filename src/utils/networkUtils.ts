@@ -30,7 +30,7 @@ export const withTimeout = <T>(
     promise,
     new Promise<T>((_, reject) => {
       setTimeout(() => {
-        reject(new AppError('offline', errorMessage));
+        reject(new AppError('server', errorMessage));
       }, timeoutMs);
     }),
   ]);
@@ -96,13 +96,13 @@ export const createCancellablePromise = <T>(
   return new Promise<T>((resolve, reject) => {
     // If already aborted, reject immediately
     if (signal.aborted) {
-      reject(new AppError('offline', 'Request was cancelled'));
+      reject(new AppError('server', 'Request was cancelled'));
       return;
     }
 
     // Listen for abort signal
     signal.addEventListener('abort', () => {
-      reject(new AppError('offline', 'Request was cancelled'));
+      reject(new AppError('server', 'Request was cancelled'));
     });
 
     // Execute the promise

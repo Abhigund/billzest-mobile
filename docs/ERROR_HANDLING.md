@@ -9,7 +9,7 @@ The app implements multiple layers of error handling:
 2. **Session Layer**: Token refresh, session expiry detection, multi-device management
 3. **Validation Layer**: Form validation, data validation, business rule validation
 4. **UI Layer**: Error boundaries, graceful degradation, user-friendly error messages
-5. **Recovery Layer**: Retry mechanisms, offline queue, data sync
+5. **Recovery Layer**: Retry mechanisms, automated data refetching
 
 ---
 
@@ -245,17 +245,8 @@ useQuery({
 });
 ```
 
-### Offline Queue
-
-Failed mutations are automatically queued for retry:
-
-```typescript
-// Mutations automatically queue when offline
-const createInvoice = useMutation({
-  mutationFn: invoicesService.createInvoice,
-  // Automatically retries when back online
+  // Automatically retries on network availability via TanStack Query
 });
-```
 
 ### Manual Retry
 
@@ -293,7 +284,7 @@ try {
 } catch (error) {
   const appError = toAppError('operation', error, 'Something went wrong');
   
-  // appError.code can be: 'auth', 'validation', 'not-found', 'conflict', 'offline', 'server'
+  // appError.code can be: 'auth', 'validation', 'not-found', 'conflict', 'server'
   // appError.message is user-friendly
 }
 ```
@@ -304,9 +295,6 @@ try {
 switch (error.code) {
   case 'auth':
     // Show: "Please sign in again"
-    break;
-  case 'offline':
-    // Show: "No internet connection. Please check your network."
     break;
   case 'validation':
     // Show validation error message
@@ -427,12 +415,7 @@ logger.error('Operation failed', error, { context: 'additional info' });
 
 ### Test Network Errors
 
-```typescript
-// Simulate network error
-jest.mock('../utils/networkUtils', () => ({
-  isNetworkError: () => true,
-}));
-```
+Test how the app handles connection failures using mock timeouts.
 
 ### Test Session Expiry
 
@@ -470,4 +453,3 @@ The app implements comprehensive error handling at multiple layers:
 8. ✅ Edge case handling
 
 All error handling follows best practices and provides a smooth user experience even when things go wrong.
-

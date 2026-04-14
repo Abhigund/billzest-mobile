@@ -30,11 +30,7 @@ import {
 } from "lucide-react-native";
 import EmptyState from "../../components/EmptyState";
 import { useAppSettingsStore } from "../../stores/appSettingsStore";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "../../supabase/supabaseClient";
-import OfflineIndicator from "../../components/OfflineIndicator";
 import DashboardSkeleton from "../../components/skeletons/DashboardSkeleton";
-import { billConfigService } from "../../supabase/billConfigService";
 
 // Components
 import TodaysSalesHero from "../../components/dashboard/TodaysSalesHero";
@@ -266,7 +262,6 @@ const DashboardScreen: React.FC = () => {
   if (isLoading && !refreshing) {
     return (
       <View style={styles.screen}>
-        <OfflineIndicator />
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.content}
@@ -281,7 +276,6 @@ const DashboardScreen: React.FC = () => {
   if (error && !refreshing) {
     return (
       <View style={styles.screen}>
-        <OfflineIndicator />
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.content}
@@ -304,7 +298,6 @@ const DashboardScreen: React.FC = () => {
   if (hasNoData) {
     return (
       <View style={styles.screen}>
-        <OfflineIndicator />
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.content}
@@ -337,7 +330,6 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <View style={styles.screen}>
-      <OfflineIndicator />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}

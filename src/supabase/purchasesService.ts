@@ -1,5 +1,4 @@
 import { supabase } from './supabaseClient';
-import { offlineStorage } from '../offline/storage';
 import { AppError, toAppError } from '../utils/appError';
 import { logger } from '../utils/logger';
 
@@ -81,49 +80,31 @@ export const purchasesService = {
   ): Promise<PurchaseOrder[]> {
     const { search, status } = params;
 
-    try {
-      let query = supabase
-        .from('purchase_orders')
-        .select('*, purchase_order_items(*)')
-        .eq('organization_id', orgId)
-        .order('updated_at', { ascending: false });
+    let query = supabase
+      .from('purchase_orders')
+      .select('*, purchase_order_items(*)')
+      .eq('organization_id', orgId)
+      .order('updated_at', { ascending: false });
 
-      if (status && status !== 'All') {
-        query = query.eq('status', status.toLowerCase());
-      }
+    if (status && status !== 'All') {
+      query = query.eq('status', status.toLowerCase());
+    }
 
-      if (search && search.trim()) {
-        const term = search.trim();
-        query = query.or(
-          `order_number.ilike.%${term}%,vendor_name.ilike.%${term}%,vendor_phone.ilike.%${term}%`,
-        );
-      }
-
-      const { data, error } = await query;
-
-      if (error) {
-        logger.error('[Purchases] Failed to fetch', error);
-        throw toAppError('purchases.list', error, 'Unable to load purchases.');
-      }
-
-      const rows = (data ?? []) as PurchaseOrder[];
-      await offlineStorage.setCache('purchases', rows);
-      return rows;
-    } catch (error) {
-      logger.error('[Purchases] Falling back to offline cache', error);
-      const cached = await offlineStorage.getCache<PurchaseOrder[]>(
-        'purchases',
-      );
-      if (cached) return cached;
-      throw toAppError(
-        'purchases.offline',
-        error,
-        'Unable to load purchases. Please check your connection.',
-        {
-          code: 'offline',
-        },
+    if (search && search.trim()) {
+      const term = search.trim();
+      query = query.or(
+        `order_number.ilike.%${term}%,vendor_name.ilike.%${term}%,vendor_phone.ilike.%${term}%`,
       );
     }
+
+    const { data, error } = await query;
+
+    if (error) {
+      logger.error('[Purchases] Failed to fetch', error);
+      throw toAppError('purchases.list', error, 'Unable to load purchases.');
+    }
+
+    return (data ?? []) as PurchaseOrder[];
   },
 
   async getPurchaseById(id: string): Promise<PurchaseOrder | null> {
@@ -153,105 +134,90 @@ export const purchasesService = {
 
     const { purchase, items } = payload;
 
-    try {
-      const { data: insertedPurchase, error: purchaseError } = await supabase
-        .from('purchase_orders')
-        .insert({
-          ...purchase,
-          organization_id: orgId,
-          user_id: user.id,
-        })
-        .select('*')
-        .single();
+    const { data: insertedPurchase, error: purchaseError } = await supabase
+      .from('purchase_orders')
+      .insert({
+        ...purchase,
+        organization_id: orgId,
+        user_id: user.id,
+      })
+      .select('*')
+      .single();
 
-      if (purchaseError) {
+    if (purchaseError) {
+      throw toAppError(
+        'purchases.create',
+        purchaseError,
+        'Unable to create purchase.',
+      );
+    }
+
+    const purchaseId = insertedPurchase.id;
+
+    if (items.length > 0) {
+      const itemsWithPurchase = items.map(item => ({
+        ...item,
+        purchase_order_id: purchaseId,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('purchase_order_items')
+        .insert(itemsWithPurchase);
+
+      if (itemsError) {
+        logger.error('[Purchases] Failed to create items', itemsError);
         throw toAppError(
-          'purchases.create',
-          purchaseError,
-          'Unable to create purchase.',
+          'purchases.create.items',
+          itemsError,
+          'Purchase saved, but adding items failed.',
         );
       }
 
-      const purchaseId = insertedPurchase.id;
-
-      if (items.length > 0) {
-        const itemsWithPurchase = items.map(item => ({
-          ...item,
-          purchase_order_id: purchaseId,
-        }));
-
-        const { error: itemsError } = await supabase
-          .from('purchase_order_items')
-          .insert(itemsWithPurchase);
-
-        if (itemsError) {
-          logger.error('[Purchases] Failed to create items', itemsError);
-          throw toAppError(
-            'purchases.create.items',
-            itemsError,
-            'Purchase saved, but adding items failed.',
-          );
+      // Update product stock_quantity
+      try {
+        const productQuantities = new Map<string, number>();
+        for (const item of itemsWithPurchase) {
+          if (!item.product_id || !item.quantity) continue;
+          const current = productQuantities.get(item.product_id) ?? 0;
+          productQuantities.set(item.product_id, current + item.quantity);
         }
 
-        // Update product stock_quantity
-        try {
-          const productQuantities = new Map<string, number>();
-          for (const item of itemsWithPurchase) {
-            if (!item.product_id || !item.quantity) continue;
-            const current = productQuantities.get(item.product_id) ?? 0;
-            productQuantities.set(item.product_id, current + item.quantity);
-          }
+        if (productQuantities.size > 0) {
+          const productIds = Array.from(productQuantities.keys());
+          const { data: productRows, error: productsError } = await supabase
+            .from('products')
+            .select('id, stock_quantity')
+            .in('id', productIds);
 
-          if (productQuantities.size > 0) {
-            const productIds = Array.from(productQuantities.keys());
-            const { data: productRows, error: productsError } = await supabase
-              .from('products')
-              .select('id, stock_quantity')
-              .in('id', productIds);
-
-            if (productsError) {
-              logger.error(
-                '[Purchases] Failed to read products for stock',
-                productsError,
-              );
-            } else {
-              for (const row of productRows ?? []) {
-                const increment = productQuantities.get(row.id as string) ?? 0;
-                const currentStock = (row.stock_quantity as number) ?? 0;
-                await supabase
-                  .from('products')
-                  .update({ stock_quantity: currentStock + increment })
-                  .eq('id', row.id);
-              }
+          if (productsError) {
+            logger.error(
+              '[Purchases] Failed to read products for stock',
+              productsError,
+            );
+          } else {
+            for (const row of productRows ?? []) {
+              const increment = productQuantities.get(row.id as string) ?? 0;
+              const currentStock = (row.stock_quantity as number) ?? 0;
+              await supabase
+                .from('products')
+                .update({ stock_quantity: currentStock + increment })
+                .eq('id', row.id);
             }
           }
-        } catch (stockError) {
-          logger.error('[Purchases] Stock update failed', stockError);
         }
+      } catch (stockError) {
+        logger.error('[Purchases] Stock update failed', stockError);
       }
-
-      const withItems = await this.getPurchaseById(purchaseId);
-      if (!withItems) {
-        throw new AppError(
-          'server',
-          'Purchase created but cannot fetch details.',
-        );
-      }
-      return withItems;
-    } catch (error: any) {
-      const appError =
-        error instanceof AppError
-          ? error
-          : toAppError('purchases.create', error, 'Unable to create purchase.');
-
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('purchase', 'create', payload);
-        logger.log('[Offline] Queued purchase creation for sync');
-      }
-
-      throw appError;
     }
+
+    const withItems = await this.getPurchaseById(purchaseId);
+    if (!withItems) {
+      throw new AppError(
+        'server',
+        'Purchase created but cannot fetch details.',
+      );
+    }
+    return withItems;
   },
 
   async updatePurchaseStatus(
@@ -259,46 +225,34 @@ export const purchasesService = {
     id: string,
     status: string,
   ): Promise<PurchaseOrder> {
-    try {
-      const { data, error } = await supabase
-        .from('purchase_orders')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .eq('organization_id', orgId)
-        .select('*')
-        .single();
+    const { data, error } = await supabase
+      .from('purchase_orders')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('organization_id', orgId)
+      .select('*')
+      .single();
 
-      if (error) {
-        throw toAppError(
-          'purchases.update',
-          error,
-          'Unable to update purchase status.',
-        );
-      }
-
-      if (!data) {
-        throw new AppError('server', 'Purchase not found or access denied.');
-      }
-
-      const withItems = await this.getPurchaseById(id);
-      if (!withItems) {
-        throw new AppError(
-          'server',
-          'Purchase updated but cannot fetch details.',
-        );
-      }
-      return withItems;
-    } catch (error: any) {
-      const appError =
-        error instanceof AppError
-          ? error
-          : toAppError(
-              'purchases.update',
-              error,
-              'Unable to update purchase status.',
-            );
-      throw appError;
+    if (error) {
+      throw toAppError(
+        'purchases.update',
+        error,
+        'Unable to update purchase status.',
+      );
     }
+
+    if (!data) {
+      throw new AppError('server', 'Purchase not found or access denied.');
+    }
+
+    const withItems = await this.getPurchaseById(id);
+    if (!withItems) {
+      throw new AppError(
+        'server',
+        'Purchase updated but cannot fetch details.',
+      );
+    }
+    return withItems;
   },
 
   async receiveAndVerifyItems(params: {
@@ -306,18 +260,13 @@ export const purchasesService = {
     p_organization_id: string;
     p_items: POReceiveItem[];
   }): Promise<{ success: boolean; message: string; grn_id?: string }> {
-    try {
-      const { data, error } = await supabase.rpc('receive_purchase_order_items', params);
-      
-      if (error) {
-        logger.error('[Purchases] receiveAndVerifyItems failed', error);
-        throw toAppError('purchases.receive', error, 'Failed to process item receipt and create GRN.');
-      }
-      
-      return data as { success: boolean; message: string; grn_id?: string };
-    } catch (error: any) {
-      if (error instanceof AppError) throw error;
-      throw toAppError('purchases.receive', error, 'Failed to process item receipt.');
+    const { data, error } = await supabase.rpc('receive_purchase_order_items', params);
+    
+    if (error) {
+      logger.error('[Purchases] receiveAndVerifyItems failed', error);
+      throw toAppError('purchases.receive', error, 'Failed to process item receipt and create GRN.');
     }
+    
+    return data as { success: boolean; message: string; grn_id?: string };
   },
 };

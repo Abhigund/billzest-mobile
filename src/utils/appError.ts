@@ -3,7 +3,6 @@ export type AppErrorCode =
   | 'validation'
   | 'not-found'
   | 'conflict'
-  | 'offline'
   | 'server'
   | 'unknown';
 
@@ -25,7 +24,7 @@ export class AppError extends Error {
   }
 }
 
-const networkHints = ['Failed to fetch', 'Network request failed', 'fetch failed', 'ENOTFOUND', 'ETIMEDOUT'];
+const networkHints = ['Failed to fetch', 'Network request failed', 'fetch failed', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNREFUSED'];
 
 const isNetworkError = (err: unknown) => {
   const message = (err as any)?.message ?? String(err ?? '');
@@ -51,7 +50,7 @@ export const toAppError = (
   }
 
   if (isNetworkError(err)) {
-    return new AppError('offline', fallbackMessage, { cause: err });
+    return new AppError('server', fallbackMessage, { cause: err });
   }
 
   if (supaCode === 'PGRST116') {

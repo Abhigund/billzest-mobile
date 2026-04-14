@@ -1,6 +1,5 @@
 import { supabase } from './supabaseClient';
 import { Database } from '../database.types';
-import { offlineStorage } from '../offline/storage';
 import { toAppError } from '../utils/appError';
 import { logger } from '../utils/logger';
 
@@ -23,42 +22,22 @@ export const billConfigService = {
    * Get bill config for the organization.
    */
   async getConfig(orgId: string): Promise<BillConfigRow | null> {
-    try {
-      const { data, error } = await supabase
-        .from('bill_config')
-        .select('*')
-        .eq('organization_id', orgId)
-        .maybeSingle();
+    const { data, error } = await supabase
+      .from('bill_config')
+      .select('*')
+      .eq('organization_id', orgId)
+      .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        logger.error('[BillConfig] Failed to fetch config', error);
-        throw toAppError(
-          'billConfig.fetch',
-          error,
-          'Unable to load bill settings.',
-        );
-      }
-
-      const row = (data as BillConfigRow | null) ?? null;
-      if (row) {
-        await offlineStorage.setCache('billConfig', row);
-      }
-      return row;
-    } catch (error) {
-      logger.error('[BillConfig] Falling back to offline cache', error);
-      const cached = await offlineStorage.getCache<BillConfigRow | null>(
-        'billConfig',
-      );
-      if (cached) return cached;
+    if (error && error.code !== 'PGRST116') {
+      logger.error('[BillConfig] Failed to fetch config', error);
       throw toAppError(
-        'billConfig.offline',
+        'billConfig.fetch',
         error,
-        'Unable to load bill settings. Please check your connection.',
-        {
-          code: 'offline',
-        },
+        'Unable to load bill settings.',
       );
     }
+
+    return (data as BillConfigRow | null) ?? null;
   },
 
   /**
@@ -89,9 +68,7 @@ export const billConfigService = {
         );
       }
 
-      const created = data as BillConfigRow;
-      await offlineStorage.setCache('billConfig', created);
-      return created;
+      return data as BillConfigRow;
     }
 
     const { data, error } = await supabase
@@ -110,8 +87,6 @@ export const billConfigService = {
       );
     }
 
-    const updated = data as BillConfigRow;
-    await offlineStorage.setCache('billConfig', updated);
-    return updated;
+    return data as BillConfigRow;
   },
 };

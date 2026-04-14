@@ -30,73 +30,68 @@ export const expensesService = {
   ): Promise<Expense[]> {
     const { startDate, endDate } = params;
 
-    try {
-      // First get expense-type party IDs for this org
-      const { data: expenseParties, error: partiesError } = await supabase
-        .from('parties')
-        .select('id, name')
-        .eq('organization_id', orgId)
-        .eq('type', 'expense')
-        .is('deleted_at', null);
+    // First get expense-type party IDs for this org
+    const { data: expenseParties, error: partiesError } = await supabase
+      .from('parties')
+      .select('id, name')
+      .eq('organization_id', orgId)
+      .eq('type', 'expense')
+      .is('deleted_at', null);
 
-      if (partiesError) {
-        logger.error(
-          '[Expenses] Failed to fetch expense parties',
-          partiesError,
-        );
-        throw toAppError(
-          'expenses.list',
-          partiesError,
-          'Unable to load expense categories.',
-        );
-      }
+    if (partiesError) {
+      logger.error(
+        '[Expenses] Failed to fetch expense parties',
+        partiesError,
+      );
+      throw toAppError(
+        'expenses.list',
+        partiesError,
+        'Unable to load expense categories.',
+      );
+    }
 
-      if (!expenseParties || expenseParties.length === 0) {
-        return [];
-      }
+    if (!expenseParties || expenseParties.length === 0) {
+      return [];
+    }
 
-      const partyIds = expenseParties.map(p => p.id);
-      const partyNameMap = new Map(expenseParties.map(p => [p.id, p.name]));
+    const partyIds = expenseParties.map(p => p.id);
+    const partyNameMap = new Map(expenseParties.map(p => [p.id, p.name]));
 
-      // Fetch credit_transactions for those parties
-      let query = supabase
-        .from('credit_transactions')
-        .select(
-          'id, organization_id, party_id, amount, date, description, reference_number, created_at',
-        )
-        .eq('organization_id', orgId)
-        .in('party_id', partyIds)
-        .order('date', { ascending: false });
+    // Fetch credit_transactions for those parties
+    let query = supabase
+      .from('credit_transactions')
+      .select(
+        'id, organization_id, party_id, amount, date, description, reference_number, created_at',
+      )
+      .eq('organization_id', orgId)
+      .in('party_id', partyIds)
+      .order('date', { ascending: false });
 
-      if (startDate) {
-        query = query.gte('date', startDate);
-      }
-      if (endDate) {
-        query = query.lte('date', endDate);
-      }
+    if (startDate) {
+      query = query.gte('date', startDate);
+    }
+    if (endDate) {
+      query = query.lte('date', endDate);
+    }
 
-      const { data, error } = await query;
+    const { data, error } = await query;
 
-      if (error) {
-        logger.error('[Expenses] Failed to fetch expense transactions', error);
-        throw toAppError('expenses.list', error, 'Unable to load expenses.');
-      }
-
-      return (data ?? []).map(row => ({
-        id: row.id,
-        organization_id: row.organization_id,
-        party_id: row.party_id,
-        party_name: partyNameMap.get(row.party_id) ?? 'Unknown',
-        amount: row.amount ?? 0,
-        date: row.date,
-        description: row.description ?? null,
-        reference_number: row.reference_number ?? null,
-        created_at: row.created_at ?? null,
-      }));
-    } catch (error) {
-      logger.error('[Expenses] Error listing expenses', error);
+    if (error) {
+      logger.error('[Expenses] Failed to fetch expense transactions', error);
       throw toAppError('expenses.list', error, 'Unable to load expenses.');
     }
+
+    return (data ?? []).map(row => ({
+      id: row.id,
+      organization_id: row.organization_id,
+      party_id: row.party_id,
+      party_name: partyNameMap.get(row.party_id) ?? 'Unknown',
+      amount: row.amount ?? 0,
+      date: row.date,
+      description: row.description ?? null,
+      reference_number: row.reference_number ?? null,
+      created_at: row.created_at ?? null,
+    }));
   },
 
   /**
@@ -168,20 +163,11 @@ export const expensesService = {
       .single();
 
     if (error || !data) {
-      const appError = toAppError(
+      throw toAppError(
         'expenses.create',
         error,
         'Unable to create expense.',
       );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('expense', 'create', {
-          ...input,
-          organization_id: orgId,
-        });
-        logger.log('[Offline] Queued expense creation for sync');
-      }
-      throw appError;
     }
 
     return {

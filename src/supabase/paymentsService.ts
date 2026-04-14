@@ -87,31 +87,16 @@ export const paymentsService = {
       created_by: user?.id ?? null,
     };
 
-    try {
-      const { data, error } = await supabase
-        .from('payments')
-        .insert(payload)
-        .select('*')
-        .single();
+    const { data, error } = await supabase
+      .from('payments')
+      .insert(payload)
+      .select('*')
+      .single();
 
-      if (error) {
-        throw toAppError('payments.create', error, 'Unable to record payment.');
-      }
-
-      return data as PaymentRow;
-    } catch (error: any) {
-      const appError =
-        error instanceof AppError
-          ? error
-          : toAppError('payments.create', error, 'Unable to record payment.');
-
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('payment', 'create', input);
-        logger.log('[Offline] Queued payment creation for sync');
-      }
-
-      throw appError;
+    if (error) {
+      throw toAppError('payments.create', error, 'Unable to record payment.');
     }
+
+    return data as PaymentRow;
   },
 };

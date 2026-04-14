@@ -168,43 +168,6 @@ Revert commits. Pure refactor, no behavior change.
 
 ---
 
-## Phase 8: Visual Consistency & Accessibility
-
-**Goal:** Centralize hardcoded colors, add accessibility labels to critical interactive elements, fix tap target sizes.
-
-**Prerequisites:**
-- Phase 7 committed (to avoid merge conflicts)
-
-### Task List
-
-| # | File | Change | Risk | Est. |
-|---|------|--------|------|------|
-| 8.1 | `src/theme/tokens.ts` | Add tokens: `white: 'hsl(0, 0%, 100%)'`, `shadowColor: '#1a1a2e'`, `radiusSm: 8`, `radiusMd: 12`, `radiusLg: 16`, `radiusXl: 24`, `radiusFull: 999` | Low | 10 min |
-| 8.2 | `src/screens/Invoices/AddSaleScreen.tsx` | Replace `'#fff'` with `tokens.white` (or `tokens.primaryForeground` where semantically correct), `'#1a1a2e'` with `tokens.shadowColor` | Low | 10 min |
-| 8.3 | `src/screens/Invoices/AddItemsScreen.tsx` | Same hardcoded color replacements as 8.2 | Low | 10 min |
-| 8.4 | `src/screens/Invoices/AddSaleScreen.tsx` | Add `accessibilityLabel` to: back button ("Go back"), party selector row ("Select customer"), each stepper `−` button (`Decrease quantity for ${item.product.name}`), each stepper `+` button (`Increase quantity for ${item.product.name}`), Generate Bill button, Save Draft button | Low | 20 min |
-| 8.5 | `src/screens/Invoices/AddItemsScreen.tsx` | Add `accessibilityLabel` to: stepper `−` buttons, stepper `+` buttons, back button, "Add to Invoice" button, mic button | Low | 15 min |
-| 8.6 | `src/screens/Dashboard/DashboardScreen.tsx` | Add `accessibilityLabel` to: date range pills, refresh button | Low | 10 min |
-| 8.7 | `src/screens/Invoices/AddSaleScreen.tsx` | Add `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` to all stepper buttons (L609, L628) | Low | 10 min |
-| 8.8 | `src/screens/Invoices/AddItemsScreen.tsx` | Add `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` to all stepper buttons (L215, L240) | Low | 10 min |
-
-### Commit Strategy
-- **Commit 1:** Task 8.1 → `chore: add white, shadow, and radius scale tokens to theme`
-- **Commit 2:** Tasks 8.2 + 8.3 → `fix: replace hardcoded hex colors with theme tokens`
-- **Commit 3:** Tasks 8.4 + 8.5 + 8.6 → `a11y: add accessibility labels to interactive elements`
-- **Commit 4:** Tasks 8.7 + 8.8 → `a11y: increase stepper button tap targets with hitSlop`
-
-### Verification Checklist
-- [ ] App appearance is identical before and after (no visual regression)
-- [ ] Stepper buttons are easy to tap on a small phone
-- [ ] Enable TalkBack/VoiceOver → navigate AddSaleScreen → each button announces its purpose
-- [ ] Dark mode still renders correctly (tokens apply to both modes)
-
-### Rollback Plan
-Revert commits individually. All changes are presentational/a11y, no logic impact.
-
----
-
 ## Phase 9: Navigation Type Safety
 
 **Goal:** Add TypeScript types for navigation params, eliminating all `useNavigation<any>()` and `useRoute<any>()`.

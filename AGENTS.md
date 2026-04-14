@@ -3,7 +3,7 @@
 This file serves as a persistent context guide for AI engineering agents (Antigravity, Cursor, Claude Code, etc.) assisting with the development and maintenance of the BillZest Mobile project.
 
 ## Project Overview
-BillZest Mobile is a comprehensive POS (Point of Sale) and invoicing system built natively for mobile. It empowers small businesses to manage sales, track inventory/products, log daily expenses, handle suppliers and customers, and monitor credit ledgers. It supports standard robust workflows as well as a "Quick Bill POS" mode for rapid checkout sequences, emphasizing an offline-capable and highly premium user experience.
+BillZest Mobile is a comprehensive POS (Point of Sale) and invoicing system built natively for mobile. It empowers small businesses to manage sales, track inventory/products, log daily expenses, handle suppliers and customers, and monitor credit ledgers. It supports standard robust workflows as well as a "Quick Bill POS" mode for rapid checkout sequences, emphasizing a high-performance, strictly online-only, and premium user experience.
 
 ## Tech Stack
 - **Framework:** React Native + Expo (SDK ~54.x)
@@ -16,16 +16,15 @@ BillZest Mobile is a comprehensive POS (Point of Sale) and invoicing system buil
 - **Styling:** Custom Token-based Theming mechanism (`useThemeTokens`). Fully transitioning to the **Stitch Design System**. No TailwindCSS.
 - **UI/Animation:** `react-native-reanimated` (`~4.1.1`), `react-native-gesture-handler`, `lucide-react-native` for icons.
 - **Native Modules:** `expo-file-system`, `expo-print`, `expo-sharing` (invoice PDF generation and sharing), `@react-native-community/datetimepicker`.
-- **Offline Sync:** `@react-native-async-storage/async-storage` interacting with custom sync logic.
+- **Online-Only Architecture:** Direct integration with Supabase for real-time data persistence.
 
 ## Project Structure
 - `assets/` - Static imagery, splash screens, and icons (used in `app.json`).
 - `src/components/` - Reusable presentational generic components, modals, and sheets.
 - `src/contexts/` - Global context wrappers (`SupabaseContext`, `OrganizationContext`).
-- `src/hooks/` - Custom React hooks (`useOfflineSync`, `useInvoiceFlow`).
+- `src/hooks/` - Custom React hooks (e.g., `useInvoiceFlow`).
 - `src/logic/` - Business logic extracted from the UI components.
 - `src/navigation/` - Core routing mechanisms, type definitions (`types.ts`), and drawer configuration.
-- `src/offline/` - Database abstractions and interceptors for offline-first support.
 - `src/screens/` - Major features organized by domain (Auth, Dashboard, Invoices, Products, Customers, Purchase, Expenses, CreditBook, Settings, Reports, Inventory).
 - `src/services/` - Data access utilities fetching structures mapped directly to Supabase RPCs/tables (e.g., `ordersService.ts`).
 - `src/stores/` - Zustand application stores (e.g., `appSettingsStore.ts`).
@@ -50,7 +49,7 @@ BillZest Mobile is a comprehensive POS (Point of Sale) and invoicing system buil
 - **Compilation Notes:** `babel-preset-expo` leverages `react-native-worklets/plugin` for `reanimated` support.
 
 ## Architecture & Key Concepts
-- **Offline-First Workflow:** Handled extensively via `useOfflineSync()`. All user actions should be considered gracefully degrading if the network is absent.
+- **Strict Online Integration:** The application operates strictly in online mode, interacting directly with Supabase. User actions should be considered dependent on network availability.
 - **Stitch Design System Integration:** The UI utilizes a premium custom design theme leveraging internal design tokens. 
   - **No-Line Rule:** Remove hard 1px solid borders (`borderWidth`). Differentiate component layers using tonal surface backgrounds (e.g., `surface_container_lowest`) and drop shadows. 
 - **Component Decomposition:** Active strategy moves away from monolithic screen files. Business flows (like Invoice Creation) route logic internally to pure hooks (e.g., `useInvoiceFlow`), maintaining component files purely as rendering orchestrators mapped to domain-specific visual components (e.g., `BillToCard`).

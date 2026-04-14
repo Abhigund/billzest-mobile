@@ -52,7 +52,7 @@ Only after both pass, mark `[x]` and ask for review.
 - [x] **Task 49** (Audit): Wire up a true "Delete Item" interface calling the `deleteProduct` mutation (which correctly sets `deleted_at`), bridging the gap where only a superficial "Archive" button exists.
 
 ### `src/supabase/ordersService.ts` (Invoices)
-- [x] **Task 68** (Audit Invoices): Modify `createOrder` (L234–L247). Intercept the offline state, generate a temporary UUID, attach it to the `mutation_queue` with a pending flag, and resolve the mock order instead of throwing an error to the UI. locked-by: codex-session | 2026-04-14 21:28:02 +05:30
+- [x] **Task 68** [REMOVED - Offline Removed]: Modify `createOrder` to intercept offline state.
 - [x] **Task 69** (Audit Invoices): Modify `createOrder` (L140–L168). Add a catch block around `order_items` insertion to manually delete the orphaned order header if item insertion fails to prevent data corruption.
 - [x] **Task 70** (Audit Invoices): Modify `createOrder`. Inject a call to `partyBalanceService` to create a `credit_transactions` entry representing the unpaid portion of the new invoice for the customer's ledger.
 
@@ -91,10 +91,10 @@ Only after both pass, mark `[x]` and ask for review.
 ### `src/components/modals/ProductOptionsSheet.tsx`
 - [x] **Task 52** (Audit): Remove or functionally replace the dead "Units" and "Categories" placeholder alerts so the UI reflects shipping-readiness. locked-by: codex-session | 2026-04-14 22:01:41 +05:30
 - [x] **Task 60** (Audit 2.1): `src/logic/partyLogic.ts` implement missing customer helper hooks such as `useCustomerDetail`, `calculateCustomerBalance`, and `recordCustomerPayment` to support customer/party flows consistently.
-- [ ] **Task 61** (Audit 2.2): `src/supabase/partiesService.ts` ensure offline party create/update/delete operations update local cache state and support temp IDs in addition to queueing the mutation.
+- [x] **Task 61** [REMOVED - Offline Removed]: Offline party operations logic.
 - [ ] **Task 62** (Audit 2.3): `src/hooks/useParties.ts` fix party mutation invalidation so `queryClient.invalidateQueries` refreshes the filtered `['parties', orgId, 'customers']` and `['parties', orgId, 'suppliers']` query caches.
 - [x] **Task 63** (Audit 2.4): `src/supabase/partyBalanceService.ts` extend `getCustomerFinancialSummary` to include `credit_transactions` data so outstanding balance matches the party ledger.
-- [ ] **Task 64** (Audit 2.5): `src/offline/syncEngine.ts` add `credit_transaction` processing support to `processQueue` so manual payment/credit mutations can sync when connectivity returns.
+- [x] **Task 64** [REMOVED - Offline Removed]: Sync engine support for credit transactions.
 
 ### `src/screens/Invoices/InvoicesListScreen.tsx`
 - [/] **Task 72** (Audit Invoices): Modify `FlatList` rendering. Implement `onEndReached` handling to fetch invoices incrementally within `useOrders` or bounded queries instead of exhaustive fetching. locked-by: codex-session | 2026-04-14 21:07:06 +05:30

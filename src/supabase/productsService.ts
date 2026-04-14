@@ -1,7 +1,6 @@
 import { supabase } from './supabaseClient';
 import { logger } from '../utils/logger';
 import { Product } from '../types/domain';
-import { offlineStorage } from '../offline/storage';
 import { toAppError } from '../utils/appError';
 
 const mapProductRow = (row: Record<string, any>): Product => ({
@@ -37,36 +36,20 @@ export const productsService = {
    * Fetch all active products for the given organization.
    */
   async getProducts(orgId: string): Promise<Product[]> {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('organization_id', orgId)
-        .is('deleted_at', null)
-        .eq('is_active', true)
-        .order('updated_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('organization_id', orgId)
+      .is('deleted_at', null)
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
 
-      if (error) {
-        logger.error('[Products] Failed to fetch products', error);
-        throw toAppError('products.get', error, 'Unable to load products.');
-      }
-
-      const mapped = (data ?? []).map(mapProductRow);
-      await offlineStorage.setCache('products', mapped);
-      return mapped;
-    } catch (error) {
-      logger.error('[Products] Falling back to offline cache', error);
-      const cached = await offlineStorage.getCache<Product[]>('products');
-      if (cached) return cached;
-      throw toAppError(
-        'products.offline',
-        error,
-        'Unable to load products. Please check your connection.',
-        {
-          code: 'offline',
-        },
-      );
+    if (error) {
+      logger.error('[Products] Failed to fetch products', error);
+      throw toAppError('products.get', error, 'Unable to load products.');
     }
+
+    return (data ?? []).map(mapProductRow);
   },
 
   /**
@@ -97,30 +80,25 @@ export const productsService = {
   ): Promise<boolean> {
     if (!barcode.trim()) return false;
 
-    try {
-      let query = supabase
-        .from('products')
-        .select('id')
-        .eq('organization_id', orgId)
-        .eq('barcode', barcode.trim())
-        .is('deleted_at', null);
+    let query = supabase
+      .from('products')
+      .select('id')
+      .eq('organization_id', orgId)
+      .eq('barcode', barcode.trim())
+      .is('deleted_at', null);
 
-      if (excludeId) {
-        query = query.neq('id', excludeId);
-      }
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
 
-      const { data, error } = await query.maybeSingle();
+    const { data, error } = await query.maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        logger.warn('[Products] Error checking barcode existence', error);
-        return false;
-      }
-
-      return data !== null;
-    } catch (error) {
-      logger.error('[Products] Error checking barcode', error);
+    if (error && error.code !== 'PGRST116') {
+      logger.warn('[Products] Error checking barcode existence', error);
       return false;
     }
+
+    return data !== null;
   },
 
   /**
@@ -133,30 +111,25 @@ export const productsService = {
   ): Promise<boolean> {
     if (!sku.trim()) return false;
 
-    try {
-      let query = supabase
-        .from('products')
-        .select('id')
-        .eq('organization_id', orgId)
-        .eq('sku', sku.trim())
-        .is('deleted_at', null);
+    let query = supabase
+      .from('products')
+      .select('id')
+      .eq('organization_id', orgId)
+      .eq('sku', sku.trim())
+      .is('deleted_at', null);
 
-      if (excludeId) {
-        query = query.neq('id', excludeId);
-      }
+    if (excludeId) {
+      query = query.neq('id', excludeId);
+    }
 
-      const { data, error } = await query.maybeSingle();
+    const { data, error } = await query.maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        logger.warn('[Products] Error checking SKU existence', error);
-        return false;
-      }
-
-      return data !== null;
-    } catch (error) {
-      logger.error('[Products] Error checking SKU', error);
+    if (error && error.code !== 'PGRST116') {
+      logger.warn('[Products] Error checking SKU existence', error);
       return false;
     }
+
+    return data !== null;
   },
 
   /**
@@ -192,41 +165,20 @@ export const productsService = {
       }
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert({
-          ...product,
-          organization_id: orgId,
-        })
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('products')
+      .insert({
+        ...product,
+        organization_id: orgId,
+      })
+      .select()
+      .single();
 
-      if (error) {
-        throw toAppError('products.create', error, 'Unable to create product.');
-      }
-
-      const created = mapProductRow(data);
-      const existing =
-        (await offlineStorage.getCache<Product[]>('products')) ?? [];
-      await offlineStorage.setCache('products', [...existing, created]);
-      return created;
-    } catch (error: any) {
-      const appError = toAppError(
-        'products.create',
-        error,
-        'Unable to create product.',
-      );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('product', 'create', {
-          ...product,
-          organization_id: orgId,
-        });
-        logger.log('[Offline] Queued product creation for sync');
-      }
-      throw appError;
+    if (error) {
+      throw toAppError('products.create', error, 'Unable to create product.');
     }
+
+    return mapProductRow(data);
   },
 
   /**
@@ -261,67 +213,34 @@ export const productsService = {
       }
     }
 
-    try {
-      // Remove fields that should not be sent to DB
-      const { category, ...dbUpdates } = updates as any;
+    // Remove fields that should not be sent to DB
+    const { category, ...dbUpdates } = updates as any;
 
-      const { data, error } = await supabase
-        .from('products')
-        .update({ ...dbUpdates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
+    const { data, error } = await supabase
+      .from('products')
+      .update({ ...dbUpdates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
 
-      if (error) {
-        throw toAppError('products.update', error, 'Unable to update product.');
-      }
-
-      const updated = mapProductRow(data);
-      const existing =
-        (await offlineStorage.getCache<Product[]>('products')) ?? [];
-      const next = existing.map(p => (p.id === id ? { ...p, ...updated } : p));
-      await offlineStorage.setCache('products', next);
-      return updated;
-    } catch (error: any) {
-      const appError = toAppError(
-        'products.update',
-        error,
-        'Unable to update product.',
-      );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('product', 'update', { id, updates });
-        logger.log('[Offline] Queued product update for sync');
-      }
-      throw appError;
+    if (error) {
+      throw toAppError('products.update', error, 'Unable to update product.');
     }
+
+    return mapProductRow(data);
   },
 
   /**
    * Soft-delete a product.
    */
   async deleteProduct(id: string): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('products')
-        .update({ deleted_at: new Date().toISOString(), is_active: false })
-        .eq('id', id);
+    const { error } = await supabase
+      .from('products')
+      .update({ deleted_at: new Date().toISOString(), is_active: false })
+      .eq('id', id);
 
-      if (error) {
-        throw toAppError('products.delete', error, 'Unable to delete product.');
-      }
-    } catch (error: any) {
-      const appError = toAppError(
-        'products.delete',
-        error,
-        'Unable to delete product.',
-      );
-      if (appError.code === 'offline') {
-        const { queueMutation } = await import('../utils/offlineQueue');
-        await queueMutation('product', 'delete', { id });
-        logger.log('[Offline] Queued product deletion for sync');
-      }
-      throw appError;
+    if (error) {
+      throw toAppError('products.delete', error, 'Unable to delete product.');
     }
   },
 

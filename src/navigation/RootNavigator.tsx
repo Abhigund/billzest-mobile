@@ -36,10 +36,6 @@ import SettingsScreen from "../screens/Settings/SettingsScreen";
 import BusinessInfoScreen from "../screens/Settings/BusinessInfoScreen";
 import OnlineStoreConfigScreen from "../screens/Settings/OnlineStoreConfigScreen";
 import BillConfigScreen from "../screens/Settings/BillingTemplatesScreen";
-// import PlansScreen from '../screens/Settings/PlansScreen';
-// import NotificationsScreen from '../screens/Settings/NotificationsScreen';
-// import SecurityScreen from '../screens/Settings/SecurityScreen';
-// import IntegrationsScreen from '../screens/Settings/IntegrationsScreen';
 import { View, ActivityIndicator } from "react-native";
 import { centeredScreenStyles } from "../theme/layout";
 import { DefaultTheme, DarkTheme } from "@react-navigation/native";
@@ -48,7 +44,6 @@ import { LayoutDashboard, Package, Users, FileText } from "lucide-react-native";
 import { useSupabase } from "../contexts/SupabaseContext";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import CustomDrawer from "./CustomDrawer";
-import { useOfflineSync } from "../hooks/useOfflineSync";
 import ErrorBoundary from "../components/ErrorBoundary";
 import {
   DashboardStackParamList,
@@ -270,7 +265,8 @@ const VendorsStack = () => (
   </VendorsStackNav.Navigator>
 );
 
-const CreditBookStackNav = createNativeStackNavigator<CreditBookStackParamList>();
+const CreditBookStackNav =
+  createNativeStackNavigator<CreditBookStackParamList>();
 const CreditBookStack = () => (
   <CreditBookStackNav.Navigator screenOptions={{ headerShown: false }}>
     <CreditBookStackNav.Screen
@@ -462,10 +458,8 @@ const SettingsStackNavigator = () => (
 const RootNavigator = () => {
   const { mode, tokens } = useThemeTokens();
   const { user, isLoading } = useSupabase();
+  // Bypassing auth logic for now if configured
   const shouldBypassAuth = false;
-
-  // Initialize offline sync - will sync when app becomes active and on mount
-  useOfflineSync();
 
   const navigationTheme = {
     ...(mode === "dark" ? DarkTheme : DefaultTheme),

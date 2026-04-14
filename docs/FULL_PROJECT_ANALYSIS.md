@@ -183,7 +183,6 @@ if (updateError) {
 **Fix Required:**
 - Consider transaction rollback or compensation logic
 - At minimum, show user warning about stock update failure
-- Queue stock update for retry if offline
 
 ---
 
@@ -197,50 +196,7 @@ if (updateError) {
 
 ---
 
-### 5.3 Network Error Handling in Services
-**Location:** Multiple service files  
-**Issue:** Some services don't properly handle offline scenarios  
-**Example:** `src/supabase/purchasesService.ts` doesn't queue mutations for offline sync on network errors
-
-**Fix Required:**
-- Ensure all mutation operations check for network errors
-- Queue mutations using `offlineQueue` utility
-- Follow pattern from `invoicesService.ts:309-314`
-
----
-
-## 6. OFFLINE SYNC ISSUES
-
-### 6.1 Missing Credit Transaction Sync
-**Location:** `src/offline/syncEngine.ts`  
-**Issue:** No handler for `credit_transaction` entity type  
-**Current:** Only handles: product, party, invoice, payment, purchase, expense  
-**Fix Required:**
-- Add `processCreditTransactionMutation()` method
-- Add case in `processQueue()` switch statement
-- Ensure credit transactions are queued when offline
-
----
-
-### 6.2 Purchase Order Sync Missing
-**Location:** `src/offline/syncEngine.ts:127-129`  
-**Status:** ✅ Implemented  
-**Note:** Purchase mutations are handled, but verify all purchase operations queue properly
-
----
-
-### 6.3 Stock Updates Not Queued for Offline
-**Location:** `src/supabase/invoicesService.ts:256-290`  
-**Issue:** Stock updates happen inline and aren't queued for offline retry  
-**Problem:** If stock update fails, it's lost  
-**Fix Required:**
-- Consider queuing stock updates separately
-- Or ensure invoice creation transaction includes stock updates
-- Add retry logic for failed stock updates
-
----
-
-## 7. UI/UX CONSISTENCY ISSUES
+## 6. UI/UX CONSISTENCY ISSUES
 
 ### 7.1 Missing Loading States
 **Location:** Various screens  
@@ -254,8 +210,6 @@ if (updateError) {
 - Use skeleton screens for initial loads
 - Show toast/alert for success/error states
 
----
-
 ### 7.2 Inconsistent Date Formatting
 **Location:** Multiple files  
 **Issue:** Dates formatted differently across screens  
@@ -268,8 +222,6 @@ if (updateError) {
 - Use consistent format across app
 - Support date format from settings (future)
 
----
-
 ### 7.3 Currency Formatting Inconsistency
 **Location:** Multiple files  
 **Issue:** Currency formatted inline in multiple places  
@@ -281,8 +233,6 @@ if (updateError) {
 - Create shared `formatCurrency` utility in `src/utils/formatters.ts`
 - Use consistently across app
 - Support currency from settings (future)
-
----
 
 ### 7.4 Missing Empty States
 **Location:** Some list screens  
@@ -307,8 +257,6 @@ if (updateError) {
 - Create proper navigation param types
 - Use typed navigation hooks
 
----
-
 ### 8.2 Deep Link Support Missing
 **Location:** Navigation setup  
 **Issue:** No deep linking configuration  
@@ -328,8 +276,6 @@ if (updateError) {
 - Add cost validation (positive number, optional)
 - Validate cost <= price (cost should not exceed sale price typically)
 
----
-
 ### 9.2 Stock Validation on Invoice Creation
 **Location:** `src/screens/Invoices/AddSaleScreen.tsx:75-139`  
 **Issue:** Validation doesn't check stock availability  
@@ -338,8 +284,6 @@ if (updateError) {
 - Add stock check before allowing invoice creation
 - Show warning if stock is insufficient
 - Allow override with confirmation
-
----
 
 ### 9.3 Invoice Number Uniqueness
 **Location:** `src/utils/invoiceNumberGenerator.ts`  
@@ -362,8 +306,6 @@ if (updateError) {
 - Or optimize queries to reduce round trips
 - Add caching for dashboard data
 
----
-
 ### 10.2 Product List Pagination Missing
 **Location:** `src/supabase/productsService.ts:33-74`  
 **Issue:** `getProducts()` fetches all products at once  
@@ -384,8 +326,6 @@ if (updateError) {
 - Add tests or verification that RLS is enforced
 - Ensure all queries filter by `user_id`
 
----
-
 ### 11.2 Session Expiry Handling
 **Location:** `src/contexts/SupabaseContext.tsx:28-45`  
 **Status:** ✅ Implemented  
@@ -401,8 +341,6 @@ if (updateError) {
 **Fix Required:**
 - Add JSDoc comments to public functions
 - Document parameters, return types, errors
-
----
 
 ### 12.2 Incomplete Type Definitions
 **Location:** `src/database.types.ts`  
@@ -423,14 +361,11 @@ if (updateError) {
 - Add tests for validation logic
 - Add tests for calculation functions (totals, taxes, etc.)
 
----
-
 ### 13.2 Missing Integration Tests
 **Location:** No integration test directory  
 **Issue:** No tests for service integrations  
 **Fix Required:**
 - Add integration tests for Supabase services
-- Test offline sync functionality
 - Test error handling paths
 
 ---
@@ -444,16 +379,12 @@ if (updateError) {
 - Extract strings to constants or i18n files
 - Prepare for future localization
 
----
-
 ### 14.2 Console.log Statements
 **Location:** Various files  
 **Issue:** Some `console.log` instead of `logger`  
 **Fix Required:**
 - Replace all `console.log` with `logger.log`
 - Use appropriate log levels
-
----
 
 ### 14.3 Unused Imports
 **Location:** Various files  
@@ -478,8 +409,6 @@ if (updateError) {
 - Add migration script
 - Update TypeScript types
 
----
-
 ### 15.2 Invoice Items Missing GST Fields
 **Location:** `billzestdb.sql:182-194`  
 **Issue:** `invoice_items` table has `gst_rate` and `gst_amount` in schema but may not be used  
@@ -501,8 +430,7 @@ if (updateError) {
 ### 🟡 HIGH (Should Fix for V1)
 5. **Purchase Report Date Filtering** - Dashboard accuracy
 6. **Error Handling** - Stock update failures
-7. **Offline Sync** - Credit transactions
-8. **UI Consistency** - Loading states, formatting
+7. **UI Consistency** - Loading states, formatting
 
 ### 🟢 MEDIUM (Nice to Have)
 9. **Pagination** - Product lists
@@ -528,7 +456,6 @@ if (updateError) {
 2. **Phase 2 (High Priority):**
    - Fix dashboard purchase filtering
    - Improve error handling
-   - Add missing offline sync handlers
    - Improve UI consistency
 
 3. **Phase 3 (Polish):**
