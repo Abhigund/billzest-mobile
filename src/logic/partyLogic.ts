@@ -96,7 +96,35 @@ export const useClientMutations = () => {
     },
   });
 
-  return { createClient, updateClient, deleteClient };
+  const recordPayment = useMutation({
+    mutationFn: (payload: {
+      party_id: string;
+      amount: number;
+      description: string;
+      reference_number?: string;
+    }) =>
+      partyBalanceService.recordCreditTransaction(organizationId!, {
+        ...payload,
+        type: 'received',
+      }),
+    onSuccess: (_, variables) => {
+      if (organizationId) {
+        // Invalidate the generic parties list
+        queryClient.invalidateQueries({
+          queryKey: ['parties', organizationId],
+        });
+        // Invalidate the specific customer summary/balance
+        queryClient.invalidateQueries({
+          queryKey: CLIENT_QUERY_KEYS.customerSummary(
+            organizationId,
+            variables.party_id,
+          ),
+        });
+      }
+    },
+  });
+
+  return { createClient, updateClient, deleteClient, recordPayment };
 };
 
 export const useCustomerFinancialSummary = (clientId?: string) => {
@@ -121,3 +149,24 @@ export const useCustomerFinancialSummary = (clientId?: string) => {
     enabled: !!organizationId && !!clientId,
   });
 };
+
+/**
+ * Hook to fetch a single party's details by ID.
+ */
+export const useParty = (partyId?: string) => {
+  const { organizationId } = useOrganization();
+  return useQuery({
+    queryKey: ['party', organizationId, partyId],
+    queryFn: () => (partyId ? partiesService.getPartyById(partyId) : null),
+    enabled: !!organizationId && !!partyId,
+  });
+};
+
+/**
+ * Hook to fetch a customer's financial balance summary.
+ * Alias for useCustomerFinancialSummary with a more descriptive name.
+ */
+export const usePartyBalance = (partyId?: string) => {
+  return useCustomerFinancialSummary(partyId);
+};
+
