@@ -16,6 +16,7 @@ import { partiesService } from '../../supabase/partiesService';
 import { useQueryClient } from '@tanstack/react-query';
 import { Party } from '../../types/domain';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import { PARTY_QUERY_KEYS } from '../../logic/partyLogic';
 
 type AddPartySheetRoute = RouteProp<
   {
@@ -104,7 +105,11 @@ const AddPartySheet: React.FC = () => {
       });
 
       // Invalidate parties query to refresh the list
-      queryClient.invalidateQueries({ queryKey: ['parties'] });
+      if (organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
+        });
+      }
 
       Alert.alert(
         'Success',

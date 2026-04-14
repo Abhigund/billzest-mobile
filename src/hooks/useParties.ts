@@ -2,11 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { partiesService } from '../supabase/partiesService';
 import { Party } from '../types/domain';
 import { useOrganization } from '../contexts/OrganizationContext';
+import { PARTY_QUERY_KEYS } from '../logic/partyLogic';
 
 export const useParties = (type?: Party['type']) => {
   const { organizationId } = useOrganization();
   return useQuery({
-    queryKey: ['parties', organizationId, type],
+    queryKey: PARTY_QUERY_KEYS.list(organizationId || '', type),
     queryFn: () => partiesService.getParties(organizationId!, type),
     enabled: !!organizationId,
   });
@@ -27,8 +28,11 @@ export const usePartyMutations = () => {
       return partiesService.createParty(organizationId, input);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parties', organizationId] });
-      queryClient.invalidateQueries({ queryKey: ['party', organizationId] });
+      if (organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
+        });
+      }
     },
   });
 
@@ -37,17 +41,29 @@ export const usePartyMutations = () => {
       if (!organizationId) throw new Error('No organization context');
       return partiesService.updateParty(id, updates);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parties', organizationId] });
-      queryClient.invalidateQueries({ queryKey: ['party', organizationId] });
+    onSuccess: (data) => {
+      if (organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.detail(organizationId, data.id),
+        });
+      }
     },
   });
 
   const deleteParty = useMutation({
     mutationFn: partiesService.deleteParty,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parties', organizationId] });
-      queryClient.invalidateQueries({ queryKey: ['party', organizationId] });
+    onSuccess: (_, id) => {
+      if (organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
+        });
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.detail(organizationId, id),
+        });
+      }
     },
   });
 

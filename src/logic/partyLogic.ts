@@ -7,21 +7,21 @@ import {
 import { Party } from '../types/domain';
 import { useOrganization } from '../contexts/OrganizationContext';
 
-export const CLIENT_QUERY_KEYS = {
-  clients: (orgId: string) => ['parties', orgId, 'customers'],
-  suppliers: (orgId: string) => ['parties', orgId, 'suppliers'],
-  all: (orgId: string) => ['parties', orgId, 'all'],
+export const PARTY_QUERY_KEYS = {
+  all: (orgId: string) => ['parties', orgId],
+  list: (orgId: string, type?: string) => ['parties', orgId, type || 'all'],
   customerSummary: (orgId: string, clientId: string) => [
     'party-summary',
     orgId,
     clientId,
   ],
+  detail: (orgId: string, partyId: string) => ['party', orgId, partyId],
 };
 
 export const useClients = () => {
   const { organizationId } = useOrganization();
   return useQuery({
-    queryKey: CLIENT_QUERY_KEYS.clients(organizationId || ''),
+    queryKey: PARTY_QUERY_KEYS.list(organizationId || '', 'customer'),
     queryFn: () => partiesService.getParties(organizationId!, 'customer'),
     enabled: !!organizationId,
     staleTime: 1000 * 30,
@@ -35,7 +35,7 @@ export const useClients = () => {
 export const useSuppliers = () => {
   const { organizationId } = useOrganization();
   return useQuery({
-    queryKey: CLIENT_QUERY_KEYS.suppliers(organizationId || ''),
+    queryKey: PARTY_QUERY_KEYS.list(organizationId || '', 'vendor'),
     queryFn: () => partiesService.getParties(organizationId!, 'vendor'), // Matches 'vendor' or 'supplier' logic in db, assume vendor
     enabled: !!organizationId,
     staleTime: 1000 * 30,
@@ -60,7 +60,7 @@ export const useClientMutations = () => {
     onSuccess: () => {
       if (organizationId) {
         queryClient.invalidateQueries({
-          queryKey: ['parties', organizationId],
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
         });
       }
     },
@@ -79,7 +79,7 @@ export const useClientMutations = () => {
     onSuccess: () => {
       if (organizationId) {
         queryClient.invalidateQueries({
-          queryKey: ['parties', organizationId],
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
         });
       }
     },
@@ -111,11 +111,11 @@ export const useClientMutations = () => {
       if (organizationId) {
         // Invalidate the generic parties list
         queryClient.invalidateQueries({
-          queryKey: ['parties', organizationId],
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
         });
         // Invalidate the specific customer summary/balance
         queryClient.invalidateQueries({
-          queryKey: CLIENT_QUERY_KEYS.customerSummary(
+          queryKey: PARTY_QUERY_KEYS.customerSummary(
             organizationId,
             variables.party_id,
           ),
@@ -131,7 +131,7 @@ export const useCustomerFinancialSummary = (clientId?: string) => {
   const { organizationId } = useOrganization();
   return useQuery<CustomerFinancialSummary>({
     queryKey: clientId
-      ? CLIENT_QUERY_KEYS.customerSummary(organizationId || '', clientId)
+      ? PARTY_QUERY_KEYS.customerSummary(organizationId || '', clientId)
       : ['party-summary', 'none'],
     queryFn: () =>
       organizationId && clientId
@@ -156,7 +156,9 @@ export const useCustomerFinancialSummary = (clientId?: string) => {
 export const useParty = (partyId?: string) => {
   const { organizationId } = useOrganization();
   return useQuery({
-    queryKey: ['party', organizationId, partyId],
+    queryKey: partyId
+      ? PARTY_QUERY_KEYS.detail(organizationId || '', partyId)
+      : ['party', 'none'],
     queryFn: () => (partyId ? partiesService.getPartyById(partyId) : null),
     enabled: !!organizationId && !!partyId,
   });

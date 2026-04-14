@@ -9,6 +9,7 @@ import {
   partyBalanceService,
   PartyLedgerSummary,
 } from '../supabase/partyBalanceService';
+import { PARTY_QUERY_KEYS } from '../logic/partyLogic';
 
 export const useCreditTransactions = (partyId: string) => {
   const { organizationId } = useOrganization();
@@ -35,15 +36,23 @@ export const useAddCreditTransaction = () => {
       });
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: ['credit_transactions', variables.party_id],
-      });
-      // Invalidate party ledger
-      queryClient.invalidateQueries({
-        queryKey: ['party_ledger', variables.party_id],
-      });
-      // Also invalidate party list to refresh balances
-      queryClient.invalidateQueries({ queryKey: ['parties'] });
+      if (organizationId) {
+        queryClient.invalidateQueries({
+          queryKey: ['credit_transactions', organizationId, variables.party_id],
+        });
+        // Invalidate party ledger
+        queryClient.invalidateQueries({
+          queryKey: ['party_ledger', organizationId, variables.party_id],
+        });
+        // Also invalidate party list to refresh balances
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.all(organizationId),
+        });
+        // Invalidate specific party detail if cached
+        queryClient.invalidateQueries({
+          queryKey: PARTY_QUERY_KEYS.detail(organizationId, variables.party_id),
+        });
+      }
       // Invalidate invoices/payments too as they are modified
       queryClient.invalidateQueries({ queryKey: ['invoices'] });
       queryClient.invalidateQueries({ queryKey: ['payments'] });

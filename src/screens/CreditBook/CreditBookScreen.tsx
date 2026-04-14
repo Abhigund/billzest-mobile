@@ -69,7 +69,7 @@ const CreditBookScreen: React.FC = () => {
 
   // Calculate balances from orders
   const { data: partiesWithCalculatedBalances = [] } = useQuery({
-    queryKey: ['parties', 'with-balances', organizationId],
+    queryKey: ['parties', organizationId, 'with-balances'],
     queryFn: async () => {
       if (!organizationId) return [];
 
