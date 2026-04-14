@@ -10,9 +10,11 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { Product } from '../../types/domain';
+import { ProductsStackParamList } from '../../navigation/types';
 import DetailHeader from '../../components/DetailHeader';
 import {
   Share2,
@@ -31,6 +33,7 @@ import {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type TabKey = 'overview' | 'pricing' | 'inventory' | 'more';
+type ProductDetailRoute = RouteProp<ProductsStackParamList, 'ProductDetail'>;
 
 const EMPTY_PRODUCT: Product = {
   id: '',
@@ -52,10 +55,7 @@ const EMPTY_PRODUCT: Product = {
   updated_at: '',
 };
 
-type ProductDetailRoute = RouteProp<
-  { ProductDetail: { product?: Product } },
-  'ProductDetail'
->;
+
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const formatCurrency = (value: number) =>
@@ -465,7 +465,7 @@ const MoreTab: React.FC<{
 const ProductDetailScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const route = useRoute<ProductDetailRoute>();
   const product = route.params?.product ?? EMPTY_PRODUCT;
   const [activeTab, setActiveTab] = React.useState<TabKey>('overview');

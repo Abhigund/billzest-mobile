@@ -10,6 +10,8 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProductsStackParamList } from '../../navigation/types';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { useCategories, useCategoryMutations } from '../../logic/categoryLogic';
@@ -24,7 +26,7 @@ import { Category } from '../../types/domain';
 const CategoriesListScreen = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
 
   const { data: categories = [], isLoading, isRefetching, refetch, error } = useCategories();
@@ -113,7 +115,7 @@ const CategoriesListScreen = () => {
                 title="No categories found"
                 description="Try adjusting your search or add a new category."
                 actionLabel="Add Category"
-                onAction={() => navigation.navigate('CategoryFormSheet')}
+                onAction={() => navigation.navigate('CategoryFormSheet', {})}
               />
             )}
 
@@ -151,7 +153,12 @@ const CategoriesListScreen = () => {
                       </Pressable>
                       <Pressable
                         style={styles.actionBtn}
-                        onPress={() => navigation.navigate('CategoryFormSheet', { category })}
+                        onPress={() =>
+                          navigation.navigate('CategoryFormSheet', {
+                            categoryId: category.id,
+                            category,
+                          })
+                        }
                       >
                         <Edit color={tokens.primary} size={18} />
                       </Pressable>
@@ -171,7 +178,7 @@ const CategoriesListScreen = () => {
 
         <FAB
           label="Add Category"
-          onPress={() => navigation.navigate('CategoryFormSheet')}
+          onPress={() => navigation.navigate('CategoryFormSheet', {})}
           accessibilityLabel="Add new category"
         />
       </View>

@@ -12,12 +12,14 @@ import {
   Platform,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import DetailHeader from '../../components/DetailHeader';
 import { ThemeTokens } from '../../theme/tokens';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { Product } from '../../types/domain';
 import { useProductMutations } from '../../logic/productLogic';
 import { useOrganization } from '../../contexts/OrganizationContext';
+import { ProductsStackParamList } from '../../navigation/types';
 import { Save, Trash2, Tag, CircleDollarSign, Package, Info } from 'lucide-react-native';
 
 // ─── Note: All colors now use theme tokens from useThemeTokens() ────────────────────────────────────────
@@ -25,10 +27,7 @@ import { Save, Trash2, Tag, CircleDollarSign, Package, Info } from 'lucide-react
 const GST_RATES = ['0', '5', '12', '18', '28'];
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-type ProductFormRoute = RouteProp<
-  { ProductForm: { mode?: 'create' | 'edit'; product?: Product } },
-  'ProductForm'
->;
+type ProductFormRoute = RouteProp<ProductsStackParamList, 'ProductForm'>;
 
 type FormState = {
   name: string;
@@ -146,7 +145,7 @@ const ProductFormScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const { organizationId } = useOrganization();
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const route = useRoute<ProductFormRoute>();
   const mode = route.params?.mode ?? 'create';
   const product = route.params?.product;

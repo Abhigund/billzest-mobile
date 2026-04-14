@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,18 +10,20 @@ import {
   Platform,
   Alert,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { useCategoryMutations } from '../../logic/categoryLogic';
 import { Category } from '../../types/domain';
+import { ProductsStackParamList } from '../../navigation/types';
 import { X, Save, Tag } from 'lucide-react-native';
 
 const CategoryFormSheet = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation();
-  const route = useRoute<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
+  const route = useRoute<RouteProp<ProductsStackParamList, 'CategoryFormSheet'>>();
 
   const existingCategory: Category | undefined = route.params?.category;
   const isEditMode = !!existingCategory;

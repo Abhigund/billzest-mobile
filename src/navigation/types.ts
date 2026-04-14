@@ -6,11 +6,11 @@ export type DashboardStackParamList = {
 
 export type ProductsStackParamList = {
   ProductsMain: undefined;
-  ProductDetail: { productId: string; product?: any };
-  ProductForm: { productId?: string };
+  ProductDetail: { product?: any };
+  ProductForm: { mode?: 'create' | 'edit'; product?: any };
   StockSummary: undefined;
   CategoriesList: undefined;
-  CategoryFormSheet: { categoryId?: string };
+  CategoryFormSheet: { categoryId?: string; category?: any };
   BarcodeGenerator: { product?: any };
 };
 

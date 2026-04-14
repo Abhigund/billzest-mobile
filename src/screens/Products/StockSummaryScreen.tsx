@@ -10,8 +10,10 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DetailHeader from '../../components/DetailHeader';
+import { ProductsStackParamList } from '../../navigation/types';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { useProducts } from '../../logic/productLogic';
@@ -24,7 +26,7 @@ const formatCurrency = (amount: number) => `₹${amount.toLocaleString('en-IN', 
 const StockSummaryScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const { data: products = [], isLoading, error, refetch, isRefetching } = useProducts();
 
   // State for "Show as of date"

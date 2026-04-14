@@ -14,6 +14,8 @@ import {
   Modal,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ProductsStackParamList } from '../../navigation/types';
 import { useOrganization } from '../../contexts/OrganizationContext';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
@@ -49,7 +51,7 @@ const formatCurrency = (amount: number) => {
 const ProductsListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<ProductsStackParamList>>();
   const { organizationId } = useOrganization();
 
   const [activeFilters, setActiveFilters] = useState<any>({});
@@ -148,7 +150,7 @@ const ProductsListScreen: React.FC = () => {
         if (product) {
           // Set search term to product name and navigate to detail
           setSearchTerm(product.name);
-          navigation.navigate('ProductDetail', { productId: product.id });
+          navigation.navigate('ProductDetail', { product });
         } else {
           Alert.alert('Not Found', `No product found with barcode: ${code}`);
         }
@@ -254,10 +256,11 @@ const ProductsListScreen: React.FC = () => {
                     id: 'online-store',
                     icon: <Store color={tokens.primary} size={24} />,
                     label: 'Online Store',
-                    onPress: () =>
-                      navigation.navigate('SettingsStack', {
-                        screen: 'OnlineStoreConfig',
-                      }),
+                    onPress: () => {
+                      // Navigate to Settings via drawer root navigation
+                      // TODO: Use drawer navigation or restructure app navigation to support cross-stack navigation
+                      Alert.alert('Info', 'Online Store settings will be available soon.');
+                    },
                   },
                   {
                     id: 'stock',
@@ -269,7 +272,7 @@ const ProductsListScreen: React.FC = () => {
                     id: 'barcodes',
                     icon: <Printer color={tokens.primary} size={24} />,
                     label: 'Barcodes',
-                    onPress: () => navigation.navigate('BarcodeGenerator'),
+                    onPress: () => navigation.navigate('BarcodeGenerator', {}),
                   },
                   {
                     id: 'all',
