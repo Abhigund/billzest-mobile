@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
   ScrollView,
   FlatList,
@@ -9,6 +9,7 @@ import {
   Alert,
   Share,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
@@ -39,6 +40,7 @@ import {
 } from 'lucide-react-native';
 
 const STATUS_FILTERS = ['All', 'Paid', 'Sent', 'Overdue', 'Draft'];
+const INVOICES_PAGE_SIZE = 20;
 
 const InvoicesListScreen: React.FC = () => {
   const { tokens } = useThemeTokens();
@@ -48,6 +50,7 @@ const InvoicesListScreen: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState(STATUS_FILTERS[0]);
   const [isFilterSheetVisible, setFilterSheetVisible] = useState(false);
   const [activeFilters, setActiveFilters] = useState<InvoiceFilters>({});
+  const [visibleCount, setVisibleCount] = useState(INVOICES_PAGE_SIZE);
   const { simplifiedPOSEnabled } = useAppSettingsStore();
   const {
     data: invoices = [],
@@ -74,6 +77,25 @@ const InvoicesListScreen: React.FC = () => {
       { id: 'counts', label: 'Invoices', value: `${invoices.length} Total` },
     ];
   }, [invoices]);
+
+  useEffect(() => {
+    setVisibleCount(INVOICES_PAGE_SIZE);
+  }, [searchTerm, selectedStatus, invoices.length]);
+
+  const visibleInvoices = useMemo(
+    () => invoices.slice(0, visibleCount),
+    [invoices, visibleCount],
+  );
+
+  const hasMoreInvoices = visibleCount < invoices.length;
+
+  const handleLoadMore = useCallback(() => {
+    if (isLoading || isRefetching || !hasMoreInvoices) {
+      return;
+    }
+
+    setVisibleCount(current => Math.min(current + INVOICES_PAGE_SIZE, invoices.length));
+  }, [hasMoreInvoices, invoices.length, isLoading, isRefetching]);
 
   const handleShareInvoice = useCallback(async (orderId: string) => {
     try {
@@ -180,7 +202,7 @@ const InvoicesListScreen: React.FC = () => {
             tintColor={tokens.primary}
           />
         }
-        data={invoices}
+        data={visibleInvoices}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <>
@@ -331,7 +353,15 @@ const InvoicesListScreen: React.FC = () => {
             />
           );
         }}
-        ListFooterComponent={<View style={styles.footerSpacer} />}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          <View style={styles.footerSpacer}>
+            {hasMoreInvoices ? (
+              <ActivityIndicator color={tokens.primary} size="small" />
+            ) : null}
+          </View>
+        }
       />
 
       <InvoiceFilterSheet
