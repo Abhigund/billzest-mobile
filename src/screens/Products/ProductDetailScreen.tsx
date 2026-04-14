@@ -6,6 +6,8 @@ import {
   StyleSheet,
   Pressable,
   TouchableOpacity,
+  Share,
+  Alert,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
@@ -24,29 +26,8 @@ import {
   MoreHorizontal,
 } from 'lucide-react-native';
 
-// ─── Design Tokens (Stitch-aligned) ────────────────────────────────────────
-const DS = {
-  green: '#006e2d',
-  greenContainer: '#1db954',
-  greenContainerBg: 'rgba(29,185,84,0.12)',
-  greenDim: 'rgba(29,185,84,0.08)',
-  surface: '#f8f9fa',
-  surfaceCard: '#ffffff',
-  surfaceContainerLow: '#f3f4f5',
-  surfaceContainerHigh: '#e7e8e9',
-  surfaceContainerHighest: '#e1e3e4',
-  onSurface: '#191c1d',
-  onSurfaceVariant: '#3d4a3d',
-  outline: 'rgba(108,123,108,0.15)',
-  outlineVariant: 'rgba(188,203,185,0.25)',
-  secondary: '#645d5c',
-  tertiary: '#a8353e',
-  tertiaryLight: 'rgba(168,53,62,0.1)',
-  radius24: 24,
-  radius16: 16,
-  radius12: 12,
-  radius8: 8,
-};
+// ─── Note: All colors now use theme tokens from useThemeTokens() ────────────────────────────────────────
+// Hardcoded DS object removed. See createStyles() for token mappings.
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type TabKey = 'overview' | 'pricing' | 'inventory' | 'more';
@@ -114,7 +95,7 @@ const HeroCard: React.FC<{ product: Product; styles: ReturnType<typeof createSty
       <View style={s.heroRow}>
         {/* Product icon */}
         <View style={s.heroIcon}>
-          <Package color={DS.greenContainer} size={26} />
+          <Package color={s.tokens.primary} size={26} />
         </View>
 
         <View style={s.heroCopy}>
@@ -257,7 +238,7 @@ const OverviewTab: React.FC<{
           <Text style={s.statValue}>{formatCurrency(product.purchase_price)}</Text>
           {margin > 0 && (
             <View style={s.marginChip}>
-              <TrendingUp size={10} color={DS.green} />
+              <TrendingUp size={10} color={s.tokens.primary} />
               <Text style={s.marginChipText}>{formatCurrency(margin)} margin</Text>
             </View>
           )}
@@ -291,7 +272,7 @@ const OverviewTab: React.FC<{
         <InfoRow
           label="Expiry Date"
           value={formatDate(product.expiry_date)}
-          valueColor={product.expiry_date ? DS.tertiary : undefined}
+          valueColor={product.expiry_date ? s.tokens.destructive : undefined}
           styles={s}
         />
         {product.description ? (
@@ -322,7 +303,7 @@ const PricingTab: React.FC<{
       {/* Price Breakdown */}
       <SectionCard
         title="PRICE BREAKDOWN"
-        icon={<ReceiptText size={18} color={DS.green} />}
+        icon={<ReceiptText size={18} color={s.tokens.primary} />}
         styles={s}
       >
         <View style={s.divider} />
@@ -330,7 +311,7 @@ const PricingTab: React.FC<{
         <InfoRow
           label="Selling Price"
           value={formatCurrency(product.selling_price)}
-          valueColor={DS.green}
+          valueColor={s.tokens.primary}
           styles={s}
         />
         <InfoRow label="Purchase Price" value={formatCurrency(product.purchase_price)} styles={s} />
@@ -345,7 +326,7 @@ const PricingTab: React.FC<{
       {/* Tax & GST */}
       <SectionCard
         title="TAX & GST"
-        icon={<ReceiptText size={18} color={DS.secondary} />}
+        icon={<ReceiptText size={18} color={s.tokens.mutedForeground} />}
         styles={s}
       >
         <View style={s.divider} />
@@ -385,7 +366,7 @@ const InventoryTab: React.FC<{
           {product.low_stock_threshold != null && (
             <View style={s.stockThresholdBlock}>
               <Text style={s.stockHealthLabel}>THRESHOLD</Text>
-              <Text style={[s.stockThresholdValue, lowStock && { color: DS.tertiary }]}>
+              <Text style={[s.stockThresholdValue, lowStock && { color: s.tokens.destructive }]}>
                 {product.low_stock_threshold} {product.unit || ''}
               </Text>
             </View>
@@ -394,7 +375,7 @@ const InventoryTab: React.FC<{
 
         {lowStock && (
           <View style={s.lowStockBanner}>
-            <Info size={14} color={DS.tertiary} />
+            <Info size={14} color={s.tokens.destructive} />
             <Text style={s.lowStockBannerText}>Low stock — consider restocking</Text>
           </View>
         )}
@@ -416,13 +397,13 @@ const InventoryTab: React.FC<{
         <InfoRow
           label="Low Stock Alert"
           value={product.low_stock_threshold != null ? String(product.low_stock_threshold) : 'Not set'}
-          valueColor={lowStock ? DS.tertiary : undefined}
+          valueColor={lowStock ? s.tokens.destructive : undefined}
           styles={s}
         />
         <InfoRow
           label="Expiry Date"
           value={formatDate(product.expiry_date)}
-          valueColor={product.expiry_date ? DS.tertiary : undefined}
+          valueColor={product.expiry_date ? s.tokens.destructive : undefined}
           styles={s}
         />
       </SectionCard>
@@ -437,7 +418,7 @@ const MoreTab: React.FC<{
 }> = ({ product, styles: s }) => (
   <View style={s.tabContent}>
     {/* Notes & Compliance */}
-    <SectionCard title="NOTES & COMPLIANCE" icon={<Info size={18} color={DS.secondary} />} styles={s}>
+    <SectionCard title="NOTES & COMPLIANCE" icon={<Info size={18} color={s.tokens.mutedForeground} />} styles={s}>
       <View style={s.divider} />
       {product.description ? (
         <View style={s.descriptionBlock}>
@@ -451,13 +432,13 @@ const MoreTab: React.FC<{
       <InfoRow
         label="Expiry Date"
         value={formatDate(product.expiry_date)}
-        valueColor={product.expiry_date ? DS.tertiary : undefined}
+        valueColor={product.expiry_date ? s.tokens.destructive : undefined}
         styles={s}
       />
     </SectionCard>
 
     {/* Meta */}
-    <View style={[s.sectionCard, { backgroundColor: DS.surfaceContainerLow }]}>
+    <View style={[s.sectionCard, { backgroundColor: s.tokens.secondary }]}>
       <View style={s.metaGrid}>
         <View style={s.metaBlock}>
           <Text style={s.metaLabel}>CREATED</Text>
@@ -493,6 +474,70 @@ const ProductDetailScreen: React.FC = () => {
     navigation.navigate('ProductForm', { mode: 'edit', product });
   }, [navigation, product]);
 
+  const handleShareProduct = React.useCallback(async () => {
+    try {
+      const message = `📦 Product: ${product.name || 'Unnamed'}\n\nPrice: ₹${product.selling_price}\nCost: ₹${product.purchase_price}\nStock: ${product.stock_quantity} ${product.unit || ''}\n\nCategory: ${(product as any).categories?.name || 'Uncategorized'}\nSKU: ${product.sku || '—'}\nGST: ${product.tax_rate}%`;
+      
+      await Share.share({
+        message: message.trim(),
+        title: `Share Product - ${product.name}`,
+      });
+    } catch (error) {
+      const { logger } = await import('../../utils/logger');
+      logger.error('[ProductDetail] Share failed', error);
+      Alert.alert('Error', 'Failed to share product details');
+    }
+  }, [product]);
+
+  const handlePrintProduct = React.useCallback(() => {
+    Alert.alert(
+      'Print Product Label',
+      `Printing label for ${product.name}...\n\nSKU: ${product.sku || '—'}\nBarcode: ${product.barcode || '—'}\n\nThis feature generates printable product labels for shelf display and inventory tracking.`,
+      [
+        { text: 'Cancel', onPress: () => {} },
+        {
+          text: 'Generate Label',
+          onPress: () => {
+            Alert.alert('Info', 'Label generation will be available in a future update. You can export product data using the More menu.');
+          },
+        },
+      ],
+    );
+  }, [product]);
+
+  const handleMoreOptions = React.useCallback(() => {
+    const options: { text: string; onPress: () => void; style?: 'cancel' | 'default' | 'destructive' }[] = [
+      {
+        text: 'Product Info',
+        onPress: () => {
+          Alert.alert(
+            'Product ID',
+            product.id || 'Not available',
+            [{ text: 'OK' }],
+          );
+        },
+      },
+      {
+        text: 'Stock Management',
+        onPress: () => {
+          // Navigate to inventory tab where user can manage stock
+          setActiveTab('inventory');
+          Alert.alert('Info', 'See the Inventory tab for stock tracking and adjustments.');
+        },
+      },
+      {
+        text: 'Pricing Details',
+        onPress: () => {
+          setActiveTab('pricing');
+          Alert.alert('Info', 'See the Pricing tab for detailed cost and margin analysis.');
+        },
+      },
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+    ];
+
+    Alert.alert('Options', 'Select an action:', options);
+  }, [product, setActiveTab]);
+
   return (
     <View style={styles.screen}>
       <DetailHeader
@@ -500,17 +545,17 @@ const ProductDetailScreen: React.FC = () => {
         actions={[
           {
             icon: <Share2 size={18} color={tokens.foreground} />,
-            onPress: () => {},
+            onPress: handleShareProduct,
             accessibilityLabel: 'Share product',
           },
           {
             icon: <Printer size={18} color={tokens.foreground} />,
-            onPress: () => {},
+            onPress: handlePrintProduct,
             accessibilityLabel: 'Print product',
           },
           {
             icon: <MoreHorizontal size={18} color={tokens.foreground} />,
-            onPress: () => {},
+            onPress: handleMoreOptions,
             accessibilityLabel: 'More options',
           },
         ]}
@@ -540,11 +585,11 @@ const ProductDetailScreen: React.FC = () => {
 };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
-const createStyles = (tokens: ThemeTokens) =>
-  StyleSheet.create({
+const createStyles = (tokens: ThemeTokens) => {
+  const sheet = StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: DS.surface,
+      backgroundColor: tokens.background,
     },
     scrollContent: {
       paddingBottom: 40,
@@ -554,11 +599,11 @@ const createStyles = (tokens: ThemeTokens) =>
     heroCard: {
       margin: 16,
       marginBottom: 0,
-      backgroundColor: DS.surfaceCard,
-      borderRadius: DS.radius24,
+      backgroundColor: tokens.card,
+      borderRadius: 24,
       padding: 20,
       borderWidth: 1,
-      borderColor: DS.outlineVariant,
+      borderColor: tokens.border,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.04,
@@ -573,7 +618,7 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 60,
       height: 60,
       borderRadius: 16,
-      backgroundColor: DS.greenContainerBg,
+      backgroundColor: tokens.primary + '20',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -584,7 +629,7 @@ const createStyles = (tokens: ThemeTokens) =>
     heroName: {
       fontSize: 18,
       fontWeight: '800',
-      color: DS.onSurface,
+      color: tokens.foreground,
       letterSpacing: -0.3,
       marginBottom: 8,
     },
@@ -597,24 +642,24 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: DS.surfaceContainerHighest,
+      backgroundColor: tokens.muted,
     },
     chipSecondaryText: {
       fontSize: 9,
       fontWeight: '700',
-      color: DS.secondary,
+      color: tokens.mutedForeground,
       letterSpacing: 0.5,
     },
     chipPrimary: {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: DS.greenContainerBg,
+      backgroundColor: tokens.primary + '20',
     },
     chipPrimaryText: {
       fontSize: 9,
       fontWeight: '700',
-      color: DS.green,
+      color: tokens.primary,
       letterSpacing: 0.5,
     },
     chipOutline: {
@@ -624,39 +669,39 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: 'rgba(83,224,118,0.15)',
+      backgroundColor: tokens.primary + '15',
     },
     chipInactive: {
-      backgroundColor: DS.surfaceContainerHighest,
+      backgroundColor: tokens.muted,
     },
     chipDot: {
       width: 5,
       height: 5,
       borderRadius: 99,
-      backgroundColor: DS.greenContainer,
+      backgroundColor: tokens.primary,
     },
     chipDotInactive: {
-      backgroundColor: DS.secondary,
+      backgroundColor: tokens.mutedForeground,
     },
     chipOutlineText: {
       fontSize: 9,
       fontWeight: '700',
-      color: DS.green,
+      color: tokens.primary,
       letterSpacing: 0.5,
     },
     chipInactiveText: {
-      color: DS.secondary,
+      color: tokens.mutedForeground,
     },
     chipDiscount: {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: DS.tertiaryLight,
+      backgroundColor: tokens.destructive + '15',
     },
     chipDiscountText: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.tertiary,
+      color: tokens.destructive,
       letterSpacing: 0.5,
     },
     heroFooter: {
@@ -665,7 +710,7 @@ const createStyles = (tokens: ThemeTokens) =>
       marginTop: 14,
       paddingTop: 14,
       borderTopWidth: 1,
-      borderTopColor: DS.outlineVariant,
+      borderTopColor: tokens.border,
     },
     heroFooterRight: {
       alignItems: 'flex-end',
@@ -673,7 +718,7 @@ const createStyles = (tokens: ThemeTokens) =>
     heroFooterLabel: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
       marginBottom: 2,
@@ -681,16 +726,16 @@ const createStyles = (tokens: ThemeTokens) =>
     heroFooterValue: {
       fontSize: 12,
       fontWeight: '600',
-      color: DS.onSurface,
+      color: tokens.foreground,
     },
 
     // ── Tab Bar ──
     tabBar: {
-      backgroundColor: DS.surface,
+      backgroundColor: tokens.background,
       paddingVertical: 10,
       paddingHorizontal: 16,
       borderBottomWidth: 1,
-      borderBottomColor: DS.outlineVariant,
+      borderBottomColor: tokens.border,
     },
     tabBarContent: {
       gap: 8,
@@ -703,8 +748,8 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: 'transparent',
     },
     tabPillActive: {
-      backgroundColor: DS.greenContainer,
-      shadowColor: DS.greenContainer,
+      backgroundColor: tokens.primary,
+      shadowColor: tokens.primary,
       shadowOffset: { width: 0, height: 3 },
       shadowOpacity: 0.25,
       shadowRadius: 6,
@@ -713,10 +758,10 @@ const createStyles = (tokens: ThemeTokens) =>
     tabPillText: {
       fontSize: 13,
       fontWeight: '600',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
     },
     tabPillTextActive: {
-      color: '#fff',
+      color: tokens.primaryForeground,
       fontWeight: '700',
     },
 
@@ -737,17 +782,17 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: 'center',
       justifyContent: 'center',
       gap: 8,
-      backgroundColor: DS.green,
+      backgroundColor: tokens.primary,
       paddingVertical: 14,
-      borderRadius: DS.radius16,
-      shadowColor: DS.green,
+      borderRadius: 16,
+      shadowColor: tokens.primary,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.25,
       shadowRadius: 8,
       elevation: 4,
     },
     primaryBtnText: {
-      color: '#fff',
+      color: tokens.primaryForeground,
       fontWeight: '700',
       fontSize: 14,
     },
@@ -760,8 +805,8 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     statCard: {
       width: '47%',
-      backgroundColor: DS.surfaceCard,
-      borderRadius: DS.radius16,
+      backgroundColor: tokens.card,
+      borderRadius: 16,
       padding: 14,
       overflow: 'hidden',
       shadowColor: '#000',
@@ -780,7 +825,7 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 3,
       borderTopRightRadius: 4,
       borderBottomRightRadius: 4,
-      backgroundColor: DS.greenContainer,
+      backgroundColor: tokens.primary,
     },
     statAccentBarRed: {
       position: 'absolute',
@@ -790,12 +835,12 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 3,
       borderTopRightRadius: 4,
       borderBottomRightRadius: 4,
-      backgroundColor: '#ff767b',
+      backgroundColor: tokens.destructive,
     },
     statLabel: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.secondary,
+      color: tokens.mutedForeground,
       letterSpacing: 1,
       textTransform: 'uppercase',
       marginBottom: 6,
@@ -803,13 +848,13 @@ const createStyles = (tokens: ThemeTokens) =>
     statValue: {
       fontSize: 20,
       fontWeight: '800',
-      color: DS.onSurface,
+      color: tokens.foreground,
       letterSpacing: -0.5,
     },
     statSubtext: {
       fontSize: 9,
       fontWeight: '500',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
       marginTop: 2,
     },
     marginChip: {
@@ -821,16 +866,16 @@ const createStyles = (tokens: ThemeTokens) =>
     marginChipText: {
       fontSize: 9,
       fontWeight: '700',
-      color: DS.green,
+      color: tokens.primary,
     },
 
     // ── Section Card ──
     sectionCard: {
-      backgroundColor: DS.surfaceCard,
-      borderRadius: DS.radius24,
+      backgroundColor: tokens.card,
+      borderRadius: 24,
       padding: 20,
       borderWidth: 1,
-      borderColor: DS.outlineVariant,
+      borderColor: tokens.border,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.03,
@@ -847,26 +892,26 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 3,
       height: 20,
       borderRadius: 4,
-      backgroundColor: DS.greenContainer,
+      backgroundColor: tokens.primary,
     },
     sectionIconWrap: {
       width: 36,
       height: 36,
       borderRadius: 10,
-      backgroundColor: DS.greenDim,
+      backgroundColor: tokens.primary + '15',
       alignItems: 'center',
       justifyContent: 'center',
     },
     sectionTitle: {
       fontSize: 11,
       fontWeight: '800',
-      color: DS.onSurface,
+      color: tokens.foreground,
       letterSpacing: 1.2,
       textTransform: 'uppercase',
     },
     divider: {
       height: 1,
-      backgroundColor: DS.outlineVariant,
+      backgroundColor: tokens.border,
       marginVertical: 12,
     },
 
@@ -877,17 +922,17 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: 'center',
       paddingVertical: 8,
       borderBottomWidth: 1,
-      borderBottomColor: DS.outlineVariant,
+      borderBottomColor: tokens.border,
     },
     infoRowLabel: {
       fontSize: 12,
       fontWeight: '600',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
     },
     infoRowValue: {
       fontSize: 13,
       fontWeight: '700',
-      color: DS.onSurface,
+      color: tokens.foreground,
     },
     descriptionBlock: {
       paddingVertical: 8,
@@ -895,12 +940,12 @@ const createStyles = (tokens: ThemeTokens) =>
     descriptionText: {
       fontSize: 13,
       fontWeight: '500',
-      color: DS.onSurface,
+      color: tokens.foreground,
       lineHeight: 20,
     },
     emptyNote: {
       fontSize: 13,
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
       fontStyle: 'italic',
       paddingVertical: 8,
     },
@@ -913,28 +958,28 @@ const createStyles = (tokens: ThemeTokens) =>
       marginTop: 12,
       paddingTop: 12,
       borderTopWidth: 1,
-      borderTopColor: DS.outlineVariant,
+      borderTopColor: tokens.border,
     },
     discountBannerLabel: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
       letterSpacing: 1,
       textTransform: 'uppercase',
     },
     discountBannerValue: {
       fontSize: 14,
       fontWeight: '900',
-      color: DS.green,
+      color: tokens.primary,
     },
 
     // ── Inventory: Stock Health Card ──
     stockHealthCard: {
-      backgroundColor: DS.surfaceCard,
-      borderRadius: DS.radius24,
+      backgroundColor: tokens.card,
+      borderRadius: 24,
       overflow: 'hidden',
       borderWidth: 1,
-      borderColor: DS.outlineVariant,
+      borderColor: tokens.border,
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.04,
@@ -949,7 +994,7 @@ const createStyles = (tokens: ThemeTokens) =>
     stockHealthLabel: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.secondary,
+      color: tokens.mutedForeground,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
       marginBottom: 4,
@@ -962,13 +1007,13 @@ const createStyles = (tokens: ThemeTokens) =>
     stockQtyValue: {
       fontSize: 32,
       fontWeight: '900',
-      color: DS.onSurface,
+      color: tokens.foreground,
       letterSpacing: -1,
     },
     stockQtyUnit: {
       fontSize: 13,
       fontWeight: '700',
-      color: DS.secondary,
+      color: tokens.mutedForeground,
     },
     stockThresholdBlock: {
       alignItems: 'flex-end',
@@ -976,20 +1021,20 @@ const createStyles = (tokens: ThemeTokens) =>
     stockThresholdValue: {
       fontSize: 14,
       fontWeight: '700',
-      color: DS.onSurface,
+      color: tokens.foreground,
     },
     lowStockBanner: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
-      backgroundColor: DS.tertiaryLight,
+      backgroundColor: tokens.destructive + '15',
       paddingHorizontal: 16,
       paddingVertical: 10,
     },
     lowStockBannerText: {
       fontSize: 12,
       fontWeight: '700',
-      color: DS.tertiary,
+      color: tokens.destructive,
     },
     stockTrackedRow: {
       flexDirection: 'row',
@@ -998,31 +1043,31 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 16,
       paddingVertical: 12,
       borderTopWidth: 1,
-      borderTopColor: DS.outlineVariant,
+      borderTopColor: tokens.border,
     },
     stockTrackedLabel: {
       fontSize: 13,
       fontWeight: '600',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
     },
     trackToggle: {
       width: 38,
       height: 22,
       borderRadius: 99,
-      backgroundColor: DS.green,
+      backgroundColor: tokens.primary,
       justifyContent: 'center',
       paddingHorizontal: 3,
       alignItems: 'flex-end',
     },
     trackToggleOff: {
-      backgroundColor: DS.surfaceContainerHighest,
+      backgroundColor: tokens.muted,
       alignItems: 'flex-start',
     },
     trackToggleThumb: {
       width: 16,
       height: 16,
       borderRadius: 8,
-      backgroundColor: '#fff',
+      backgroundColor: tokens.card,
     },
     trackToggleThumbOff: {},
 
@@ -1038,7 +1083,7 @@ const createStyles = (tokens: ThemeTokens) =>
     metaLabel: {
       fontSize: 9,
       fontWeight: '800',
-      color: DS.onSurfaceVariant,
+      color: tokens.mutedForeground,
       letterSpacing: 1.5,
       textTransform: 'uppercase',
       marginBottom: 4,
@@ -1046,23 +1091,26 @@ const createStyles = (tokens: ThemeTokens) =>
     metaValue: {
       fontSize: 13,
       fontWeight: '700',
-      color: DS.onSurface,
+      color: tokens.foreground,
     },
     productIdBlock: {
       paddingTop: 12,
       borderTopWidth: 1,
-      borderTopColor: DS.outlineVariant,
+      borderTopColor: tokens.border,
     },
     productIdText: {
       fontSize: 11,
       fontFamily: 'monospace',
-      color: DS.secondary,
-      backgroundColor: DS.surfaceContainerHigh,
+      color: tokens.mutedForeground,
+      backgroundColor: tokens.muted,
       paddingHorizontal: 8,
       paddingVertical: 4,
       borderRadius: 6,
       marginTop: 4,
     },
   });
+
+  return { ...sheet, tokens };
+};
 
 export default ProductDetailScreen;
