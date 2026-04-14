@@ -1,12 +1,12 @@
-# Cursor Agent Task List
+# Cursor/Antigravity/Claude Agent Task List
 
 **Agent Instructions:**
 - **DATABASE DEPENDENT TASKS ARE CURRENTLY OUT OF SCOPE. Please completely ignore tasks involving RPC or SQL modifications.**
-- You have access to the full codebase in Cursor.
+- You have access to the full codebase in IDE.
 - Execute ONE task at a time. Do not combine multiple tasks into a single run.
 - Stop and ask for review after completing each task.
 - Each task corresponds to exactly one finding from the audit and is designed to fit a 15-30 minute session.
-
+- When you pick task to work on move them to inprogress mode by [] => [/] before proceeding.
 *Note: The tasks are strictly ordered by Priority (Critical -> High -> Medium -> Low), and then grouped by file to minimize context switching. If a High priority task has dependencies on a lower priority task (e.g., calling an SQL RPC that must be created first), take care of the dependency first if possible.*
 
 ---
@@ -23,6 +23,17 @@
 
 ### `src/screens/Invoices/hooks/useInvoiceFlow.ts`
 - [x] **Task 5** (Audit 10.1): Create new file. Extract `validateInvoice()`, `handleGenerateBill()`, `handleBack()`, `handleScan()`, and all mutation hook calls (`useCreateOrder`, `useUpdateOrderStatus`, `useCreatePurchase`) from AddSaleScreen into a custom hook that returns `{ validate, submitInvoice, handleBack, handleScan, isSubmitting }`.
+- [x] **Task 57** (Audit 1.1): `src/screens/Customers/CustomerFormScreen.tsx` implement edit mode using the `customerId` route param, prefill existing customer fields, and call `updateClient` when editing instead of always creating a new party.
+- [x] **Task 58** (Audit 1.2): `src/screens/Customers/CustomersListScreen.tsx` fix navigation to pass only `customerId` into `CustomerDetail`, not the full customer object, and align list/detail routing with typed params.
+- [/] **Task 59** (Audit 1.3): `src/screens/Customers/CustomerDetailScreen.tsx` fetch the customer by `customerId` from route params, replace placeholder `handleRecordPayment` and empty header button handlers with real payment/navigation behavior, and add actionable edit/delete controls.
+
+### `src/screens/Products/ProductDetailScreen.tsx`
+- [x] **Task 46** (Audit): Replace hardcoded `DS` hex color object (`green: '#006e2d'`, `surface: '#f8f9fa'`) with exact `tokens.*` mappings from `useThemeTokens()`.
+- [x] **Task 47** (Audit): Implement or adequately stub `onPress` actions for the Header buttons (Share, Print, More) which are currently empty `() => {}` voids.
+
+### `src/screens/Products/ProductFormScreen.tsx`
+- [ ] **Task 48** (Audit): Completely refactor the hardcoded `DS` mappings and wire all UI components to `useThemeTokens()` to guarantee dynamic application of the Stitch Design system.
+- [ ] **Task 49** (Audit): Wire up a true "Delete Item" interface calling the `deleteProduct` mutation (which correctly sets `deleted_at`), bridging the gap where only a superficial "Archive" button exists.
 
 ---
 
@@ -49,6 +60,20 @@
 ### Global / Batch Refactoring
 - [ ] **Task 14** (Audit 9.3): Replace `useNavigation<any>()` with typed `useNavigation<NativeStackNavigationProp<XxxParamList>>()` across all screens. (Perform in batches of 5-6 screens).
 - [ ] **Task 15** (Audit 9.4): Replace `useRoute<any>()` with typed `useRoute<RouteProp<XxxParamList, 'ScreenName'>>()` across all screens.
+
+### `src/screens/Products/StockSummaryScreen.tsx`
+- [ ] **Task 50** (Audit): Address dead handlers in the UI. Wire up the "Show stock as on Date" Switch (`onValueChange`), the Filter pill (`onPress`), and the Header Export buttons so they trigger functional flows instead of empty functions or placeholders.
+
+### `src/navigation/` & Routing Refactoring
+- [ ] **Task 51** (Audit): Eliminate `useNavigation<any>()` instances strictly in `ProductFormScreen.tsx`, `ProductDetailScreen.tsx`, `ProductsListScreen.tsx`, `StockSummaryScreen.tsx`, `CategoriesListScreen.tsx`, and `useRoute<any>()` in `CategoryFormSheet.tsx` using precise `NativeStackNavigationProp`.
+
+### `src/components/modals/ProductOptionsSheet.tsx`
+- [ ] **Task 52** (Audit): Remove or functionally replace the dead "Units" and "Categories" placeholder alerts so the UI reflects shipping-readiness.
+- [ ] **Task 60** (Audit 2.1): `src/logic/partyLogic.ts` implement missing customer helper hooks such as `useCustomerDetail`, `calculateCustomerBalance`, and `recordCustomerPayment` to support customer/party flows consistently.
+- [ ] **Task 61** (Audit 2.2): `src/supabase/partiesService.ts` ensure offline party create/update/delete operations update local cache state and support temp IDs in addition to queueing the mutation.
+- [ ] **Task 62** (Audit 2.3): `src/hooks/useParties.ts` fix party mutation invalidation so `queryClient.invalidateQueries` refreshes the filtered `['parties', orgId, 'customers']` and `['parties', orgId, 'suppliers']` query caches.
+- [ ] **Task 63** (Audit 2.4): `src/supabase/partyBalanceService.ts` extend `getCustomerFinancialSummary` to include `credit_transactions` data so outstanding balance matches the party ledger.
+- [ ] **Task 64** (Audit 2.5): `src/offline/syncEngine.ts` add `credit_transaction` processing support to `processQueue` so manual payment/credit mutations can sync when connectivity returns.
 
 ---
 
@@ -99,6 +124,15 @@
 - [ ] **Task 39** (Audit 11.1) - `src/utils/testSupabaseConnection.ts`: Gate all `console.log` calls behind `if (__DEV__)` or delete the file if it's not imported anywhere.
 - [ ] **Task 40** (Audit 11.2) - `src/screens/Products/ProductsListScreen.tsx`: Replace `rgba(250,204,21,0.9)` (L624) with `tokens.warning` + opacity.
 - [ ] **Task 41** (Audit 11.3) - `src/screens/Products/ProductsListScreen.tsx`: Replace `rgba(220,76,70,0.9)` (L630) with `tokens.destructive` + opacity.
+
+### UI / UX Global Updates (Products)
+- [ ] **Task 53** (Audit): Implement the Stitch "No-Line Rule". Comb through `ProductsListScreen`, `ProductFormScreen`, `ProductDetailScreen`, `StockSummaryScreen`, `CategoriesListScreen`, and `ProductCard` to eliminate all occurrences of `borderWidth: 1` 1px solid borders.
+- [ ] **Task 54** (Audit): Refactor `src/screens/Products/ProductsListScreen.tsx` and `src/components/ProductCard.tsx` to remove any hardcoded internal `rgba()` strings (e.g. `rgba(254,176,77,0.18)`), substituting them with standard theme tokens with opacity modifiers.
+- [ ] **Task 55** (Audit): Add native `hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}` padding to functional action icons (`EyeOff`, `Edit`, `Trash2`) throughout `CategoriesListScreen.tsx`.
+- [ ] **Task 56** (Audit): Remove the `Platform.OS === 'ios'` padding constraint hack in `src/screens/Products/CategoryFormSheet.tsx` to utilize pure robust modal layouting instead of static offsets.
+- [ ] **Task 65** (Audit 3.1): `src/screens/Customers/CustomerFormScreen.tsx` replace generic `Alert.alert` validation feedback with inline field-specific error messages and disable the save button while submission is pending.
+- [ ] **Task 66** (Audit 3.2): `src/components/CustomerCard.tsx` remove `borderWidth: 1` and hardcoded `rgba(...)` styling, switching to token-driven tonal surfaces and shadows.
+- [ ] **Task 67** (Audit 3.3): `src/components/ui/PartyDropdown.tsx` remove hard 1px borders and replace them with theme surface styling for the party selection modal and trigger row.
 
 ---
 
