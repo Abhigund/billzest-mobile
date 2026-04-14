@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import ActionSheet from './ActionSheet';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
-import { ChevronRight, EyeOff, Tag, Box } from 'lucide-react-native';
-
 type ProductOptionsSheetProps = {
   visible: boolean;
   onClose: () => void;
-  onSelectOption: (optionId: string) => void;
   showInactive?: boolean;
   onToggleShowInactive?: (value: boolean) => void;
 };
@@ -16,18 +13,12 @@ type ProductOptionsSheetProps = {
 const ProductOptionsSheet: React.FC<ProductOptionsSheetProps> = ({
   visible,
   onClose,
-  onSelectOption,
   showInactive: showInactiveProp = false,
   onToggleShowInactive,
 }) => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const [showInactive, setShowInactive] = useState(showInactiveProp);
-
-  const handleSelect = (id: string) => {
-    onSelectOption(id);
-    onClose();
-  };
 
   return (
     <ActionSheet visible={visible} onClose={onClose} title="More Options">
@@ -45,25 +36,6 @@ const ProductOptionsSheet: React.FC<ProductOptionsSheetProps> = ({
           <View style={[styles.checkbox, showInactive && styles.checked]} />
         </Pressable>
 
-        <View style={styles.divider} />
-
-        <Pressable style={styles.row} onPress={() => handleSelect('units')}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Box size={18} color={tokens.mutedForeground} />
-            <Text style={styles.label}>Units</Text>
-          </View>
-          <ChevronRight size={20} color={tokens.mutedForeground} />
-        </Pressable>
-        <Pressable
-          style={styles.row}
-          onPress={() => handleSelect('categories')}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <Tag size={18} color={tokens.mutedForeground} />
-            <Text style={styles.label}>Categories</Text>
-          </View>
-          <ChevronRight size={20} color={tokens.mutedForeground} />
-        </Pressable>
       </View>
     </ActionSheet>
   );
@@ -85,11 +57,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontSize: 16,
       color: tokens.foreground,
       fontWeight: '500',
-    },
-    divider: {
-      height: 1,
-      backgroundColor: tokens.border,
-      marginVertical: 4,
     },
     checkbox: {
       width: 20,

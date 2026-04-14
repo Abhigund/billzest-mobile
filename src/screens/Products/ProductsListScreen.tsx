@@ -408,19 +408,6 @@ const ProductsListScreen: React.FC = () => {
         onClose={() => setOptionsSheetVisible(false)}
         showInactive={showInactive}
         onToggleShowInactive={setShowInactive}
-        onSelectOption={opt => {
-          if (opt === 'units') {
-            Alert.alert(
-              'Units Management',
-              'Units management feature will be available in a future update. You can set units when creating or editing products.',
-            );
-          } else if (opt === 'categories') {
-            Alert.alert(
-              'Categories Management',
-              'Categories management feature will be available in a future update. You can set categories when creating or editing products.',
-            );
-          }
-        }}
       />
 
       <Modal

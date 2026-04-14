@@ -89,8 +89,8 @@ Only after both pass, mark `[x]` and ask for review.
 - [x] **Task 51** (Audit): Eliminate `useNavigation<any>()` instances strictly in `ProductFormScreen.tsx`, `ProductDetailScreen.tsx`, `ProductsListScreen.tsx`, `StockSummaryScreen.tsx`, `CategoriesListScreen.tsx`, and `useRoute<any>()` in `CategoryFormSheet.tsx` using precise `NativeStackNavigationProp`.
 
 ### `src/components/modals/ProductOptionsSheet.tsx`
-- [ ] **Task 52** (Audit): Remove or functionally replace the dead "Units" and "Categories" placeholder alerts so the UI reflects shipping-readiness.
-- [ ] **Task 60** (Audit 2.1): `src/logic/partyLogic.ts` implement missing customer helper hooks such as `useCustomerDetail`, `calculateCustomerBalance`, and `recordCustomerPayment` to support customer/party flows consistently.
+- [x] **Task 52** (Audit): Remove or functionally replace the dead "Units" and "Categories" placeholder alerts so the UI reflects shipping-readiness. locked-by: codex-session | 2026-04-14 22:01:41 +05:30
+- [/] **Task 60** (Audit 2.1): `src/logic/partyLogic.ts` implement missing customer helper hooks such as `useCustomerDetail`, `calculateCustomerBalance`, and `recordCustomerPayment` to support customer/party flows consistently. locked-by: antigravity-session | 2026-04-14 22:04:00 +05:30
 - [ ] **Task 61** (Audit 2.2): `src/supabase/partiesService.ts` ensure offline party create/update/delete operations update local cache state and support temp IDs in addition to queueing the mutation.
 - [ ] **Task 62** (Audit 2.3): `src/hooks/useParties.ts` fix party mutation invalidation so `queryClient.invalidateQueries` refreshes the filtered `['parties', orgId, 'customers']` and `['parties', orgId, 'suppliers']` query caches.
 - [x] **Task 63** (Audit 2.4): `src/supabase/partyBalanceService.ts` extend `getCustomerFinancialSummary` to include `credit_transactions` data so outstanding balance matches the party ledger.
