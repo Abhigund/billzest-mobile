@@ -10,19 +10,15 @@ const InvoiceListSkeleton: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4, 5, 6].map(i => (
         <View key={i} style={styles.card}>
-          <View style={styles.header}>
-            <Skeleton width={120} height={16} borderRadius={8} />
-            <Skeleton width={80} height={16} borderRadius={8} />
+          <View style={styles.left}>
+            <Skeleton width={110} height={14} borderRadius={6} />
+            <Skeleton width={160} height={11} borderRadius={4} />
           </View>
-          <View style={styles.meta}>
-            <Skeleton width={100} height={14} borderRadius={6} />
-            <Skeleton width={60} height={14} borderRadius={6} />
-          </View>
-          <View style={styles.footer}>
-            <Skeleton width={90} height={18} borderRadius={8} />
+          <View style={styles.right}>
             <Skeleton width={70} height={14} borderRadius={6} />
+            <Skeleton width={20} height={20} borderRadius={4} />
           </View>
         </View>
       ))}
@@ -33,33 +29,23 @@ const InvoiceListSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 20,
-      gap: 12,
+      gap: 4,
     },
     card: {
-      backgroundColor: tokens.card,
-      borderRadius: 16,
-      padding: 16,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      gap: 12,
-    },
-    header: {
+      backgroundColor: tokens.surface_container_lowest,
+      borderRadius: 12,
+      paddingHorizontal: 12,
+      paddingVertical: 14,
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
+      justifyContent: 'space-between',
     },
-    meta: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: 4,
+    left: {
+      gap: 6,
     },
-    footer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: 8,
+    right: {
+      alignItems: 'flex-end',
+      gap: 6,
     },
   });
 

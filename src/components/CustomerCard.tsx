@@ -114,10 +114,11 @@ const createStyles = (tokens: ThemeTokens) =>
     container: {
       backgroundColor: tokens.card,
       borderRadius: 20,
-      padding: 16,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingMd, // 12px
       borderWidth: 1,
       borderColor: tokens.border,
-      marginBottom: 16,
+      marginBottom: tokens.spacingMd, // 12px
     },
     containerOverdue: {
       borderColor: tokens.destructive,
@@ -134,40 +135,43 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 12,
+      marginBottom: tokens.spacingMd, // 12px
     },
     titleBlock: {
       flex: 1,
-      paddingRight: 12,
+      paddingRight: tokens.spacingMd, // 12px
     },
     name: {
       color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 16,
+      fontWeight: '600', // Semi-bold
+      fontSize: 16, // Primary size
+      letterSpacing: -0.2,
     },
     meta: {
       color: tokens.mutedForeground,
-      marginTop: 4,
-      fontSize: 12,
+      marginTop: tokens.spacingXs, // 4px
+      fontSize: 12, // Secondary size
+      fontWeight: '400', // Regular
     },
     detailsRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 14,
+      marginBottom: tokens.spacingLg, // 16px
     },
     detailBlock: {
       flex: 1,
-      paddingRight: 10,
+      paddingRight: tokens.spacingSm, // 8px
     },
     detailLabel: {
       color: tokens.mutedForeground,
-      fontSize: 12,
-      marginBottom: 4,
+      fontSize: 12, // Secondary size
+      fontWeight: '400', // Regular
+      marginBottom: tokens.spacingXs, // 4px
     },
     detailValue: {
       color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 15,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 14, // Emphasis size
     },
     footer: {
       flexDirection: 'row',
@@ -177,25 +181,27 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     footerLabel: {
       color: tokens.mutedForeground,
-      fontSize: 12,
+      fontSize: 12, // Secondary size
+      fontWeight: '400', // Regular
     },
     footerValue: {
       color: tokens.foreground,
-      fontWeight: '600',
+      fontWeight: '500', // Medium weight
       marginTop: 4,
+      fontSize: 13, // Between secondary and emphasis
     },
     footerActions: {
       flexDirection: 'row',
-      marginLeft: -8,
-      marginTop: 8,
+      marginLeft: -tokens.spacingSm, // -8px
+      marginTop: tokens.spacingSm, // 8px
     },
     iconButton: {
-      borderRadius: 999,
+      borderRadius: tokens.radiusFull,
       borderWidth: 1,
       borderColor: tokens.border,
-      paddingHorizontal: 14,
-      paddingVertical: 6,
-      marginLeft: 8,
+      paddingHorizontal: tokens.spacingSm, // 8px
+      paddingVertical: 6, // Not a multiple of 8 but minimal for touch
+      marginLeft: tokens.spacingSm, // 8px
     },
   });
 

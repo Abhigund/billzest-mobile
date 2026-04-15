@@ -109,37 +109,38 @@ const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     label: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: '600', // Semi-bold
       color: tokens.foreground,
-      marginBottom: 6,
+      marginBottom: tokens.spacingXs, // 4px
     },
     tonalLabel: {
-      fontSize: 11,
-      fontWeight: '700',
+      fontSize: 12, // Secondary size
+      fontWeight: '600', // Semi-bold
       color: tokens.mutedForeground,
-      marginBottom: 2,
-      marginLeft: 4,
+      marginBottom: tokens.spacingXs, // 4px
+      marginLeft: tokens.spacingXs, // 4px
     },
     tonalContainer: {
-      marginBottom: 8,
+      marginBottom: tokens.spacingSm, // 8px
     },
     input: {
       borderWidth: 1,
       borderColor: tokens.border,
-      borderRadius: 14,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      borderRadius: tokens.radiusSm, // 8px
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: 10, // Reduced for compact look
       color: tokens.foreground,
       backgroundColor: tokens.card,
-      fontSize: 15,
+      fontSize: 15, // Primary size
+      minHeight: 40, // Reduced height
     },
     tonalInput: {
       borderWidth: 0,
       backgroundColor: tokens.muted,
-      fontSize: 14,
+      fontSize: 15, // Primary size
       fontWeight: '500',
-      minHeight: 44,
-      paddingVertical: 10,
+      minHeight: 40, // Reduced height
+      paddingVertical: 8, // Reduced padding
     },
     inputWrapper: {
       position: 'relative',
@@ -149,9 +150,9 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: tokens.muted,
-      borderRadius: 14,
+      borderRadius: tokens.radiusSm, // 8px
       overflow: 'hidden',
-      minHeight: 44,
+      minHeight: 40, // Reduced height
     },
     outlinedFocused: {
       borderColor: tokens.ring,
@@ -165,14 +166,14 @@ const createStyles = (tokens: ThemeTokens) =>
       borderColor: tokens.destructive,
     },
     inputWithAccessory: {
-      paddingRight: 44,
+      paddingRight: 40, // Reduced to match 40px height
     },
     inputWithPrefix: {
       flex: 1,
       paddingLeft: 4,
     },
     prefixContainer: {
-      paddingHorizontal: 12,
+      paddingHorizontal: tokens.spacingMd, // 12px
       justifyContent: 'center',
       backgroundColor: tokens.secondary,
       alignSelf: 'stretch',
@@ -188,14 +189,14 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     secureToggle: {
       position: 'absolute',
-      right: 12,
+      right: tokens.spacingSm, // 8px
       height: '100%',
       justifyContent: 'center',
     },
     hint: {
-      fontSize: 12,
+      fontSize: 12, // Secondary size
       color: tokens.mutedForeground,
-      marginTop: 6,
+      marginTop: tokens.spacingXs, // 4px
     },
   });
 

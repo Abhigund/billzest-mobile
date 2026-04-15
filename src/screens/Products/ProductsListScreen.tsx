@@ -29,6 +29,7 @@ import ProductOptionsSheet from '../../components/modals/ProductOptionsSheet';
 import BarcodeScanner from '../../components/Scanner/BarcodeScanner';
 import SearchBar from '../../components/SearchBar';
 import { useScreenContentPadding } from '../../components/layout/ScreenContent';
+import ListHeader from '../../components/layout/ListHeader';
 import {
   Plus,
   AlertTriangle,
@@ -233,6 +234,7 @@ const ProductsListScreen: React.FC = () => {
   return (
     <ScreenWrapper>
       <View style={styles.screen}>
+        <ListHeader title="Products" />
         <FlatList
           style={styles.container}
           contentContainerStyle={contentContainerStyle}
@@ -392,10 +394,10 @@ const createStyles = (tokens: ThemeTokens) =>
     },
 
     trailingIconButton: {
-      width: 44,
-      height: 44,
-      marginLeft: 10,
-      borderRadius: 12,
+      width: 40,
+      height: 40,
+      marginLeft: tokens.spacingSm, // 8px
+      borderRadius: tokens.radiusSm, // 8px for consistency
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: tokens.card,
@@ -446,8 +448,8 @@ const createStyles = (tokens: ThemeTokens) =>
     listColumnHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      paddingHorizontal: 20,
-      paddingVertical: 8,
+      paddingHorizontal: tokens.spacingLg, // 16px — matches SearchBar horizontal padding
+      paddingVertical: tokens.spacingSm, // 8px — normalized across all screens
       backgroundColor: tokens.muted,
     },
     listColumnLabel: {

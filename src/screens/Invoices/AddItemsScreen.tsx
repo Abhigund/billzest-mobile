@@ -38,6 +38,8 @@ import {
   PlusCircle,
   ArrowRight,
 } from "lucide-react-native";
+import FormActionBar from "../../components/ui/FormActionBar";
+import ScreenHeader from "../../components/layout/ScreenHeader";
 import type { AppNavigationParamList } from "../../navigation/types";
 
 const AVATAR_COLORS = [
@@ -128,7 +130,7 @@ const AddItemsScreen = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search by item name..."
-            placeholderTextColor={tokens.mutedForeground + "80"}
+            placeholderTextColor="rgba(115,115,115,0.5)"
             value={query}
             onChangeText={setQuery}
             autoFocus={false}
@@ -140,7 +142,7 @@ const AddItemsScreen = () => {
               accessibilityLabel="Clear search"
               hitSlop={hitSlop}
             >
-              <X size={16} color={tokens.mutedForeground + "80"} />
+              <X size={16} color="rgba(115,115,115,0.5)" />
             </Pressable>
           )}
         </View>
@@ -233,7 +235,7 @@ const AddItemsScreen = () => {
                   <MinusCircle
                     size={24}
                     color={
-                      qty > 0 ? tokens.primary : tokens.mutedForeground + "60"
+                      qty > 0 ? tokens.primary : 'rgba(115,115,115,0.38)'
                     }
                     strokeWidth={2}
                   />
@@ -245,7 +247,7 @@ const AddItemsScreen = () => {
                       color:
                         qty > 0
                           ? tokens.foreground
-                          : tokens.mutedForeground + "60",
+                          : 'rgba(115,115,115,0.38)',
                     },
                   ]}
                 >
@@ -267,27 +269,18 @@ const AddItemsScreen = () => {
             </View>
           );
         }}
-        ListFooterComponent={<View style={{ height: 90 }} />}
+        ListFooterComponent={<View style={{ height: 12 }} />}
       />
 
-      {/* ── Bottom Summary Bar ─────────────────────────────────────────────── */}
       {totalSelectedItems > 0 && (
-        <View style={styles.footer}>
-          <View>
-            <Text style={styles.footerLabel}>SUMMARY</Text>
-            <View style={styles.footerRow}>
-              <Text style={styles.footerItems}>{totalSelectedItems} items</Text>
-              <Text style={styles.footerSep}> | </Text>
-              <Text style={styles.footerAmount}>
-                {formatCurrency(totalSelectedAmount)}
-              </Text>
-            </View>
-          </View>
-          <Pressable style={styles.doneBtn} onPress={handleDone}>
-            <Text style={styles.doneBtnText}>Add to Invoice</Text>
-            <ArrowRight size={18} color={tokens.primaryForeground} strokeWidth={2.5} />
-          </Pressable>
-        </View>
+        <FormActionBar
+          variant="summary"
+          itemsLabel={`${totalSelectedItems} item${totalSelectedItems !== 1 ? 's' : ''} selected`}
+          amountLabel={formatCurrency(totalSelectedAmount)}
+          primaryLabel="Add to Invoice"
+          primaryIcon={<ArrowRight size={16} color={tokens.primaryForeground} strokeWidth={2.5} />}
+          onPrimary={handleDone}
+        />
       )}
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -307,7 +300,7 @@ const createStyles = (tokens: ThemeTokens) =>
       gap: 10,
       backgroundColor: tokens.background,
       borderBottomWidth: 1,
-      borderBottomColor: tokens.border + "15",
+      borderBottomColor: 'rgba(0,0,0,0.08)',
     },
     backBtn: { padding: 8, borderRadius: 8 },
     backIcon: { fontSize: 22, color: tokens.primary, fontWeight: "700" },
@@ -321,7 +314,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingVertical: 8,
       gap: 8,
       borderWidth: 1,
-      borderColor: tokens.border + "15",
+      borderColor: 'rgba(0,0,0,0.08)',
     },
     searchPrefix: { fontSize: 16, color: tokens.mutedForeground },
     searchInput: {
@@ -332,8 +325,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     clearIcon: {
       fontSize: 13,
-      color: tokens.mutedForeground + "80",
-      padding: 2,
+      color: 'rgba(115,115,115,0.5)',
     },
     micBtn: { padding: 8, borderRadius: 8 },
     micIcon: { fontSize: 20 },
@@ -346,8 +338,8 @@ const createStyles = (tokens: ThemeTokens) =>
     createCard: {
       borderWidth: 1.5,
       borderStyle: "dashed",
-      borderColor: tokens.primary + "50",
-      backgroundColor: tokens.primary + "06",
+      borderColor: 'rgba(29,185,84,0.35)',
+      backgroundColor: 'rgba(29,185,84,0.04)',
       borderRadius: 10,
       paddingVertical: 10,
       alignItems: "center",
@@ -357,7 +349,7 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 32,
       height: 32,
       borderRadius: 16,
-      backgroundColor: tokens.primary + "12",
+      backgroundColor: 'rgba(29,185,84,0.08)',
       alignItems: "center",
       justifyContent: "center",
     },
@@ -383,7 +375,7 @@ const createStyles = (tokens: ThemeTokens) =>
       letterSpacing: 1.5,
       textTransform: "uppercase",
     },
-    sectionCount: { fontSize: 11, color: tokens.mutedForeground + "80" },
+    sectionCount: { fontSize: 11, color: 'rgba(115,115,115,0.5)' },
 
     // Product card
     productCard: {
@@ -394,7 +386,7 @@ const createStyles = (tokens: ThemeTokens) =>
       padding: 12,
       gap: 12,
       borderWidth: 1,
-      borderColor: tokens.border + "15",
+      borderColor: 'rgba(0,0,0,0.08)',
       shadowColor: tokens.foreground,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.04,
@@ -431,9 +423,9 @@ const createStyles = (tokens: ThemeTokens) =>
       gap: 6,
     },
     stepperActive: {
-      backgroundColor: tokens.primary + "10",
+      backgroundColor: 'rgba(29,185,84,0.06)',
       borderWidth: 1,
-      borderColor: tokens.primary + "30",
+      borderColor: 'rgba(29,185,84,0.2)',
     },
     stepperBtn: { padding: 2 },
     stepperIcon: { fontSize: 20, lineHeight: 24 },
@@ -453,52 +445,6 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     emptySubText: { fontSize: 12, color: tokens.mutedForeground, marginTop: 4 },
 
-    // Footer
-    footer: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: tokens.card + "F0",
-      borderTopWidth: 1,
-      borderTopColor: tokens.border + "20",
-      paddingHorizontal: 20,
-      paddingTop: 12,
-      paddingBottom: 26,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-    },
-    footerLabel: {
-      fontSize: 10,
-      fontWeight: "800",
-      color: tokens.mutedForeground,
-      letterSpacing: 1.2,
-      textTransform: "uppercase",
-    },
-    footerRow: { flexDirection: "row", alignItems: "baseline", marginTop: 2 },
-    footerItems: { fontSize: 14, fontWeight: "700", color: tokens.foreground },
-    footerSep: {
-      fontSize: 14,
-      color: tokens.mutedForeground + "60",
-      marginHorizontal: 4,
-    },
-    footerAmount: { fontSize: 18, fontWeight: "900", color: tokens.primary },
-    doneBtn: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 8,
-      backgroundColor: tokens.primary,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      borderRadius: 12,
-      shadowColor: tokens.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.25,
-      shadowRadius: 12,
-      elevation: 6,
-    },
-    doneBtnText: { fontSize: 14, fontWeight: "700", color: tokens.primaryForeground },
   });
 
 export default AddItemsScreen;

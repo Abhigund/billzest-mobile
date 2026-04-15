@@ -9,14 +9,19 @@ import { ThemeTokens } from '../../theme/tokens';
 import { ArrowLeft, Truck, CalendarDays, FileText, AlertTriangle, Share2, Download } from 'lucide-react-native';
 import EmptyState from '../../components/EmptyState';
 import { usePurchaseDetail, useUpdatePurchaseStatus } from '../../logic/purchaseLogic';
-import BillingPreview, {
-  BillLineItem,
-} from '../../components/BillingPreview';
+// Removed BillingPreview import - now using inline display
 import { pdfService } from '../../services/pdfService';
 import DetailHeader from '../../components/DetailHeader';
 import PurchaseReceiveSheet from '../../components/modals/PurchaseReceiveSheet';
 import { useReceiveItems } from '../../logic/purchaseLogic';
 import type { AppNavigationParamList } from '../../navigation/types';
+
+export type BillLineItem = {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+};
 
 type PurchaseDetailRoute = RouteProp<
   {
@@ -60,6 +65,19 @@ const PurchaseDetailScreen: React.FC = () => {
       currency: 'INR',
       maximumFractionDigits: 0,
     }).format(val || 0);
+
+  // Convert purchase items to BillLineItem format
+  const lineItems: BillLineItem[] = React.useMemo(() => {
+    if (purchase?.purchase_order_items) {
+      return purchase.purchase_order_items.map((item: any, index: number) => ({
+        id: item.id || `item-${index}`,
+        description: item.product_name || 'Item',
+        quantity: item.quantity || 0,
+        rate: item.unit_price || 0,
+      }));
+    }
+    return [];
+  }, [purchase]);
 
   const goBack = () => navigation.goBack();
   
@@ -215,34 +233,97 @@ const PurchaseDetailScreen: React.FC = () => {
 
         {purchase ? (
           <>
-            <BillingPreview
-              status={purchase.status ?? 'completed'}
-              numberLabel="Order #"
-              numberValue={purchase.order_number ?? '—'}
-              primaryDateLabel="Order Date"
-              primaryDateValue={
-                purchase.order_date
-                  ? new Date(purchase.order_date).toLocaleDateString('en-IN', {
-                      month: 'short',
-                      day: '2-digit',
-                      year: 'numeric',
-                    })
-                  : '—'
-              }
-              partyLabel="Supplier"
-              partyName={purchase.vendor_name ?? 'Unknown Vendor'}
-              partySubValue={purchase.vendor_phone ?? '—'}
-              subtotal={purchase.total_amount ?? 0}
-              taxAmount={0}
-              totalAmount={purchase.total_amount ?? 0}
-              notes={purchase.notes ?? undefined}
-              items={(purchase.purchase_order_items ?? []).map((item: any): BillLineItem => ({
-                id: item.id,
-                description: item.product_name,
-                quantity: item.quantity ?? 0,
-                rate: item.unit_price ?? 0,
-              }))}
-            />
+            {/* Inline Purchase Display */}
+            <View style={styles.invoiceCard}>
+              <View style={styles.brandRow}>
+                <View>
+                  <Text style={styles.brandName}>BillZest Retailers</Text>
+                  <Text style={styles.brandMeta}>GSTIN: 27AAACB2230M1ZT</Text>
+                  <Text style={styles.brandMeta}>
+                    402, Skylark Business Park, Mumbai
+                  </Text>
+                </View>
+                {purchase.status && (
+                  <View style={styles.metaBadge}>
+                    <Text style={styles.metaBadgeLabel}>{purchase.status.toUpperCase()}</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.metaGrid}>
+                <View style={styles.metaBlock}>
+                  <Text style={styles.metaLabel}>Order #</Text>
+                  <Text style={styles.metaValue}>{purchase.order_number ?? '—'}</Text>
+                </View>
+                <View style={styles.metaBlock}>
+                  <Text style={styles.metaLabel}>Order Date</Text>
+                  <Text style={styles.metaValue}>
+                    {purchase.order_date
+                      ? new Date(purchase.order_date).toLocaleDateString('en-IN', {
+                          month: 'short',
+                          day: '2-digit',
+                          year: 'numeric',
+                        })
+                      : '—'
+                    }
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.billToRow}>
+                <View style={styles.billToBlock}>
+                  <Text style={styles.metaLabel}>Supplier</Text>
+                  <Text style={styles.metaValue}>{purchase.vendor_name ?? 'Unknown Vendor'}</Text>
+                  {purchase.vendor_phone && (
+                    <Text style={styles.metaSubValue}>{purchase.vendor_phone}</Text>
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.itemsTable}>
+                <View style={[styles.tableRow, styles.tableHeader]}>
+                  <Text style={[styles.colDescription, styles.headerText]}>
+                    Description
+                  </Text>
+                  <Text style={[styles.colQty, styles.headerText]}>Qty</Text>
+                  <Text style={[styles.colRate, styles.headerText]}>Rate</Text>
+                  <Text style={[styles.colAmount, styles.headerText]}>Amount</Text>
+                </View>
+                {lineItems.length > 0 ? (
+                  lineItems.map(item => {
+                    const amount = item.rate * item.quantity;
+                    return (
+                      <View key={item.id} style={styles.tableRow}>
+                        <Text style={styles.colDescription}>{item.description}</Text>
+                        <Text style={styles.colQty}>{item.quantity}</Text>
+                        <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
+                        <Text style={styles.colAmount}>{formatCurrency(amount)}</Text>
+                      </View>
+                    );
+                  })
+                ) : (
+                  <View style={styles.emptyState}>
+                    <Text style={styles.emptyStateText}>No items in this order</Text>
+                  </View>
+                )}
+              </View>
+
+              <View style={styles.totalCard}>
+                <View style={styles.totalRow}>
+                  <Text style={styles.totalLabel}>Total Amount</Text>
+                  <Text style={styles.totalValueBold}>
+                    {formatCurrency(purchase.total_amount ?? 0)}
+                  </Text>
+                </View>
+              </View>
+
+              {purchase.notes && (
+                <View style={styles.footerNote}>
+                  <Text style={styles.footerNoteTitle}>Notes</Text>
+                  <Text style={styles.footerNoteText}>{purchase.notes}</Text>
+                </View>
+              )}
+            </View>
 
             <View style={styles.actionsRow}>
               {purchase.status?.toLowerCase() !== 'received' && (
@@ -334,6 +415,204 @@ const createStyles = (tokens: ThemeTokens) =>
     loaderText: {
       marginTop: 8,
       color: tokens.mutedForeground,
+    },
+    // Invoice Display Styles (from BillingPreview)
+    invoiceCard: {
+      borderRadius: tokens.radiusLg, // 16px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.card,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    brandRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    brandName: {
+      fontSize: 18, // Slightly smaller for better balance
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      letterSpacing: -0.2,
+    },
+    brandMeta: {
+      color: tokens.mutedForeground,
+      fontSize: 12, // Secondary size
+      marginTop: tokens.spacingXs, // 4px
+      lineHeight: 16,
+    },
+    metaBadge: {
+      borderRadius: tokens.radiusFull, // 999
+      borderWidth: 1,
+      borderColor: tokens.border,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingXs, // 4px
+      backgroundColor: tokens.surface_container_low,
+    },
+    metaBadgeLabel: {
+      fontSize: 11, // Smaller for better proportion
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.primary,
+      letterSpacing: 0.5,
+    },
+    metaGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    metaBlock: {
+      flex: 1,
+      minWidth: 140,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
+    },
+    metaLabel: {
+      fontSize: 11, // Small size for labels
+      fontWeight: '600', // Semi-bold
+      color: tokens.mutedForeground,
+      marginBottom: tokens.spacingXs, // 4px
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    metaValue: {
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      color: tokens.foreground,
+    },
+    metaSubValue: {
+      fontSize: 12, // Secondary size
+      color: tokens.mutedForeground,
+      marginTop: tokens.spacingXs, // 4px
+    },
+    billToRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    billToBlock: {
+      flex: 1,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
+    },
+    itemsTable: {
+      borderRadius: tokens.radiusSm, // 8px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.card,
+      marginBottom: tokens.spacingLg, // 16px
+      overflow: 'hidden',
+    },
+    tableRow: {
+      flexDirection: 'row',
+      paddingVertical: tokens.spacingSm, // 8px
+      paddingHorizontal: tokens.spacingMd, // 12px
+      borderBottomWidth: 1,
+      borderBottomColor: tokens.border,
+    },
+    tableHeader: {
+      backgroundColor: tokens.surface_container_low,
+      borderBottomWidth: 1,
+      borderBottomColor: tokens.border,
+    },
+    headerText: {
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      fontSize: 12, // Secondary size
+      letterSpacing: 0.3,
+    },
+    colDescription: {
+      flex: 2,
+      color: tokens.foreground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colQty: {
+      flex: 0.5,
+      color: tokens.foreground,
+      textAlign: 'center',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colRate: {
+      flex: 1,
+      color: tokens.foreground,
+      textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colAmount: {
+      flex: 1,
+      color: tokens.foreground,
+      textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold for emphasis
+    },
+    emptyState: {
+      paddingVertical: tokens.spacingXxl, // 32px
+      alignItems: 'center',
+      backgroundColor: tokens.surface_container_low,
+    },
+    emptyStateText: {
+      color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      textAlign: 'center',
+    },
+    totalCard: {
+      borderRadius: tokens.radiusSm, // 8px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.surface_container_low,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: tokens.spacingSm, // 8px
+    },
+    totalLabel: {
+      color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    totalValue: {
+      color: tokens.foreground,
+      fontWeight: '600', // Semi-bold
+      fontSize: 15, // Primary size
+    },
+    totalValueBold: {
+      color: tokens.primary,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 18, // Larger for emphasis
+    },
+    footerNote: {
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingLg, // 16px
+    },
+    footerNoteTitle: {
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      fontSize: 14, // Emphasis size
+      marginBottom: tokens.spacingXs, // 4px
+    },
+    footerNoteText: {
+      color: tokens.mutedForeground,
+      fontSize: 13, // Secondary size
+      lineHeight: 18,
     },
   });
 

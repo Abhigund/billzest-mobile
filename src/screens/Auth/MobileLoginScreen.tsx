@@ -120,7 +120,7 @@ const createStyles = (tokens: ThemeTokens) =>
       width: width * 1.5,
       height: height * 0.8,
       borderRadius: (width * 1.5) / 2,
-      backgroundColor: tokens.success + '1A',
+      backgroundColor: tokens.primaryAlpha15,
       alignSelf: 'center',
       zIndex: 0,
     },

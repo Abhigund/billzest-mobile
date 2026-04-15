@@ -228,7 +228,7 @@ const ReportsScreen: React.FC = () => {
               <View
                 style={[
                   styles.kpiCard,
-                  { backgroundColor: tokens.success + '22' },
+                  { backgroundColor: tokens.primaryAlpha20 },
                 ]}
               >
                 <View style={styles.kpiHeader}>
@@ -243,7 +243,7 @@ const ReportsScreen: React.FC = () => {
               <View
                 style={[
                   styles.kpiCard,
-                  { backgroundColor: tokens.info + '22' },
+                  { backgroundColor: tokens.infoAlpha15 },
                 ]}
               >
                 <View style={styles.kpiHeader}>
@@ -258,7 +258,7 @@ const ReportsScreen: React.FC = () => {
               <View
                 style={[
                   styles.kpiCard,
-                  { backgroundColor: tokens.destructive + '22' },
+                  { backgroundColor: tokens.destructiveAlpha20 },
                 ]}
               >
                 <View style={styles.kpiHeader}>

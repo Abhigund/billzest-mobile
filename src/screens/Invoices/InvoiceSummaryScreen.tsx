@@ -11,7 +11,9 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import type { NavigationProp, RouteProp } from "@react-navigation/native";
 import { useThemeTokens } from "../../theme/ThemeProvider";
 import { ThemeTokens } from "../../theme/tokens";
-import { ArrowLeft, PlusCircle, Plus } from "lucide-react-native";
+import { ArrowLeft, PlusCircle, Plus, CheckCircle2 } from "lucide-react-native";
+import FormActionBar from "../../components/ui/FormActionBar";
+import ScreenHeader from "../../components/layout/ScreenHeader";
 import type { AppNavigationParamList } from "../../navigation/types";
 
 type InvoiceSummaryRouteParams = {
@@ -77,13 +79,10 @@ const InvoiceSummaryScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable style={styles.backBtn} onPress={handleGoBack}>
-          <ArrowLeft size={24} color={tokens.primary} strokeWidth={2.5} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Invoice Summary</Text>
-      </View>
+      <ScreenHeader
+        title="Invoice Summary"
+        onBack={handleGoBack}
+      />
 
       <ScrollView
         style={styles.scroll}
@@ -173,23 +172,15 @@ const InvoiceSummaryScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Bottom Action Bar */}
-      <View style={styles.bottomBar}>
-        <View style={styles.bottomBarInner}>
-          <Pressable style={styles.goBackButton} onPress={handleGoBack}>
-            <ArrowLeft
-              size={20}
-              color={tokens.mutedForeground}
-              strokeWidth={2.5}
-            />
-            <Text style={styles.goBackText}>Go Back</Text>
-          </Pressable>
-          <Pressable style={styles.createNewButton} onPress={handleCreateNew}>
-            <Plus size={18} color={tokens.primaryForeground} strokeWidth={3} />
-            <Text style={styles.createNewText}>Create New Invoice</Text>
-          </Pressable>
-        </View>
-      </View>
+      <FormActionBar
+        variant="dual"
+        secondaryLabel="Go Back"
+        secondaryIcon={<ArrowLeft size={16} color={tokens.mutedForeground} strokeWidth={2.5} />}
+        onSecondary={handleGoBack}
+        primaryLabel="New Invoice"
+        primaryIcon={<Plus size={16} color={tokens.primaryForeground} strokeWidth={3} />}
+        onPrimary={handleCreateNew}
+      />
     </View>
   );
 };
@@ -200,45 +191,19 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       backgroundColor: tokens.background,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 16,
-      height: 64,
-      backgroundColor: tokens.background,
-      borderBottomWidth: 0,
-    },
-    backBtn: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      alignItems: "center",
-      justifyContent: "center",
-      marginRight: 8,
-    },
-    backIcon: {
-      fontSize: 22,
-      color: tokens.primary,
-      fontWeight: "600",
-    },
-    headerTitle: {
-      fontSize: 18,
-      fontWeight: "700",
-      color: tokens.foreground,
-    },
     scroll: {
       flex: 1,
     },
     scrollContent: {
       padding: 16,
-      paddingBottom: 120,
+      paddingBottom: 24,
     },
     summaryCard: {
       backgroundColor: tokens.card,
       borderRadius: 14,
       padding: 20,
       borderWidth: 1,
-      borderColor: tokens.border + "30",
+      borderColor: 'rgba(0,0,0,0.08)',
       shadowColor: "#1a1a2e",
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.06,
@@ -265,7 +230,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     divider: {
       height: 1,
-      backgroundColor: tokens.border + "33",
+      backgroundColor: 'rgba(0,0,0,0.06)',
     },
     totalsSection: {
       gap: 12,
@@ -315,12 +280,12 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      backgroundColor: tokens.destructive + "18",
+      backgroundColor: tokens.destructiveAlpha15,
       paddingHorizontal: 14,
       paddingVertical: 10,
       borderRadius: 10,
       borderWidth: 1,
-      borderColor: tokens.destructive + "40",
+      borderColor: tokens.destructiveAlpha30,
     },
     balanceDueLabel: {
       fontSize: 14,
@@ -355,65 +320,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontSize: 15,
       fontWeight: "700",
       color: tokens.foreground,
-    },
-    bottomBar: {
-      position: "absolute",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      backgroundColor: tokens.card + "CC",
-      borderTopWidth: 1,
-      borderTopColor: tokens.border + "30",
-      paddingBottom: 24,
-    },
-    bottomBarInner: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: 20,
-      paddingTop: 14,
-      gap: 12,
-    },
-    goBackButton: {
-      flexDirection: "row",
-      alignItems: "center",
-      paddingHorizontal: 12,
-      paddingVertical: 14,
-      gap: 4,
-    },
-    goBackIcon: {
-      fontSize: 20,
-      color: tokens.mutedForeground,
-    },
-    goBackText: {
-      fontSize: 15,
-      fontWeight: "600",
-      color: tokens.mutedForeground,
-    },
-    createNewButton: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: tokens.primary,
-      borderRadius: 14,
-      paddingVertical: 16,
-      gap: 8,
-      shadowColor: tokens.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 12,
-      elevation: 6,
-    },
-    createNewIcon: {
-      fontSize: 18,
-      color: tokens.primaryForeground,
-      fontWeight: "700",
-    },
-    createNewText: {
-      fontSize: 15,
-      fontWeight: "700",
-      color: tokens.primaryForeground,
     },
   });
 

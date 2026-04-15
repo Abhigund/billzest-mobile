@@ -10,7 +10,7 @@ import {
   Platform,
   Switch,
 } from 'react-native';
-import Button from '../../components/ui/Button';
+import FormActionBar from '../../components/ui/FormActionBar';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
@@ -258,7 +258,7 @@ const CustomerFormScreen = () => {
                 keyboardType="email-address"
                 value={formState.email}
                 onChangeText={val => handleChange('email', val)}
-                containerStyle={{ flex: 1, marginRight: 8 }}
+                containerStyle={{ flex: 1 }}
               />
               <TonalInput
                 label="GSTIN"
@@ -382,26 +382,17 @@ const CustomerFormScreen = () => {
           <View style={{ height: 100 }} />
         </ScrollView>
 
-        <View style={styles.actionBar}>
-          <Button
-            label="Discard"
-            variant="ghost"
-            onPress={() => navigation.goBack()}
-            icon={<X size={18} color={tokens.mutedForeground} />}
-            style={styles.discardBtnNew}
-            accessibilityLabel="Discard changes"
-          />
-          <Button
-            label="Save Party"
-            variant="primary"
-            onPress={handleSave}
-            loading={isSubmitting}
-            disabled={isSubmitting}
-            icon={<CheckCircle2 size={18} color={tokens.primaryForeground} />}
-            style={styles.saveBtnNew}
-            accessibilityLabel="Save party"
-          />
-        </View>
+        <FormActionBar
+          variant="dual"
+          secondaryLabel="Discard"
+          secondaryIcon={<X size={16} color={tokens.mutedForeground} />}
+          onSecondary={() => navigation.goBack()}
+          primaryLabel={isEditMode ? 'Update Party' : 'Save Party'}
+          primaryIcon={<CheckCircle2 size={16} color={tokens.primaryForeground} />}
+          onPrimary={handleSave}
+          loading={isSubmitting}
+          disabled={isSubmitting}
+        />
       </KeyboardAvoidingView>
     </ScreenWrapper>
   );
@@ -434,7 +425,7 @@ const createStyles = (tokens: ThemeTokens) =>
     section: {
       backgroundColor: tokens.surface_container_lowest,
       borderRadius: 24,
-      padding: 12,
+      padding: 16,
       marginBottom: 12,
       shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 4 },
@@ -466,6 +457,8 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     row: {
       flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 8,
     },
     inputLabel: {
       fontSize: 11,
@@ -480,9 +473,11 @@ const createStyles = (tokens: ThemeTokens) =>
     balanceInputRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: tokens.secondary,
-      borderRadius: 20,
-      padding: 6,
+      backgroundColor: tokens.muted,
+      borderRadius: 16,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      gap: 8,
     },
     hugeInput: {
       fontSize: 20,
@@ -494,8 +489,6 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: tokens.background,
       borderRadius: 14,
       padding: 4,
-      borderWidth: 1,
-      borderColor: tokens.secondary,
     },
     toggleBtn: {
       paddingHorizontal: 12,
@@ -535,27 +528,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '500',
       color: tokens.mutedForeground,
       marginTop: 2,
-    },
-    actionBar: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 12,
-      paddingHorizontal: 24,
-      paddingVertical: 16,
-      paddingBottom: Platform.OS === 'ios' ? 36 : 16,
-      backgroundColor: tokens.card,
-      borderTopWidth: 1,
-      borderTopColor: tokens.border,
-    },
-    discardBtnNew: {
-      flex: 1,
-    },
-    saveBtnNew: {
-      flex: 1.5,
     },
   });
 

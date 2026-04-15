@@ -140,7 +140,7 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: "500",
       color: tokens.mutedForeground,
     },
-    adjustmentDivider: { height: 1, backgroundColor: tokens.border + "10" },
+    adjustmentDivider: { height: 1, backgroundColor: 'rgba(0,0,0,0.06)' },
 
     // GST Pills
     gstStrip: { flexDirection: "row", gap: 8, paddingHorizontal: 4 },
@@ -151,7 +151,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 12,
       paddingVertical: 5,
       borderRadius: 999,
-      backgroundColor: tokens.primary + "10",
+      backgroundColor: 'rgba(29,185,84,0.06)',
     },
     gstPillLabel: {
       fontSize: 10,
@@ -188,7 +188,7 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: "900",
       color: tokens.primary,
     },
-    totalDivider: { height: 1, backgroundColor: tokens.border + "18" },
+    totalDivider: { height: 1, backgroundColor: 'rgba(0,0,0,0.08)' },
     totalRow: {
       flexDirection: "row",
       justifyContent: "space-between",

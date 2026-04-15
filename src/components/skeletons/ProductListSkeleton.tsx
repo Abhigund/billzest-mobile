@@ -26,18 +26,19 @@ const ProductListSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 16,
+      gap: 2,
     },
     row: {
       flexDirection: 'row',
       alignItems: 'center',
+      backgroundColor: tokens.surface_container_lowest,
+      paddingHorizontal: 12,
       paddingVertical: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
+      gap: 12,
     },
     content: {
       flex: 1,
-      marginLeft: 12,
+      gap: 8,
     },
   });
 

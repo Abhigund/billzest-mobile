@@ -29,7 +29,6 @@ const ExpenseListSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 16,
       gap: 10,
     },
     card: {

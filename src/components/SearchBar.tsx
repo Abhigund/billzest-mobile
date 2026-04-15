@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, TextInput, StyleSheet, Pressable, StyleProp, ViewStyle } from 'react-native';
 import { useThemeTokens } from '../theme/ThemeProvider';
 import { ThemeTokens } from '../theme/tokens';
 import { Search, Filter } from 'lucide-react-native';
@@ -13,6 +13,7 @@ type SearchBarProps = {
   filterActive?: boolean;
   trailingActions?: React.ReactNode;
   autoFocus?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -24,12 +25,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   filterActive = false,
   trailingActions,
   autoFocus,
+  style,
 }) => {
   const { tokens } = useThemeTokens();
   const styles = useMemo(() => createStyles(tokens, !!trailingActions), [tokens, trailingActions]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       <View style={styles.searchBarContainer}>
         <Search color={tokens.mutedForeground} size={18} />
         <TextInput

@@ -78,7 +78,7 @@ const SelectPartyBottomSheet: React.FC<SelectPartyBottomSheetProps> = ({
       <Pressable
         style={[styles.partyRow, isSelected && styles.partyRowSelected]}
         onPress={() => handleSelect(item)}
-        android_ripple={{ color: tokens.primary + "20" }}
+        android_ripple={{ color: 'rgba(29,185,84,0.12)' }}
       >
         {/* Green left border for selected */}
         {isSelected && <View style={styles.selectedBorder} />}
@@ -89,7 +89,7 @@ const SelectPartyBottomSheet: React.FC<SelectPartyBottomSheetProps> = ({
             {
               backgroundColor: isSelected
                 ? tokens.primary
-                : tokens.primary + "18",
+                : 'rgba(29,185,84,0.1)',
             },
           ]}
         >
@@ -311,7 +311,7 @@ const createStyles = (tokens: ThemeTokens) =>
       position: "relative",
     },
     partyRowSelected: {
-      backgroundColor: tokens.primary + "0D",
+      backgroundColor: 'rgba(29,185,84,0.05)',
     },
     selectedBorder: {
       position: "absolute",

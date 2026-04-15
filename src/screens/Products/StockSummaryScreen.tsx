@@ -17,7 +17,8 @@ import { ProductsStackParamList } from '../../navigation/types';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import { useProducts } from '../../logic/productLogic';
-import { FileText, FileSpreadsheet, Filter, X } from 'lucide-react-native';
+import { FileText, FileSpreadsheet, Filter } from 'lucide-react-native';
+import StockFilterSheet from '../../components/modals/StockFilterSheet';
 import EmptyState from '../../components/EmptyState';
 import { getProductStatus } from '../../components/ProductCard';
 
@@ -260,51 +261,12 @@ const StockSummaryScreen: React.FC = () => {
         )}
       </ScrollView>
 
-      {/* Filter Modal Overlay */}
-      {showFilters && (
-        <View style={styles.filterOverlay}>
-          <Pressable style={styles.filterBackdrop} onPress={() => setShowFilters(false)} />
-          <View style={styles.filterModal}>
-            <View style={styles.filterHeader}>
-              <Text style={styles.filterTitle}>Filters</Text>
-              <Pressable onPress={() => setShowFilters(false)}>
-                <X color={tokens.foreground} size={24} />
-              </Pressable>
-            </View>
-
-            {/* Filter by Status */}
-            <View style={styles.filterSection}>
-              <Text style={styles.filterSectionTitle}>Stock Status</Text>
-              {['All', 'Low Stock', 'Out of Stock', 'In Stock'].map(status => (
-                <Pressable
-                  key={status}
-                  style={[
-                    styles.filterOption,
-                    filterStatus === status && styles.filterOptionActive,
-                  ]}
-                  onPress={() => setFilterStatus(status === 'All' ? null : status)}
-                >
-                  <Text
-                    style={[
-                      styles.filterOptionText,
-                      filterStatus === status && styles.filterOptionTextActive,
-                    ]}
-                  >
-                    {status}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* Clear Filters */}
-            {(filterCategory || filterStatus) && (
-              <Pressable style={styles.clearFiltersBtn} onPress={handleClearFilters}>
-                <Text style={styles.clearFiltersBtnText}>Clear All Filters</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-      )}
+      <StockFilterSheet
+        visible={showFilters}
+        onClose={() => setShowFilters(false)}
+        currentStatus={filterStatus}
+        onApply={({ status }) => setFilterStatus(status)}
+      />
     </ScreenWrapper>
   );
 };
@@ -452,95 +414,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '700',
     },
 
-    // Filter Modal
-    filterOverlay: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      justifyContent: 'flex-end',
-      zIndex: 999,
-    },
-    filterBackdrop: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.4)',
-    },
-    filterModal: {
-      backgroundColor: tokens.card,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      paddingTop: 16,
-      paddingHorizontal: 16,
-      paddingBottom: 24,
-      maxHeight: '70%',
-    },
-    filterHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 20,
-      paddingBottom: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
-    },
-    filterTitle: {
-      fontSize: 18,
-      fontWeight: '800',
-      color: tokens.foreground,
-    },
-    filterSection: {
-      marginBottom: 16,
-    },
-    filterSectionTitle: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: tokens.mutedForeground,
-      textTransform: 'uppercase',
-      marginBottom: 10,
-      letterSpacing: 0.5,
-    },
-    filterOption: {
-      paddingVertical: 12,
-      paddingHorizontal: 12,
-      borderRadius: 8,
-      backgroundColor: 'transparent',
-      marginBottom: 6,
-      borderWidth: 1,
-      borderColor: 'transparent',
-    },
-    filterOptionActive: {
-      backgroundColor: tokens.primary + '15',
-      borderColor: tokens.primary,
-    },
-    filterOptionText: {
-      fontSize: 14,
-      color: tokens.foreground,
-      fontWeight: '600',
-    },
-    filterOptionTextActive: {
-      color: tokens.primary,
-      fontWeight: '700',
-    },
-    clearFiltersBtn: {
-      marginTop: 12,
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 12,
-      backgroundColor: tokens.destructive + '15',
-      borderWidth: 1,
-      borderColor: tokens.destructive + '30',
-    },
-    clearFiltersBtnText: {
-      fontSize: 14,
-      fontWeight: '700',
-      color: tokens.destructive,
-      textAlign: 'center',
-    },
   });
 
 export default StockSummaryScreen;

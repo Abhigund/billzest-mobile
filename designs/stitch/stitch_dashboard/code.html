@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>BillZest | Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#a8353e",
+                        "on-tertiary-fixed": "#400009",
+                        "on-surface": "#191c1d",
+                        "secondary-container": "#e8dddd",
+                        "on-secondary-fixed": "#201a1a",
+                        "outline": "#6d7b6c",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2e3132",
+                        "on-primary-fixed": "#002108",
+                        "surface-container-high": "#e7e8e9",
+                        "primary-fixed": "#72fe8f",
+                        "surface-container-low": "#f3f4f5",
+                        "surface-bright": "#f8f9fa",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3d4a3d",
+                        "surface-dim": "#d9dadb",
+                        "inverse-primary": "#53e076",
+                        "tertiary-fixed": "#ffdad9",
+                        "secondary-fixed-dim": "#cfc4c4",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#696161",
+                        "tertiary-fixed-dim": "#ffb3b3",
+                        "surface-container-highest": "#e1e3e4",
+                        "surface-container": "#edeeef",
+                        "outline-variant": "#bccbb9",
+                        "on-primary-container": "#004118",
+                        "error-container": "#ffdad6",
+                        "primary-fixed-dim": "#53e076",
+                        "primary": "#006e2d",
+                        "inverse-on-surface": "#f0f1f2",
+                        "tertiary-container": "#ff767b",
+                        "on-tertiary-container": "#730a1b",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006e2d",
+                        "surface": "#f8f9fa",
+                        "secondary-fixed": "#ebe0df",
+                        "background": "#f8f9fa",
+                        "primary-container": "#1db954",
+                        "on-tertiary-fixed-variant": "#881d28",
+                        "on-primary-fixed-variant": "#005320",
+                        "on-background": "#191c1d",
+                        "surface-variant": "#e1e3e4",
+                        "on-secondary-fixed-variant": "#4c4545",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#645d5c",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Manrope"],
+                        "label": ["Manrope"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; font-size: 18px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface select-none">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-50 bg-white dark:bg-neutral-900 flex items-center justify-between px-4 h-12 w-full max-w-md mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full overflow-hidden bg-surface-container-high flex items-center justify-center">
+<img alt="user profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional woman in a sleek dark green blazer with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrJ9JbaZ_iUwczrAR1SYqQ7yuZgUus61SvcLSb1zi4Kvt6Dfb0EdN-AKfPOGreKEhukQWKzCKYwZ7RgZtm3TNxTeK6TvL_nah6-80S0gFnBZZ9LoSJIWxYh-paCEXlIJxkmrorZuctaHKbnUCCMdW8smWjvkqYwkVSlgY7yAnd9EhCaLprGV-f7enG4ZZ4KBLC3qZi3FUmZt6oX5lVij5bjRNhKz4TwrZVCJxFVF2AoFZ4mCJrQ_1f3N6WKStt9MWfIIrC-AkiBMI"/>
+</div>
+<h1 class="font-['Manrope'] font-bold text-base tracking-tight text-neutral-900 dark:text-white">Dashboard</h1>
+</div>
+<div class="flex gap-1">
+<button class="p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-neutral-500 dark:text-neutral-400">filter_list</span>
+</button>
+<button class="p-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-neutral-500 dark:text-neutral-400">refresh</span>
+</button>
+</div>
+</header>
+<main class="max-w-md mx-auto px-4 pb-24 space-y-2 pt-1">
+<!-- Metrics: Ultra-compact inline row -->
+<section class="grid grid-cols-3 gap-1">
+<div class="bg-surface-container-lowest p-2 flex flex-col border-l-2 border-primary">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Sales</span>
+<span class="text-sm font-extrabold text-on-surface">$42.8k</span>
+</div>
+<div class="bg-surface-container-lowest p-2 flex flex-col border-l-2 border-primary-container">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Receivable</span>
+<span class="text-sm font-extrabold text-on-surface">$12.1k</span>
+</div>
+<div class="bg-surface-container-lowest p-2 flex flex-col border-l-2 border-tertiary">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Payable</span>
+<span class="text-sm font-extrabold text-on-surface">$5.4k</span>
+</div>
+</section>
+<!-- Quick Actions: Smallest possible icons -->
+<section class="flex gap-1 overflow-x-auto no-scrollbar py-1">
+<button class="flex items-center gap-1.5 bg-primary px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-white" style="font-size: 14px;">add</span>
+<span class="text-[11px] font-bold text-white uppercase">Invoice</span>
+</button>
+<button class="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 14px;">person_add</span>
+<span class="text-[11px] font-bold text-on-surface uppercase">Party</span>
+</button>
+<button class="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 14px;">payments</span>
+<span class="text-[11px] font-bold text-on-surface uppercase">Pay</span>
+</button>
+<button class="flex items-center gap-1.5 bg-surface-container-high px-2.5 py-1.5 rounded-lg active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-on-surface" style="font-size: 14px;">inventory_2</span>
+<span class="text-[11px] font-bold text-on-surface uppercase">Stock</span>
+</button>
+</section>
+<!-- Alerts: Slim, high-contrast -->
+<section class="space-y-1">
+<div class="flex items-center justify-between bg-tertiary-container/30 border-l-4 border-tertiary px-3 py-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" style="font-size: 16px;">warning</span>
+<span class="text-[11px] font-bold text-on-tertiary-container">3 Overdue Invoices ($1,240)</span>
+</div>
+<span class="material-symbols-outlined text-tertiary" style="font-size: 14px;">chevron_right</span>
+</div>
+<div class="flex items-center justify-between bg-primary-container/20 border-l-4 border-primary px-3 py-1.5">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 16px;">verified</span>
+<span class="text-[11px] font-bold text-on-primary-container">System sync complete 2m ago</span>
+</div>
+</div>
+</section>
+<!-- Recent Activity: Maximized density list -->
+<section class="bg-surface-container-lowest">
+<div class="flex items-center justify-between px-3 py-2 bg-surface-container">
+<h2 class="text-[10px] font-extrabold uppercase tracking-[0.1em] text-secondary">Recent Transactions</h2>
+<span class="text-[10px] font-bold text-primary">View All</span>
+</div>
+<div class="divide-y divide-surface-container-low">
+<!-- Item 1 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_downward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Apex Solutions</span>
+<span class="text-[10px] text-on-surface-variant">INV-8829 • Today</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-primary">+$2,400.00</span>
+<span class="text-[9px] font-bold uppercase text-on-primary-container bg-primary-container/20 px-1 rounded">Paid</span>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">receipt</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Vortex Media</span>
+<span class="text-[10px] text-on-surface-variant">INV-8828 • Today</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-on-surface">$850.20</span>
+<span class="text-[9px] font-bold uppercase text-on-secondary-fixed-variant bg-secondary-fixed px-1 rounded">Draft</span>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_upward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Cloud Services</span>
+<span class="text-[10px] text-on-surface-variant">EXP-441 • Yesterday</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-tertiary">-$42.00</span>
+<span class="text-[9px] font-bold uppercase text-on-tertiary-container bg-tertiary-container/20 px-1 rounded">Sent</span>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_downward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Starlight Inc.</span>
+<span class="text-[10px] text-on-surface-variant">INV-8827 • 12 Oct</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-primary">+$1,120.00</span>
+<span class="text-[9px] font-bold uppercase text-on-primary-container bg-primary-container/20 px-1 rounded">Paid</span>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">receipt</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Nova Labs</span>
+<span class="text-[10px] text-on-surface-variant">INV-8826 • 11 Oct</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-tertiary">$9,200.00</span>
+<span class="text-[9px] font-bold uppercase text-on-tertiary-container bg-tertiary-container/30 px-1 rounded">Overdue</span>
+</div>
+</div>
+<!-- Item 6 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">arrow_downward</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Quantum Ltd</span>
+<span class="text-[10px] text-on-surface-variant">INV-8825 • 10 Oct</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-primary">+$450.00</span>
+<span class="text-[9px] font-bold uppercase text-on-primary-container bg-primary-container/20 px-1 rounded">Paid</span>
+</div>
+</div>
+<!-- Item 7 -->
+<div class="flex items-center justify-between px-3 py-1.5">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">payments</span>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface leading-none">Office Supplies</span>
+<span class="text-[10px] text-on-surface-variant">EXP-440 • 09 Oct</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-xs font-extrabold text-tertiary">-$128.50</span>
+<span class="text-[9px] font-bold uppercase text-on-primary-container bg-primary-container/20 px-1 rounded">Paid</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Secondary Performance View -->
+<section class="bg-surface-container-highest/50 p-3 rounded-xl border-l-4 border-primary-container">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[11px] font-extrabold uppercase tracking-tighter text-on-surface">Weekly Run Rate</span>
+<span class="text-xs font-bold text-primary">+12.4%</span>
+</div>
+<div class="flex items-end gap-1 h-12">
+<div class="flex-1 bg-primary/20 h-4 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 h-6 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 h-8 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/60 h-10 rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-12 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 h-7 rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 h-5 rounded-t-sm"></div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pt-3 pb-8 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl rounded-t-3xl z-50 shadow-[0_-8px_24px_rgba(0,0,0,0.05)] border-t border-neutral-100 dark:border-neutral-800">
+<a class="flex flex-col items-center justify-center text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded-xl px-3 py-1 scale-105 duration-200 ease-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-green-500 dark:hover:text-green-300" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Inventory</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-green-500 dark:hover:text-green-300" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Billing</span>
+</a>
+<a class="flex flex-col items-center justify-center text-neutral-400 dark:text-neutral-500 hover:text-green-500 dark:hover:text-green-300" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] text-[11px] font-semibold uppercase tracking-wider">Parties</span>
+</a>
+</nav>
+</body></html>

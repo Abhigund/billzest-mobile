@@ -33,7 +33,6 @@ const PurchaseListSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 20,
       gap: 12,
     },
     card: {

@@ -4,6 +4,17 @@ import { useThemeTokens } from '../theme/ThemeProvider';
 import { ThemeTokens } from '../theme/tokens';
 import { MoreVertical } from 'lucide-react-native';
 
+const getStatusVisual = (status: string, tokens: ThemeTokens) => {
+  switch (status?.toLowerCase()) {
+    case 'paid':      return { label: 'PAID',      color: tokens.primary,          bg: tokens.primaryAlpha15 };
+    case 'overdue':   return { label: 'OVERDUE',   color: tokens.destructive,      bg: tokens.destructiveAlpha15 };
+    case 'draft':     return { label: 'DRAFT',      color: tokens.mutedForeground,  bg: tokens.muted };
+    case 'sent':      return { label: 'SENT',       color: tokens.warning,          bg: tokens.warningAlpha15 };
+    case 'cancelled': return { label: 'CANCELLED',  color: tokens.destructive,      bg: tokens.destructiveAlpha10 };
+    default:          return { label: 'PENDING',    color: tokens.warning,          bg: tokens.warningAlpha15 };
+  }
+};
+
 export type InvoiceStatus =
   | 'paid'
   | 'pending'
@@ -77,6 +88,8 @@ const InvoiceCard: React.FC<InvoiceCardProps> = ({
     );
   }
 
+  const sv = getStatusVisual(invoice.status, tokens);
+
   return (
     <Pressable
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
@@ -91,14 +104,20 @@ const InvoiceCard: React.FC<InvoiceCardProps> = ({
         </View>
       </View>
       <View style={styles.right}>
-        <Text style={styles.amount}>{formatCurrency(invoice.amount)}</Text>
+        <View style={styles.amountCol}>
+          <Text style={styles.amount}>{formatCurrency(invoice.amount)}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: sv.bg }]}>
+            <Text style={[styles.statusBadgeText, { color: sv.color }]}>{sv.label}</Text>
+          </View>
+        </View>
         {showActions && (
           <Pressable
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            style={styles.menuBtn}
+            hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}
             onPress={onPayment}
             accessibilityLabel="Invoice options"
           >
-            <MoreVertical color={tokens.mutedForeground} size={20} />
+            <MoreVertical color={tokens.mutedForeground} size={18} />
           </Pressable>
         )}
       </View>
@@ -110,81 +129,101 @@ const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     row: {
       backgroundColor: tokens.surface_container_lowest,
-      paddingHorizontal: 16,
-      paddingVertical: 14,
-      borderRadius: 12,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingMd, // 12px
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 4,
     },
     compactRow: {
       backgroundColor: tokens.surface_container_lowest,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
-      borderRadius: 10,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingMd, // 12px
+      borderRadius: tokens.radiusSm, // 8px
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: 4,
+      marginBottom: tokens.spacingXs, // 4px
     },
     pressed: {
       backgroundColor: tokens.muted,
     },
     left: {
       flex: 1,
-      paddingRight: 12,
-      gap: 4,
+      paddingRight: tokens.spacingMd, // 12px
+      gap: tokens.spacingXs, // 4px
     },
     clientName: {
       color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 14,
+      fontWeight: '600', // Semi-bold
+      fontSize: 14, // Primary size for compact
       letterSpacing: -0.2,
     },
     metaRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: tokens.spacingSm, // 8px
     },
     invoiceChip: {
-      fontSize: 10,
+      fontSize: 10, // Secondary size
       fontFamily: 'monospace',
       color: tokens.mutedForeground,
       backgroundColor: tokens.muted,
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 4,
+      paddingHorizontal: 6, // Minimal for chip
+      paddingVertical: 2, // Minimal for chip
+      borderRadius: tokens.radiusXs, // 4px
       overflow: 'hidden',
     },
     date: {
       fontSize: 11,
       color: tokens.mutedForeground,
+      fontWeight: '400', // Regular
     },
     right: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 12,
+      gap: tokens.spacingXs, // 4px
+    },
+    amountCol: {
+      alignItems: 'flex-end',
+      gap: 3,
     },
     amount: {
       color: tokens.foreground,
-      fontWeight: '800',
-      fontSize: 14,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 14, // Emphasis size
+    },
+    statusBadge: {
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: tokens.radiusXs,
+    },
+    statusBadgeText: {
+      fontSize: 9,
+      fontWeight: '700',
+      letterSpacing: 0.3,
+    },
+    menuBtn: {
+      width: 32,
+      height: 32,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: tokens.spacingXs,
     },
     compactLeft: {
       flex: 1,
-      paddingRight: 12,
-      gap: 4,
+      paddingRight: tokens.spacingMd, // 12px
+      gap: tokens.spacingXs, // 4px
     },
     compactClientName: {
       color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 13,
+      fontWeight: '600', // Semi-bold
+      fontSize: 13, // Primary size for compact
     },
     compactMeta: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 8,
+      gap: tokens.spacingSm, // 8px
     },
     compactInvoiceChip: {
       fontSize: 10,
@@ -197,13 +236,14 @@ const createStyles = (tokens: ThemeTokens) =>
       overflow: 'hidden',
     },
     compactDate: {
-      fontSize: 11,
+      fontSize: 11, // Secondary size
       color: tokens.mutedForeground,
+      fontWeight: '400', // Regular
     },
     compactAmount: {
       color: tokens.foreground,
-      fontWeight: '800',
-      fontSize: 13,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 13, // Emphasis size for compact
     },
   });
 

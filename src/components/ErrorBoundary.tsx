@@ -1,9 +1,8 @@
 import React, { Component, ReactNode } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, BackHandler } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../theme/ThemeProvider';
 import { ThemeTokens } from '../theme/tokens';
+import { navigationRef } from '../navigation/RootNavigator';
 import DetailHeader from './DetailHeader';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react-native';
 import { logger } from '../utils/logger';
@@ -80,32 +79,36 @@ interface ErrorFallbackProps {
 }
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
-  const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
 
   const handleGoHome = React.useCallback(() => {
     // Try multiple navigation strategies to get back to a safe state
     try {
-      // Check if we can reset to Home (the drawer root)
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' as any }],
-      });
+      if (navigationRef.isReady()) {
+        // Check if we can reset to Home (the drawer root)
+        navigationRef.reset({
+          index: 0,
+          routes: [{ name: 'Home' as any }],
+        });
+      } else {
+        // If navigation is not ready, just reset the boundary
+        onReset();
+      }
     } catch (err) {
       try {
-        // Fallback to DashboardTab if Home reset fails
-        navigation.navigate('DashboardTab' as any);
-      } catch (e) {
-        // If all navigation fails, try to just go back or reset the UI locally
-        if (navigation.canGoBack()) {
-          navigation.goBack();
+        if (navigationRef.isReady()) {
+          // Fallback to DashboardTab if Home reset fails
+          navigationRef.navigate('DashboardTab' as any);
         } else {
           onReset();
         }
+      } catch (e) {
+        // If all navigation fails, try to reset the UI locally
+        onReset();
       }
     }
-  }, [navigation, onReset]);
+  }, [onReset]);
 
   // Handle hardware back button on Android
   React.useEffect(() => {

@@ -68,49 +68,43 @@ const BillingPreview: React.FC<BillPreviewProps> = props => {
             402, Skylark Business Park, Mumbai
           </Text>
         </View>
-        <View style={styles.metaBadge}>
-          <Text style={styles.metaBadgeLabel}>{status?.toUpperCase()}</Text>
-        </View>
+        {status && (
+          <View style={styles.metaBadge}>
+            <Text style={styles.metaBadgeLabel}>{status.toUpperCase()}</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.metaGrid}>
-        <DetailRow
-          label={numberLabel}
-          value={numberValue}
-          variant="card"
-          style={styles.metaBlock}
-        />
-        <DetailRow
-          label={primaryDateLabel}
-          value={primaryDateValue}
-          variant="card"
-          style={styles.metaBlock}
-        />
-        {secondaryDateLabel && secondaryDateValue ? (
-          <DetailRow
-            label={secondaryDateLabel}
-            value={secondaryDateValue}
-            variant="card"
-            style={styles.metaBlock}
-          />
-        ) : null}
+        <View style={styles.metaBlock}>
+          <Text style={styles.metaLabel}>{numberLabel}</Text>
+          <Text style={styles.metaValue}>{numberValue}</Text>
+        </View>
+        <View style={styles.metaBlock}>
+          <Text style={styles.metaLabel}>{primaryDateLabel}</Text>
+          <Text style={styles.metaValue}>{primaryDateValue}</Text>
+        </View>
+        {secondaryDateLabel && secondaryDateValue && (
+          <View style={styles.metaBlock}>
+            <Text style={styles.metaLabel}>{secondaryDateLabel}</Text>
+            <Text style={styles.metaValue}>{secondaryDateValue}</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.billToRow}>
-        <DetailRow
-          label={partyLabel}
-          value={partyName || 'Unknown'}
-          subValue={partySubValue}
-          variant="card"
-          style={styles.billToBlock}
-        />
-        <DetailRow
-          label="Payment Terms"
-          value="15 days credit"
-          subValue="UPI · Bank Transfer"
-          variant="card"
-          style={styles.billToBlock}
-        />
+        <View style={styles.billToBlock}>
+          <Text style={styles.metaLabel}>{partyLabel}</Text>
+          <Text style={styles.metaValue}>{partyName || 'Unknown'}</Text>
+          {partySubValue && (
+            <Text style={styles.metaSubValue}>{partySubValue}</Text>
+          )}
+        </View>
+        <View style={styles.billToBlock}>
+          <Text style={styles.metaLabel}>Payment Terms</Text>
+          <Text style={styles.metaValue}>15 days credit</Text>
+          <Text style={styles.metaSubValue}>UPI · Bank Transfer</Text>
+        </View>
       </View>
 
       <View style={styles.itemsTable}>
@@ -122,17 +116,23 @@ const BillingPreview: React.FC<BillPreviewProps> = props => {
           <Text style={[styles.colRate, styles.headerText]}>Rate</Text>
           <Text style={[styles.colAmount, styles.headerText]}>Amount</Text>
         </View>
-        {items.map(item => {
-          const amount = item.rate * item.quantity;
-          return (
-            <View key={item.id} style={styles.tableRow}>
-              <Text style={styles.colDescription}>{item.description}</Text>
-              <Text style={styles.colQty}>{item.quantity}</Text>
-              <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
-              <Text style={styles.colAmount}>{formatCurrency(amount)}</Text>
-            </View>
-          );
-        })}
+        {items.length > 0 ? (
+          items.map(item => {
+            const amount = item.rate * item.quantity;
+            return (
+              <View key={item.id} style={styles.tableRow}>
+                <Text style={styles.colDescription}>{item.description}</Text>
+                <Text style={styles.colQty}>{item.quantity}</Text>
+                <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
+                <Text style={styles.colAmount}>{formatCurrency(amount)}</Text>
+              </View>
+            );
+          })
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateText}>No items in this invoice</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.totalCard}>
@@ -167,146 +167,210 @@ const BillingPreview: React.FC<BillPreviewProps> = props => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     invoiceCard: {
-      borderRadius: 28,
+      borderRadius: tokens.radiusLg, // 16px
       borderWidth: 1,
       borderColor: tokens.border,
       backgroundColor: tokens.card,
-      padding: 24,
-      marginBottom: 20,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 3,
     },
     brandRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      marginBottom: 18,
+      marginBottom: tokens.spacingLg, // 16px
     },
     brandName: {
-      fontSize: 20,
-      fontWeight: '700',
+      fontSize: 18, // Slightly smaller for better balance
+      fontWeight: '700', // Bold for emphasis
       color: tokens.foreground,
+      letterSpacing: -0.2,
     },
     brandMeta: {
       color: tokens.mutedForeground,
-      marginTop: 4,
+      fontSize: 12, // Secondary size
+      marginTop: tokens.spacingXs, // 4px
+      lineHeight: 16,
     },
     metaBadge: {
-      borderRadius: 999,
+      borderRadius: tokens.radiusFull, // 999
       borderWidth: 1,
       borderColor: tokens.border,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      backgroundColor: tokens.background,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingXs, // 4px
+      backgroundColor: tokens.surface_container_low,
     },
     metaBadgeLabel: {
-      fontWeight: '700',
+      fontSize: 11, // Smaller for better proportion
+      fontWeight: '700', // Bold for emphasis
       color: tokens.primary,
+      letterSpacing: 0.5,
     },
     metaGrid: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginHorizontal: -6,
-      marginBottom: 16,
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
     },
     metaBlock: {
       flex: 1,
-      marginHorizontal: 6,
-      marginBottom: 12,
+      minWidth: 140,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
+    },
+    metaLabel: {
+      fontSize: 11, // Small size for labels
+      fontWeight: '600', // Semi-bold
+      color: tokens.mutedForeground,
+      marginBottom: tokens.spacingXs, // 4px
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    metaValue: {
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      color: tokens.foreground,
+    },
+    metaSubValue: {
+      fontSize: 12, // Secondary size
+      color: tokens.mutedForeground,
+      marginTop: tokens.spacingXs, // 4px
     },
     billToRow: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      marginHorizontal: -6,
-      marginBottom: 16,
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
     },
     billToBlock: {
       flex: 1,
-      marginHorizontal: 6,
-      marginBottom: 12,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
     },
     itemsTable: {
-      borderRadius: 18,
+      borderRadius: tokens.radiusSm, // 8px
       borderWidth: 1,
       borderColor: tokens.border,
-      marginBottom: 18,
+      backgroundColor: tokens.card,
+      marginBottom: tokens.spacingLg, // 16px
+      overflow: 'hidden',
     },
     tableRow: {
       flexDirection: 'row',
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      paddingVertical: tokens.spacingSm, // 8px
+      paddingHorizontal: tokens.spacingMd, // 12px
       borderBottomWidth: 1,
       borderBottomColor: tokens.border,
     },
     tableHeader: {
-      backgroundColor: tokens.background,
+      backgroundColor: tokens.surface_container_low,
+      borderBottomWidth: 1,
+      borderBottomColor: tokens.border,
     },
     headerText: {
-      color: tokens.mutedForeground,
-      fontWeight: '600',
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      fontSize: 12, // Secondary size
+      letterSpacing: 0.3,
     },
     colDescription: {
       flex: 2,
       color: tokens.foreground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
     },
     colQty: {
       flex: 0.5,
       color: tokens.foreground,
       textAlign: 'center',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
     },
     colRate: {
       flex: 1,
       color: tokens.foreground,
       textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
     },
     colAmount: {
       flex: 1,
       color: tokens.foreground,
       textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold for emphasis
+    },
+    emptyState: {
+      paddingVertical: tokens.spacingXxl, // 32px
+      alignItems: 'center',
+      backgroundColor: tokens.surface_container_low,
+    },
+    emptyStateText: {
+      color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      textAlign: 'center',
     },
     totalCard: {
-      borderRadius: 18,
+      borderRadius: tokens.radiusSm, // 8px
       borderWidth: 1,
       borderColor: tokens.border,
-      padding: 18,
-      marginBottom: 16,
+      backgroundColor: tokens.surface_container_low,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
     },
     totalRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
-      marginBottom: 8,
+      alignItems: 'center',
+      marginBottom: tokens.spacingSm, // 8px
     },
     totalLabel: {
       color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
     },
     totalValue: {
       color: tokens.foreground,
-      fontWeight: '600',
+      fontWeight: '600', // Semi-bold
+      fontSize: 15, // Primary size
     },
     totalLabelBold: {
       color: tokens.foreground,
-      fontWeight: '700',
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 16, // Primary size
     },
     totalValueBold: {
-      color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 18,
+      color: tokens.primary,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 18, // Larger for emphasis
     },
     totalDivider: {
       height: 1,
       backgroundColor: tokens.border,
-      marginVertical: 10,
+      marginVertical: tokens.spacingSm, // 8px
     },
     footerNote: {
-      marginTop: 6,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingLg, // 16px
     },
     footerNoteTitle: {
-      fontWeight: '600',
+      fontWeight: '700', // Bold for emphasis
       color: tokens.foreground,
-      marginBottom: 6,
+      fontSize: 14, // Emphasis size
+      marginBottom: tokens.spacingXs, // 4px
     },
     footerNoteText: {
       color: tokens.mutedForeground,
-      lineHeight: 20,
+      fontSize: 13, // Secondary size
+      lineHeight: 18,
     },
   });
-
-export default BillingPreview;

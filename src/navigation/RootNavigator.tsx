@@ -1,5 +1,9 @@
 import React from "react";
-import { NavigationContainer, DrawerActions } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DrawerActions,
+  createNavigationContainerRef,
+} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -66,7 +70,11 @@ import {
   RootDrawerParamList,
   AuthStackParamList,
   SettingsStackParamList,
+  AppNavigationParamList,
 } from "./types";
+
+export const navigationRef =
+  createNavigationContainerRef<AppNavigationParamList>();
 
 const Tab = createBottomTabNavigator<MainTabsParamList>();
 const Drawer = createDrawerNavigator<RootDrawerParamList>();
@@ -339,6 +347,7 @@ const MainTabs = () => {
         component={DashboardTabStack}
         options={{
           title: "Dashboard",
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <LayoutDashboard color={color} size={size} />
           ),
@@ -349,7 +358,10 @@ const MainTabs = () => {
         component={ProductsTabStack}
         options={{
           title: "Products",
-          tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Package color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -357,7 +369,7 @@ const MainTabs = () => {
         component={CustomersTabStack}
         options={{
           title: "Parties",
-        headerShown: false,
+          headerShown: false,
           tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
         }}
       />
@@ -366,7 +378,10 @@ const MainTabs = () => {
         component={InvoicesTabStack}
         options={{
           title: "Invoices",
-          tabBarIcon: ({ color, size }) => <FileText color={color} size={size} />,
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <FileText color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
@@ -532,7 +547,7 @@ const RootNavigator = () => {
   }
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer theme={navigationTheme} ref={navigationRef}>
       <ErrorBoundary>
         {shouldBypassAuth || user ? (
           <AppDrawerNavigator />

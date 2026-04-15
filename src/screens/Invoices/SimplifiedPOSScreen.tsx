@@ -138,14 +138,14 @@ const ProductCard = React.memo(
           >
             <Minus
               size={16}
-              color={isSelected && !isOutOfStock ? tokens.primary : tokens.mutedForeground + '60'}
+              color={isSelected && !isOutOfStock ? tokens.primary : 'rgba(115,115,115,0.38)'}
               strokeWidth={2.5}
             />
           </Pressable>
           <Text
             style={[
               styles.stepperQty,
-              { color: isSelected ? tokens.foreground : tokens.mutedForeground + '60' },
+              { color: isSelected ? tokens.foreground : 'rgba(115,115,115,0.38)' },
             ]}
           >
             {qty}
@@ -159,7 +159,7 @@ const ProductCard = React.memo(
           >
             <Plus
               size={16}
-              color={isOutOfStock ? tokens.mutedForeground + '60' : tokens.primary}
+              color={isOutOfStock ? 'rgba(115,115,115,0.38)' : tokens.primary}
               strokeWidth={2.5}
             />
           </Pressable>
@@ -355,7 +355,7 @@ const SimplifiedPOSScreen: React.FC = () => {
           <TextInput
             style={styles.searchInput}
             placeholder="Search by item name..."
-            placeholderTextColor={tokens.mutedForeground + '80'}
+            placeholderTextColor='rgba(115,115,115,0.5)'
             value={query}
             onChangeText={setQuery}
             returnKeyType="search"
@@ -396,7 +396,7 @@ const SimplifiedPOSScreen: React.FC = () => {
         keyboardShouldPersistTaps="handled"
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <PackageX size={48} color={tokens.mutedForeground + '40'} />
+            <PackageX size={48} color='rgba(115,115,115,0.25)' />
             <Text style={styles.emptyText}>No products found</Text>
             <Text style={styles.emptySubText}>Try a different search</Text>
           </View>
@@ -458,7 +458,7 @@ const createStyles = (tokens: ThemeTokens) =>
       gap: 10,
       backgroundColor: tokens.background,
       borderBottomWidth: 1,
-      borderBottomColor: tokens.border + '18',
+      borderBottomColor: 'rgba(0,0,0,0.06)',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.04,
@@ -476,7 +476,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingVertical: 8,
       gap: 8,
       borderWidth: 1,
-      borderColor: tokens.border + '18',
+      borderColor: 'rgba(0,0,0,0.06)',
     },
     searchInput: {
       flex: 1,
@@ -506,7 +506,7 @@ const createStyles = (tokens: ThemeTokens) =>
       padding: 14,
       gap: 10,
       borderWidth: 1,
-      borderColor: tokens.border + '20',
+      borderColor: 'rgba(0,0,0,0.08)',
       shadowColor: '#1a1a2e',
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
@@ -516,7 +516,7 @@ const createStyles = (tokens: ThemeTokens) =>
     cardSelected: {
       borderColor: tokens.primary,
       borderWidth: 2,
-      backgroundColor: tokens.primary + '08',
+      backgroundColor: tokens.primaryAlpha10,
     },
     cardDimmed: { opacity: 0.6 },
     cardImageBox: {
@@ -531,7 +531,7 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: tokens.primary + '15',
+      backgroundColor: tokens.primaryAlpha15,
     },
     cardInitial: {
       fontSize: 28,
@@ -604,7 +604,7 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '700',
       color: tokens.mutedForeground,
     },
-    emptySubText: { fontSize: 13, color: tokens.mutedForeground + '80' },
+    emptySubText: { fontSize: 13, color: 'rgba(115,115,115,0.5)' },
 
     // Cart bar
     cartBar: {
@@ -617,7 +617,7 @@ const createStyles = (tokens: ThemeTokens) =>
       justifyContent: 'space-between',
       backgroundColor: tokens.card,
       borderTopWidth: 1,
-      borderTopColor: tokens.border + '20',
+      borderTopColor: 'rgba(0,0,0,0.08)',
       paddingHorizontal: 20,
       paddingTop: 14,
       paddingBottom: Platform.OS === 'ios' ? 28 : 16,

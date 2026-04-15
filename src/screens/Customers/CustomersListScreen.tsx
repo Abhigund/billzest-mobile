@@ -30,8 +30,9 @@ import { CustomersStackParamList } from "../../navigation/types";
 import PartyFilterSheet, {
   PartyFilters,
 } from "../../components/modals/PartyFilterSheet";
-import { MoreVertical, Plus, Users, Menu } from "lucide-react-native";
+import { MoreVertical, Plus, Users } from "lucide-react-native";
 import { useScreenContentPadding } from "../../components/layout/ScreenContent";
+import ListHeader from "../../components/layout/ListHeader";
 import ScreenWrapper from "../../components/ScreenWrapper";
 
 const formatMetricCurrency = (value: number): string =>
@@ -171,13 +172,7 @@ const CustomersListScreen: React.FC = () => {
   return (
     <ScreenWrapper>
       <View style={styles.screen}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.headerIcon}>
-          <Menu color={tokens.foreground} size={22} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Parties</Text>
-        <View style={{ width: 40 }} />
-      </View>
+        <ListHeader title="Parties" />
 
       <ScrollView
         style={styles.container}
@@ -271,35 +266,17 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       backgroundColor: tokens.background,
     },
-    header: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingHorizontal: 16,
-      paddingTop: 12,
-      paddingBottom: 8,
-      backgroundColor: tokens.background,
-    },
-    headerTitle: {
-      fontSize: 20,
-      fontWeight: "700",
-      color: tokens.foreground,
-    },
-    headerIcon: {
-      padding: 8,
-      marginLeft: -8,
-    },
     container: {
       flex: 1,
     },
     listHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      paddingVertical: 10,
-      paddingHorizontal: 16,
-      backgroundColor: tokens.muted, // Light gray bar from designs
-      marginHorizontal: -16,
-      marginBottom: 8,
+      paddingVertical: tokens.spacingSm, // 8px — normalized across all screens
+      paddingHorizontal: tokens.spacingLg, // 16px
+      backgroundColor: tokens.muted,
+      marginHorizontal: -tokens.spacingLg, // bleed full-width against contentContainerStyle padding
+      marginBottom: tokens.spacingSm, // 8px
     },
     listHeaderLabel: {
       fontSize: 10,

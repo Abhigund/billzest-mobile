@@ -30,13 +30,13 @@ export const getProductStatus = (product: Product): ProductStatus => {
 const getStatusVisual = (status: ProductStatus, tokens: ThemeTokens) => {
   switch (status) {
     case 'low-stock':
-      return { label: 'Low Stock', bgColor: 'rgba(168,53,62,0.1)', color: tokens.destructive };
+      return { label: 'Low Stock', bgColor: tokens.warningAlpha15, color: tokens.warning, stockWeight: '700' as const };
     case 'out-of-stock':
-      return { label: 'Out of Stock', bgColor: 'rgba(220,76,70,0.12)', color: tokens.destructive };
+      return { label: 'Out of Stock', bgColor: tokens.destructiveAlpha15, color: tokens.destructive, stockWeight: '700' as const };
     case 'near-expiry':
-      return { label: 'Near Expiry', bgColor: 'rgba(250,204,21,0.18)', color: tokens.warning };
+      return { label: 'Near Expiry', bgColor: tokens.warningAlpha15, color: tokens.warning, stockWeight: '700' as const };
     default:
-      return { label: 'In Stock', bgColor: 'rgba(29,185,84,0.12)', color: tokens.primary };
+      return { label: 'In Stock', bgColor: tokens.primaryAlpha15, color: tokens.primary, stockWeight: '400' as const };
   }
 };
 
@@ -75,7 +75,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {product.name}
         </Text>
         <View style={styles.stockBlock}>
-          <Text style={[styles.stockCount, { color: statusVisual.color }]}>
+          <Text style={[styles.stockCount, { color: statusVisual.color, fontWeight: statusVisual.stockWeight }]}>
             {`Stock: ${product.stock_quantity}`}
           </Text>
           <View style={[styles.statusBadge, { backgroundColor: statusVisual.bgColor }]}>
@@ -99,9 +99,9 @@ const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     row: {
       backgroundColor: tokens.surface_container_lowest,
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-      gap: 4,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingMd, // 12px
+      gap: tokens.spacingXs, // 4px
     },
     rowPressed: {
       backgroundColor: tokens.muted,
@@ -110,33 +110,32 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'baseline',
-      gap: 8,
+      gap: tokens.spacingSm, // 8px
     },
     productName: {
       flex: 1,
-      fontSize: 15,
-      fontWeight: '700',
+      fontSize: 15, // Primary size
+      fontWeight: '600', // Semi-bold
       color: tokens.foreground,
       letterSpacing: -0.2,
     },
     stockBlock: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
+      gap: 6, // Minimal spacing for compact elements
       flexShrink: 0,
     },
     stockCount: {
-      fontSize: 12,
-      fontWeight: '600',
+      fontSize: 12, // Secondary size
     },
     statusBadge: {
-      paddingHorizontal: 6,
-      paddingVertical: 2,
-      borderRadius: 4,
+      paddingHorizontal: 6, // Minimal for badge
+      paddingVertical: 2, // Minimal for badge
+      borderRadius: tokens.radiusXs, // 4px
     },
     statusBadgeText: {
-      fontSize: 9,
-      fontWeight: '700',
+      fontSize: 9, // Small secondary text
+      fontWeight: '600', // Semi-bold for status
       letterSpacing: 0.4,
     },
     bottomRow: {
@@ -145,16 +144,17 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: 'center',
     },
     price: {
-      fontSize: 14,
-      fontWeight: '800',
+      fontSize: 14, // Emphasis size
+      fontWeight: '700', // Bold for emphasis
       color: tokens.primary,
     },
     skuMeta: {
-      fontSize: 11,
+      fontSize: 12, // Bumped for hierarchy contrast vs name (15px/600)
       color: tokens.mutedForeground,
       fontWeight: '500',
       flexShrink: 1,
       textAlign: 'right',
+      opacity: 0.75, // Subtle de-emphasis without losing readability
     },
   });
 

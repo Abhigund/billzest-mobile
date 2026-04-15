@@ -17,7 +17,8 @@ import { ThemeTokens } from '../../theme/tokens';
 import { useCategoryMutations } from '../../logic/categoryLogic';
 import { Category } from '../../types/domain';
 import { ProductsStackParamList } from '../../navigation/types';
-import { X, Save, Tag } from 'lucide-react-native';
+import { X, Tag, CheckCircle2 } from 'lucide-react-native';
+import FormActionBar from '../../components/ui/FormActionBar';
 
 const CategoryFormSheet = () => {
   const { tokens } = useThemeTokens();
@@ -129,21 +130,17 @@ const CategoryFormSheet = () => {
         <View style={{ height: 40 }} />
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Pressable style={styles.cancelBtn} onPress={() => navigation.goBack()}>
-          <Text style={styles.cancelBtnText}>Cancel</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.saveBtn, isSaving && { opacity: 0.7 }]}
-          onPress={handleSave}
-          disabled={isSaving}
-        >
-          <Save color={tokens.primaryForeground} size={20} style={{ marginRight: 8 }} />
-          <Text style={styles.saveBtnText}>
-            {isSaving ? 'Saving...' : 'Save Category'}
-          </Text>
-        </Pressable>
-      </View>
+      <FormActionBar
+        variant="dual"
+        secondaryLabel="Cancel"
+        secondaryIcon={<X size={16} color={tokens.mutedForeground} />}
+        onSecondary={() => navigation.goBack()}
+        primaryLabel={isSaving ? 'Saving...' : isEditMode ? 'Update Category' : 'Save Category'}
+        primaryIcon={<CheckCircle2 size={16} color={tokens.primaryForeground} />}
+        onPrimary={handleSave}
+        loading={isSaving}
+        disabled={isSaving}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -203,43 +200,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontSize: 12,
       color: tokens.mutedForeground,
       marginTop: 6,
-    },
-    footer: {
-      flexDirection: 'row',
-      padding: 16,
-      borderTopWidth: 1,
-      borderTopColor: tokens.border,
-      backgroundColor: tokens.card,
-      paddingBottom: Platform.OS === 'ios' ? 32 : 16,
-    },
-    cancelBtn: {
-      flex: 1,
-      padding: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 12,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      marginRight: 12,
-    },
-    cancelBtnText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: tokens.foreground,
-    },
-    saveBtn: {
-      flex: 2,
-      flexDirection: 'row',
-      padding: 16,
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 12,
-      backgroundColor: tokens.primary,
-    },
-    saveBtnText: {
-      fontSize: 16,
-      fontWeight: '600',
-      color: tokens.primaryForeground,
     },
   });
 

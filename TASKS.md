@@ -217,13 +217,11 @@ Only after both pass, mark `[x]` and ask for review.
 ### `src/screens/Billing/BillingScreen.tsx`
 - [x] **Task 89** (Audit UX 3.3): Move `BillingScreen` entrypoints behind an "Advanced Billing" affordance and remove it from primary quick flows to avoid duplicate billing paradigms in day-to-day cashier operation. locked-by: codex-session | 2026-04-15 01:07:10 +05:30
 
----
-
 ## 🟥 High Priority (Products Audit)
 
 ### `src/screens/Products/ProductFormScreen.tsx`
-- [ ] **Task 90** (Audit 2.1): Fix `category_id` wiring (L154–175, L242–262). Change form state to store `category_id` (UUID) instead of category name string. Update payload to send actual `category_id` from selected category instead of `null`.
-- [ ] **Task 91** (Audit 2.2): Add category dropdown selector (L367–373). Replace free-text category input with dropdown populated from `categoriesService.getCategories()` showing category names but storing IDs.
+- [x] Task 90: Fix `category_id` wiring in `ProductFormScreen` handleSubmit (previously hardcoded to null)
+- [x] Task 91: Add category dropdown selector in `ProductFormScreen` (currently string input)
 
 ### `src/screens/Products/CategoriesListScreen.tsx`
 - [ ] **Task 92** (Audit 1.2): Fix hardcoded product count (L133–135). Replace `{${0} products}` with actual product count query. Either join with products table or add computed count field to category query.

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Share,
   Alert,
+  Switch,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -23,7 +24,6 @@ import {
   Edit2,
   TrendingUp,
   ReceiptText,
-  Layers,
   Info,
   MoreHorizontal,
 } from 'lucide-react-native';
@@ -32,7 +32,7 @@ import {
 // Hardcoded DS object removed. See createStyles() for token mappings.
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-type TabKey = 'overview' | 'pricing' | 'inventory' | 'more';
+type TabKey = 'overview' | 'pricing' | 'inventory';
 type ProductDetailRoute = RouteProp<ProductsStackParamList, 'ProductDetail'>;
 
 const EMPTY_PRODUCT: Product = {
@@ -149,7 +149,6 @@ const TabBar: React.FC<{
     { key: 'overview', label: 'Overview' },
     { key: 'pricing', label: 'Pricing' },
     { key: 'inventory', label: 'Inventory' },
-    { key: 'more', label: 'More' },
   ];
 
   return (
@@ -213,14 +212,6 @@ const OverviewTab: React.FC<{
 
   return (
     <View style={s.tabContent}>
-      {/* Action row */}
-      <View style={s.actionRow}>
-        <Pressable style={s.primaryBtn} onPress={onEdit}>
-          <Edit2 size={15} color={s.tokens.primaryForeground} />
-          <Text style={s.primaryBtnText}>Edit Item</Text>
-        </Pressable>
-      </View>
-
       {/* 4-stat grid */}
       <View style={s.statGrid}>
         {/* Selling Price */}
@@ -254,27 +245,30 @@ const OverviewTab: React.FC<{
         {/* Stock */}
         <View style={s.statCard}>
           <Text style={s.statLabel}>Stock</Text>
-          <Text style={s.statValue}>{product.stock_quantity ?? '—'}</Text>
-          {product.unit ? (
-            <Text style={[s.statSubtext, { textTransform: 'uppercase', fontWeight: '700' }]}>
-              {product.unit}
-            </Text>
-          ) : null}
+          <View style={s.stockStatRow}>
+            <Text style={s.statValue}>{product.stock_quantity ?? '—'}</Text>
+            {product.unit ? (
+              <Text style={s.stockStatUnit}>{product.unit.toUpperCase()}</Text>
+            ) : null}
+          </View>
+          <Text style={s.statSubtext}>On hand</Text>
         </View>
       </View>
 
       {/* Quick Info card */}
       <SectionCard title="QUICK INFORMATION" styles={s}>
         <View style={s.divider} />
-        {product.hsn ? <InfoRow label="HSN Code" value={product.hsn} styles={s} /> : null}
         <InfoRow label="Unit" value={product.unit || '—'} styles={s} />
         <InfoRow label="GST Rate" value={`${product.tax_rate ?? 0}%`} styles={s} />
-        <InfoRow
-          label="Expiry Date"
-          value={formatDate(product.expiry_date)}
-          valueColor={product.expiry_date ? s.tokens.destructive : undefined}
-          styles={s}
-        />
+        {product.hsn ? <InfoRow label="HSN Code" value={product.hsn} styles={s} /> : null}
+        {product.expiry_date ? (
+          <InfoRow
+            label="Expiry Date"
+            value={formatDate(product.expiry_date)}
+            valueColor={s.tokens.destructive}
+            styles={s}
+          />
+        ) : null}
         {product.description ? (
           <View style={s.descriptionBlock}>
             <Text style={s.infoRowLabel}>Description</Text>
@@ -381,12 +375,18 @@ const InventoryTab: React.FC<{
         )}
 
         <View style={s.stockTrackedRow}>
-          <Text style={s.stockTrackedLabel}>
-            Inventory tracked: {product.is_inventory_tracked !== false ? 'Yes' : 'No'}
-          </Text>
-          <View style={[s.trackToggle, product.is_inventory_tracked === false && s.trackToggleOff]}>
-            <View style={[s.trackToggleThumb, product.is_inventory_tracked === false && s.trackToggleThumbOff]} />
+          <View>
+            <Text style={s.stockTrackedLabel}>Inventory Tracked</Text>
+            <Text style={s.stockTrackedSub}>
+              {product.is_inventory_tracked !== false ? 'Stock levels are monitored' : 'Not tracking stock'}
+            </Text>
           </View>
+          <Switch
+            value={product.is_inventory_tracked !== false}
+            disabled
+            thumbColor={s.tokens.primaryForeground}
+            trackColor={{ false: s.tokens.muted, true: s.tokens.primary }}
+          />
         </View>
       </View>
 
@@ -396,70 +396,36 @@ const InventoryTab: React.FC<{
         <InfoRow label="Unit" value={product.unit || '—'} styles={s} />
         <InfoRow
           label="Low Stock Alert"
-          value={product.low_stock_threshold != null ? String(product.low_stock_threshold) : 'Not set'}
+          value={product.low_stock_threshold != null ? `${product.low_stock_threshold} ${product.unit || ''}`.trim() : 'Not set'}
           valueColor={lowStock ? s.tokens.destructive : undefined}
           styles={s}
         />
-        <InfoRow
-          label="Expiry Date"
-          value={formatDate(product.expiry_date)}
-          valueColor={product.expiry_date ? s.tokens.destructive : undefined}
-          styles={s}
-        />
+        {product.expiry_date ? (
+          <InfoRow
+            label="Expiry Date"
+            value={formatDate(product.expiry_date)}
+            valueColor={s.tokens.destructive}
+            styles={s}
+          />
+        ) : null}
       </SectionCard>
+
+      {/* Record meta — demoted typographically */}
+      <View style={s.metaFooter}>
+        <Text style={s.metaFooterText}>
+          Created {formatDate(product.created_at)}
+          {product.updated_at && product.updated_at !== product.created_at
+            ? `  ·  Updated ${formatDate(product.updated_at)}`
+            : ''}
+        </Text>
+        <Text style={s.metaFooterSku} numberOfLines={1}>
+          SKU: {product.sku || '—'}
+        </Text>
+      </View>
     </View>
   );
 };
 
-// ─── Tab: More ──────────────────────────────────────────────────────────────
-const MoreTab: React.FC<{
-  product: Product;
-  styles: ReturnType<typeof createStyles>;
-}> = ({ product, styles: s }) => (
-  <View style={s.tabContent}>
-    {/* Notes & Compliance */}
-    <SectionCard title="NOTES & COMPLIANCE" icon={<Info size={18} color={s.tokens.mutedForeground} />} styles={s}>
-      <View style={s.divider} />
-      {product.description ? (
-        <View style={s.descriptionBlock}>
-          <Text style={s.infoRowLabel}>Description</Text>
-          <Text style={[s.descriptionText, { marginTop: 6 }]}>{product.description}</Text>
-        </View>
-      ) : (
-        <Text style={s.emptyNote}>No description added yet.</Text>
-      )}
-      {product.hsn ? <InfoRow label="HSN Code" value={product.hsn} styles={s} /> : null}
-      <InfoRow
-        label="Expiry Date"
-        value={formatDate(product.expiry_date)}
-        valueColor={product.expiry_date ? s.tokens.destructive : undefined}
-        styles={s}
-      />
-    </SectionCard>
-
-    {/* Meta */}
-    <View style={[s.sectionCard, { backgroundColor: s.tokens.secondary }]}>
-      <View style={s.metaGrid}>
-        <View style={s.metaBlock}>
-          <Text style={s.metaLabel}>CREATED</Text>
-          <Text style={s.metaValue}>{formatDate(product.created_at)}</Text>
-        </View>
-        <View style={s.metaBlock}>
-          <Text style={s.metaLabel}>LAST UPDATED</Text>
-          <Text style={s.metaValue}>{formatDate(product.updated_at)}</Text>
-        </View>
-      </View>
-      {product.id ? (
-        <View style={s.productIdBlock}>
-          <Text style={s.metaLabel}>PRODUCT ID</Text>
-          <Text style={s.productIdText} numberOfLines={1} ellipsizeMode="tail">
-            {product.id}
-          </Text>
-        </View>
-      ) : null}
-    </View>
-  </View>
-);
 
 // ─── Main Screen ────────────────────────────────────────────────────────────
 const ProductDetailScreen: React.FC = () => {
@@ -508,35 +474,17 @@ const ProductDetailScreen: React.FC = () => {
   const handleMoreOptions = React.useCallback(() => {
     const options: { text: string; onPress: () => void; style?: 'cancel' | 'default' | 'destructive' }[] = [
       {
-        text: 'Product Info',
-        onPress: () => {
-          Alert.alert(
-            'Product ID',
-            product.id || 'Not available',
-            [{ text: 'OK' }],
-          );
-        },
-      },
-      {
         text: 'Stock Management',
-        onPress: () => {
-          // Navigate to inventory tab where user can manage stock
-          setActiveTab('inventory');
-          Alert.alert('Info', 'See the Inventory tab for stock tracking and adjustments.');
-        },
+        onPress: () => setActiveTab('inventory'),
       },
       {
         text: 'Pricing Details',
-        onPress: () => {
-          setActiveTab('pricing');
-          Alert.alert('Info', 'See the Pricing tab for detailed cost and margin analysis.');
-        },
+        onPress: () => setActiveTab('pricing'),
       },
       { text: 'Cancel', onPress: () => {}, style: 'cancel' },
     ];
-
-    Alert.alert('Options', 'Select an action:', options);
-  }, [product, setActiveTab]);
+    Alert.alert('Jump to', 'Navigate to:', options);
+  }, [setActiveTab]);
 
   return (
     <View style={styles.screen}>
@@ -544,14 +492,14 @@ const ProductDetailScreen: React.FC = () => {
         title="Item Details"
         actions={[
           {
+            icon: <Edit2 size={18} color={tokens.primary} />,
+            onPress: handleEditProduct,
+            accessibilityLabel: 'Edit product',
+          },
+          {
             icon: <Share2 size={18} color={tokens.foreground} />,
             onPress: handleShareProduct,
             accessibilityLabel: 'Share product',
-          },
-          {
-            icon: <Printer size={18} color={tokens.foreground} />,
-            onPress: handlePrintProduct,
-            accessibilityLabel: 'Print product',
           },
           {
             icon: <MoreHorizontal size={18} color={tokens.foreground} />,
@@ -578,7 +526,6 @@ const ProductDetailScreen: React.FC = () => {
         )}
         {activeTab === 'pricing' && <PricingTab product={product} styles={styles} />}
         {activeTab === 'inventory' && <InventoryTab product={product} styles={styles} />}
-        {activeTab === 'more' && <MoreTab product={product} styles={styles} />}
       </ScrollView>
     </View>
   );
@@ -618,7 +565,7 @@ const createStyles = (tokens: ThemeTokens) => {
       width: 60,
       height: 60,
       borderRadius: 16,
-      backgroundColor: tokens.primary + '20',
+      backgroundColor: tokens.primaryAlpha20,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -654,7 +601,7 @@ const createStyles = (tokens: ThemeTokens) => {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: tokens.primary + '20',
+      backgroundColor: tokens.primaryAlpha20,
     },
     chipPrimaryText: {
       fontSize: 9,
@@ -669,7 +616,7 @@ const createStyles = (tokens: ThemeTokens) => {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: tokens.primary + '15',
+      backgroundColor: tokens.primaryAlpha15,
     },
     chipInactive: {
       backgroundColor: tokens.muted,
@@ -696,7 +643,7 @@ const createStyles = (tokens: ThemeTokens) => {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 999,
-      backgroundColor: tokens.destructive + '15',
+      backgroundColor: tokens.destructiveAlpha15,
     },
     chipDiscountText: {
       fontSize: 9,
@@ -771,31 +718,7 @@ const createStyles = (tokens: ThemeTokens) => {
       gap: 14,
     },
 
-    // ── Overview: Action Row ──
-    actionRow: {
-      flexDirection: 'row',
-      gap: 12,
-    },
-    primaryBtn: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 8,
-      backgroundColor: tokens.primary,
-      paddingVertical: 14,
-      borderRadius: 16,
-      shadowColor: tokens.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.25,
-      shadowRadius: 8,
-      elevation: 4,
-    },
-    primaryBtnText: {
-      color: tokens.primaryForeground,
-      fontWeight: '700',
-      fontSize: 14,
-    },
+    // ── Overview: Action Row (removed — Edit is now in DetailHeader actions) ──
 
     // ── Overview: 4-stat grid ──
     statGrid: {
@@ -852,10 +775,22 @@ const createStyles = (tokens: ThemeTokens) => {
       letterSpacing: -0.5,
     },
     statSubtext: {
-      fontSize: 9,
+      fontSize: 11,
       fontWeight: '500',
       color: tokens.mutedForeground,
       marginTop: 2,
+    },
+    stockStatRow: {
+      flexDirection: 'row',
+      alignItems: 'baseline',
+      gap: 4,
+      flexWrap: 'wrap',
+    },
+    stockStatUnit: {
+      fontSize: 11,
+      fontWeight: '700',
+      color: tokens.mutedForeground,
+      letterSpacing: 0.5,
     },
     marginChip: {
       flexDirection: 'row',
@@ -898,7 +833,7 @@ const createStyles = (tokens: ThemeTokens) => {
       width: 36,
       height: 36,
       borderRadius: 10,
-      backgroundColor: tokens.primary + '15',
+      backgroundColor: tokens.primaryAlpha15,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -920,8 +855,8 @@ const createStyles = (tokens: ThemeTokens) => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingVertical: 8,
-      borderBottomWidth: 1,
+      paddingVertical: 6,
+      borderBottomWidth: StyleSheet.hairlineWidth,
       borderBottomColor: tokens.border,
     },
     infoRowLabel: {
@@ -1027,7 +962,7 @@ const createStyles = (tokens: ThemeTokens) => {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 8,
-      backgroundColor: tokens.destructive + '15',
+      backgroundColor: tokens.destructiveAlpha15,
       paddingHorizontal: 16,
       paddingVertical: 10,
     },
@@ -1048,65 +983,29 @@ const createStyles = (tokens: ThemeTokens) => {
     stockTrackedLabel: {
       fontSize: 13,
       fontWeight: '600',
-      color: tokens.mutedForeground,
-    },
-    trackToggle: {
-      width: 38,
-      height: 22,
-      borderRadius: 99,
-      backgroundColor: tokens.primary,
-      justifyContent: 'center',
-      paddingHorizontal: 3,
-      alignItems: 'flex-end',
-    },
-    trackToggleOff: {
-      backgroundColor: tokens.muted,
-      alignItems: 'flex-start',
-    },
-    trackToggleThumb: {
-      width: 16,
-      height: 16,
-      borderRadius: 8,
-      backgroundColor: tokens.card,
-    },
-    trackToggleThumbOff: {},
-
-    // ── More: Meta ──
-    metaGrid: {
-      flexDirection: 'row',
-      gap: 12,
-      marginBottom: 12,
-    },
-    metaBlock: {
-      flex: 1,
-    },
-    metaLabel: {
-      fontSize: 9,
-      fontWeight: '800',
-      color: tokens.mutedForeground,
-      letterSpacing: 1.5,
-      textTransform: 'uppercase',
-      marginBottom: 4,
-    },
-    metaValue: {
-      fontSize: 13,
-      fontWeight: '700',
       color: tokens.foreground,
     },
-    productIdBlock: {
-      paddingTop: 12,
-      borderTopWidth: 1,
-      borderTopColor: tokens.border,
-    },
-    productIdText: {
+    stockTrackedSub: {
       fontSize: 11,
-      fontFamily: 'monospace',
       color: tokens.mutedForeground,
-      backgroundColor: tokens.muted,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 6,
-      marginTop: 4,
+      marginTop: 2,
+    },
+
+    // ── Inventory: Record meta footer ──
+    metaFooter: {
+      paddingHorizontal: 4,
+      paddingBottom: 4,
+      gap: 2,
+    },
+    metaFooterText: {
+      fontSize: 11,
+      color: tokens.mutedForeground,
+      fontWeight: '400',
+    },
+    metaFooterSku: {
+      fontSize: 11,
+      color: tokens.mutedForeground,
+      fontWeight: '400',
     },
   });
 

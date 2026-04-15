@@ -3,11 +3,21 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RootNavigator from './src/navigation/RootNavigator';
-import { ThemeProvider } from './src/theme/ThemeProvider';
+import { ThemeProvider, useThemeTokens } from './src/theme/ThemeProvider';
 import { SupabaseProvider } from './src/contexts/SupabaseContext';
 import { OrganizationProvider } from './src/contexts/OrganizationContext';
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  const { mode } = useThemeTokens();
+  return (
+    <>
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} />
+      <RootNavigator />
+    </>
+  );
+};
 
 function App() {
   return (
@@ -16,8 +26,7 @@ function App() {
         <SupabaseProvider>
           <OrganizationProvider>
             <ThemeProvider>
-              <StatusBar barStyle="light-content" />
-              <RootNavigator />
+              <AppContent />
             </ThemeProvider>
           </OrganizationProvider>
         </SupabaseProvider>

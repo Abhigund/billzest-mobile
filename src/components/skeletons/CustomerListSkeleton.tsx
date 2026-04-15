@@ -32,13 +32,13 @@ const CustomerListSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 20,
       gap: 12,
     },
     card: {
       backgroundColor: tokens.card,
-      borderRadius: 16,
-      padding: 16,
+      borderRadius: 20,
+      paddingHorizontal: 14,
+      paddingVertical: 14,
       borderWidth: 1,
       borderColor: tokens.border,
       flexDirection: 'row',

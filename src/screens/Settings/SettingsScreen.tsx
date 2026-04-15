@@ -22,6 +22,9 @@ import {
   Bell,
   LogOut,
   Globe,
+  Moon,
+  Sun,
+  Monitor,
 } from 'lucide-react-native';
 import { useSupabase } from '../../contexts/SupabaseContext';
 import { supabase } from '../../supabase/supabaseClient';
@@ -68,10 +71,17 @@ const SECTIONS = [
     ],
   },
   */
+  {
+    id: 'preferences',
+    title: 'App Preferences',
+    rows: [
+      { id: 'theme', label: 'App Theme', icon: <Moon size={18} /> },
+    ],
+  },
 ];
 
 const SettingsScreen: React.FC = () => {
-  const { tokens } = useThemeTokens();
+  const { tokens, themeMode, setThemeMode } = useThemeTokens();
   const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const { user } = useSupabase();
@@ -163,7 +173,60 @@ const SettingsScreen: React.FC = () => {
               >
                 <View style={styles.rowIcon}>{row.icon}</View>
                 <Text style={styles.rowLabel}>{row.label}</Text>
-                <ChevronRight color={tokens.mutedForeground} size={18} />
+                {row.id === 'theme' ? (
+                  <View style={styles.themeSelector}>
+                    <Pressable
+                      style={[
+                        styles.themeOption,
+                        themeMode === 'light' && styles.themeOptionActive,
+                      ]}
+                      onPress={() => setThemeMode('light')}
+                    >
+                      <Sun
+                        size={14}
+                        color={
+                          themeMode === 'light'
+                            ? tokens.primary
+                            : tokens.mutedForeground
+                        }
+                      />
+                    </Pressable>
+                    <Pressable
+                      style={[
+                        styles.themeOption,
+                        themeMode === 'dark' && styles.themeOptionActive,
+                      ]}
+                      onPress={() => setThemeMode('dark')}
+                    >
+                      <Moon
+                        size={14}
+                        color={
+                          themeMode === 'dark'
+                            ? tokens.primary
+                            : tokens.mutedForeground
+                        }
+                      />
+                    </Pressable>
+                    <Pressable
+                      style={[
+                        styles.themeOption,
+                        themeMode === 'system' && styles.themeOptionActive,
+                      ]}
+                      onPress={() => setThemeMode('system')}
+                    >
+                      <Monitor
+                        size={14}
+                        color={
+                          themeMode === 'system'
+                            ? tokens.primary
+                            : tokens.mutedForeground
+                        }
+                      />
+                    </Pressable>
+                  </View>
+                ) : (
+                  <ChevronRight color={tokens.mutedForeground} size={18} />
+                )}
               </Pressable>
             ))}
           </View>
@@ -279,6 +342,27 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     secondaryCta: {
       marginTop: 12,
+    },
+    themeSelector: {
+      flexDirection: 'row',
+      backgroundColor: tokens.background,
+      borderRadius: 12,
+      padding: 4,
+    },
+    themeOption: {
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 8,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    themeOptionActive: {
+      backgroundColor: tokens.card,
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
   });
 

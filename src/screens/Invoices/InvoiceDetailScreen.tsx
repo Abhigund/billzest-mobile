@@ -23,7 +23,7 @@ import {
   X,
   Edit,
 } from 'lucide-react-native';
-import BillingPreview, { BillLineItem } from '../../components/BillingPreview';
+// Removed BillingPreview import - now using inline invoice display
 import {
   useRecordOrderPayment,
   useOrderDetail,
@@ -33,6 +33,13 @@ import { pdfService } from '../../services/pdfService';
 import StatusBadge from '../../components/ui/StatusBadge';
 import { Send, CheckCircle, ArrowRight } from 'lucide-react-native';
 import type { InvoicesStackParamList } from '../../navigation/types';
+
+export type BillLineItem = {
+  id: string;
+  description: string;
+  quantity: number;
+  rate: number;
+};
 
 const formatCurrency = (value: number) =>
   `₹${(value ?? 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
@@ -137,6 +144,24 @@ const InvoiceDetailScreen: React.FC = () => {
     }
     return []; // No items until fullInvoice loads
   }, [fullInvoice]);
+
+  // Calculate tax amount from line items with GST rates
+  const calculatedTaxAmount = useMemo(() => {
+    if (fullInvoice?.items) {
+      return fullInvoice.items.reduce((total, item) => {
+        const itemTotal = item.quantity * item.unit_price;
+        const gstRate = item.gst_rate || 0; // Use GST rate from item, default to 0
+        const taxAmount = (itemTotal * gstRate) / 100;
+        return total + taxAmount;
+      }, 0);
+    }
+    return 0;
+  }, [fullInvoice]);
+
+  // Use calculated tax if invoice tax_amount is zero or missing
+  const taxAmount = invoice.tax_amount && invoice.tax_amount > 0 
+    ? invoice.tax_amount 
+    : calculatedTaxAmount;
 
   const handleShare = React.useCallback(async () => {
     if (!fullInvoice) {
@@ -381,7 +406,7 @@ const InvoiceDetailScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <DetailHeader
-        title="Invoice Preview"
+        title="Invoice Details"
         actions={[
           {
             icon: <Edit size={18} color={tokens.foreground} />,
@@ -406,39 +431,116 @@ const InvoiceDetailScreen: React.FC = () => {
         ]}
       />
       <ScrollView contentContainerStyle={styles.content}>
-        <BillingPreview
-          status={invoice.status}
-          numberLabel="Invoice No."
-          numberValue={`#${invoice.invoice_number}`}
-          primaryDateLabel="Issue Date"
-          primaryDateValue={new Date(
-            invoice.created_at || new Date(),
-          ).toLocaleDateString()}
-          secondaryDateLabel="Due Date"
-          secondaryDateValue={new Date(
-            invoice.created_at || new Date(),
-          ).toLocaleDateString()}
-          partyLabel="Bill To"
-          partyName={
-            fullInvoice?.party?.name ||
-            (invoice as any).client_name ||
-            'Customer'
-          }
-          partySubValue={
-            (fullInvoice?.party as any)?.phone
-              ? `${(fullInvoice?.party as any).phone}${
-                  (fullInvoice?.party as any).email
-                    ? ` · ${(fullInvoice?.party as any).email}`
-                    : ''
-                }`
-              : undefined
-          }
-          subtotal={subtotal}
-          taxAmount={invoice.tax_amount || 0}
-          totalAmount={invoice.total_amount}
-          notes={fullInvoice?.notes || (invoice as any).notes || undefined}
-          items={lineItems}
-        />
+        {/* Inline Invoice Display */}
+        <View style={styles.invoiceCard}>
+          <View style={styles.brandRow}>
+            <View>
+              <Text style={styles.brandName}>BillZest Retailers</Text>
+              <Text style={styles.brandMeta}>GSTIN: 27AAACB2230M1ZT</Text>
+              <Text style={styles.brandMeta}>
+                402, Skylark Business Park, Mumbai
+              </Text>
+            </View>
+            {invoice.status && (
+              <View style={styles.metaBadge}>
+                <Text style={styles.metaBadgeLabel}>{invoice.status.toUpperCase()}</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.metaGrid}>
+            <View style={styles.metaBlock}>
+              <Text style={styles.metaLabel}>Invoice No.</Text>
+              <Text style={styles.metaValue}>#{invoice.invoice_number}</Text>
+            </View>
+            <View style={styles.metaBlock}>
+              <Text style={styles.metaLabel}>Issue Date</Text>
+              <Text style={styles.metaValue}>
+                {new Date(invoice.created_at || new Date()).toLocaleDateString()}
+              </Text>
+            </View>
+            <View style={styles.metaBlock}>
+              <Text style={styles.metaLabel}>Due Date</Text>
+              <Text style={styles.metaValue}>
+                {new Date(invoice.created_at || new Date()).toLocaleDateString()}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.billToRow}>
+            <View style={styles.billToBlock}>
+              <Text style={styles.metaLabel}>Bill To</Text>
+              <Text style={styles.metaValue}>
+                {fullInvoice?.party?.name || (invoice as any).client_name || 'Customer'}
+              </Text>
+              {(fullInvoice?.party as any)?.phone && (
+                <Text style={styles.metaSubValue}>
+                  {(fullInvoice?.party as any).phone}
+                  {(fullInvoice?.party as any)?.email && ` · ${(fullInvoice?.party as any).email}`}
+                </Text>
+              )}
+            </View>
+            <View style={styles.billToBlock}>
+              <Text style={styles.metaLabel}>Payment Terms</Text>
+              <Text style={styles.metaValue}>15 days credit</Text>
+              <Text style={styles.metaSubValue}>UPI · Bank Transfer</Text>
+            </View>
+          </View>
+
+          <View style={styles.itemsTable}>
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={[styles.colDescription, styles.headerText]}>
+                Description
+              </Text>
+              <Text style={[styles.colQty, styles.headerText]}>Qty</Text>
+              <Text style={[styles.colRate, styles.headerText]}>Rate</Text>
+              <Text style={[styles.colAmount, styles.headerText]}>Amount</Text>
+            </View>
+            {lineItems.length > 0 ? (
+              lineItems.map(item => {
+                const amount = item.rate * item.quantity;
+                return (
+                  <View key={item.id} style={styles.tableRow}>
+                    <Text style={styles.colDescription}>{item.description}</Text>
+                    <Text style={styles.colQty}>{item.quantity}</Text>
+                    <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
+                    <Text style={styles.colAmount}>{formatCurrency(amount)}</Text>
+                  </View>
+                );
+              })
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>No items in this invoice</Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.totalCard}>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>Subtotal</Text>
+              <Text style={styles.totalValue}>{formatCurrency(subtotal)}</Text>
+            </View>
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabel}>GST (18%)</Text>
+              <Text style={styles.totalValue}>{formatCurrency(taxAmount)}</Text>
+            </View>
+            <View style={styles.totalDivider} />
+            <View style={styles.totalRow}>
+              <Text style={styles.totalLabelBold}>Grand Total</Text>
+              <Text style={styles.totalValueBold}>
+                {formatCurrency(invoice.total_amount)}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.footerNote}>
+            <Text style={styles.footerNoteTitle}>Notes</Text>
+            <Text style={styles.footerNoteText}>
+              {fullInvoice?.notes || (invoice as any).notes || 
+                'Thank you for shopping with us. This invoice was generated from BillZest.'}
+            </Text>
+          </View>
+        </View>
 
         {/* Status Workflow Section */}
         <View style={styles.sectionCard}>
@@ -456,7 +558,12 @@ const InvoiceDetailScreen: React.FC = () => {
             if (transitions.length === 0) {
               return (
                 <Text style={styles.statusMessage}>
-                  This invoice is in final status and cannot be changed.
+                  {invoice.status === 'paid' 
+                    ? 'This invoice is paid and marked as final.' 
+                    : invoice.status === 'cancelled'
+                      ? 'This invoice has been cancelled.'
+                      : 'This invoice is in final status and cannot be changed.'
+                  }
                 </Text>
               );
             }
@@ -527,44 +634,46 @@ const InvoiceDetailScreen: React.FC = () => {
               </Text>
             </View>
           </View>
-          <View style={styles.paymentBanner}>
-            <CreditCard color={tokens.primary} size={18} />
-            <View style={styles.paymentCopy}>
-              <Text style={styles.paymentTitle}>
-                Collect {formatCurrency(invoice.total_amount)}
-              </Text>
-              <Text style={styles.paymentMeta}>
-                Share payment link or download PDF
-              </Text>
-            </View>
-            <Pressable
-              style={styles.primaryButton}
-              onPress={handleCollect}
-              disabled={
-                isRecordingPayment ||
-                invoice.status === 'paid' ||
-                invoice.status === 'cancelled'
-              }
-            >
-              <Text style={styles.primaryButtonText}>
-                {isRecordingPayment ? 'Recording…' : 'Collect'}
-              </Text>
-            </Pressable>
-          </View>
-
-          {invoice.status !== 'cancelled' && invoice.status !== 'paid' && (
-            <Pressable
-              style={[styles.cancelButton, { borderColor: tokens.destructive }]}
-              onPress={handleCancel}
-            >
-              <X size={16} color={tokens.destructive} />
-              <Text
-                style={[styles.cancelButtonText, { color: tokens.destructive }]}
+          <View style={styles.actionContainer}>
+            <View style={styles.paymentBanner}>
+              <CreditCard color={tokens.primary} size={18} />
+              <View style={styles.paymentCopy}>
+                <Text style={styles.paymentTitle}>
+                  Collect {formatCurrency(invoice.total_amount)}
+                </Text>
+                <Text style={styles.paymentMeta}>
+                  Share payment link or download PDF
+                </Text>
+              </View>
+              <Pressable
+                style={styles.primaryButton}
+                onPress={handleCollect}
+                disabled={
+                  isRecordingPayment ||
+                  invoice.status === 'paid' ||
+                  invoice.status === 'cancelled'
+                }
               >
-                Cancel Invoice
-              </Text>
-            </Pressable>
-          )}
+                <Text style={styles.primaryButtonText}>
+                  {isRecordingPayment ? 'Recording…' : 'Collect'}
+                </Text>
+              </Pressable>
+            </View>
+
+            {invoice.status !== 'cancelled' && invoice.status !== 'paid' && (
+              <Pressable
+                style={[styles.cancelButton, { borderColor: tokens.destructive }]}
+                onPress={handleCancel}
+              >
+                <X size={16} color={tokens.destructive} />
+                <Text
+                  style={[styles.cancelButtonText, { color: tokens.destructive }]}
+                >
+                  Cancel Invoice
+                </Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -578,15 +687,15 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: tokens.background,
     },
     content: {
-      padding: 20,
-      paddingBottom: 40,
+      padding: tokens.spacingLg, // 16px
+      paddingBottom: tokens.spacingXxl, // 32px
     },
     // Card, table and footer styles are now owned by BillingPreview
     sectionCard: {
-      borderRadius: 20,
+      borderRadius: tokens.radiusLg, // 16px
       backgroundColor: tokens.card,
-      padding: 18,
-      marginBottom: 16,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingMd, // 12px
       shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.05,
@@ -597,44 +706,47 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 14,
+      marginBottom: tokens.spacingSm, // 8px
     },
     sectionTitle: {
-      fontSize: 16,
-      fontWeight: '700',
+      fontSize: 16, // Primary size
+      fontWeight: '700', // Bold for emphasis
       color: tokens.foreground,
     },
     timelineRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 14,
+      marginBottom: tokens.spacingSm, // 8px
     },
     timelineDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
+      width: tokens.spacingSm, // 8px
+      height: tokens.spacingSm, // 8px
+      borderRadius: tokens.radiusXs, // 4px
       backgroundColor: tokens.primary,
-      marginRight: 10,
+      marginRight: tokens.spacingSm, // 8px
     },
     timelineCopy: {
       flex: 1,
     },
     timelineLabel: {
-      fontWeight: '600',
+      fontWeight: '600', // Semi-bold
       color: tokens.foreground,
+      fontSize: 14, // Emphasis size
     },
     timelineMeta: {
       color: tokens.mutedForeground,
-      fontSize: 12,
-      marginTop: 2,
+      fontSize: 12, // Secondary size
+      marginTop: tokens.spacingXs, // 4px
+    },
+    actionContainer: {
+      gap: tokens.spacingSm, // 8px
     },
     paymentBanner: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderRadius: 16,
-      padding: 14,
-      marginTop: 8,
-      backgroundColor: tokens.background,
+      borderRadius: tokens.radiusLg, // 16px
+      padding: tokens.spacingMd, // 12px
+      backgroundColor: tokens.surface_container_low,
       shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.03,
@@ -643,69 +755,71 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     paymentCopy: {
       flex: 1,
-      marginLeft: 12,
+      marginLeft: tokens.spacingSm, // 8px
     },
     paymentTitle: {
-      fontWeight: '700',
+      fontWeight: '700', // Bold for emphasis
       color: tokens.foreground,
+      fontSize: 15, // Primary size
     },
     paymentMeta: {
       color: tokens.mutedForeground,
-      marginTop: 2,
-      fontSize: 12,
+      marginTop: tokens.spacingXs, // 4px
+      fontSize: 12, // Secondary size
     },
     primaryButton: {
       backgroundColor: tokens.primary,
-      borderRadius: 999,
-      paddingHorizontal: 18,
-      paddingVertical: 8,
+      borderRadius: tokens.radiusFull, // 999
+      paddingHorizontal: tokens.spacingLg, // 16px
+      paddingVertical: tokens.spacingSm, // 8px
     },
     primaryButtonText: {
       color: tokens.primaryForeground,
-      fontWeight: '700',
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 14, // Emphasis size
     },
     cancelButton: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 999,
+      borderRadius: tokens.radiusFull, // 999
       backgroundColor: tokens.muted,
-      paddingHorizontal: 18,
-      paddingVertical: 10,
-      marginTop: 12,
-      gap: 8,
+      paddingHorizontal: tokens.spacingLg, // 16px
+      paddingVertical: tokens.spacingSm, // 8px
+      marginTop: tokens.spacingSm, // 8px
+      gap: tokens.spacingXs, // 4px
     },
     cancelButtonText: {
-      fontWeight: '600',
-      fontSize: 15,
+      fontWeight: '600', // Semi-bold
+      fontSize: 14, // Emphasis size
     },
     statusMessage: {
       color: tokens.mutedForeground,
-      fontSize: 14,
+      fontSize: 14, // Emphasis size
       textAlign: 'center',
-      paddingVertical: 8,
+      paddingVertical: tokens.spacingSm, // 8px
     },
     statusActions: {
-      marginTop: 12,
+      marginTop: tokens.spacingSm, // 8px
     },
     statusSubtitle: {
       color: tokens.mutedForeground,
-      fontSize: 13,
-      marginBottom: 10,
-      fontWeight: '600',
+      fontSize: 13, // Secondary size
+      marginBottom: tokens.spacingSm, // 8px
+      fontWeight: '600', // Semi-bold
     },
     statusButtons: {
-      gap: 10,
+      gap: tokens.spacingSm, // 8px
     },
     statusButton: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'center',
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      paddingVertical: 12,
+      borderRadius: tokens.radiusSm, // 8px
+      paddingHorizontal: tokens.spacingLg, // 16px
+      paddingVertical: tokens.spacingSm, // 8px
       backgroundColor: tokens.muted,
-      gap: 8,
+      gap: tokens.spacingXs, // 4px
     },
     statusButtonPrimary: {
       backgroundColor: tokens.primary,
@@ -719,14 +833,222 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     statusButtonText: {
       color: tokens.foreground,
-      fontWeight: '600',
-      fontSize: 14,
+      fontWeight: '600', // Semi-bold
+      fontSize: 14, // Emphasis size
     },
     statusButtonTextPrimary: {
       color: tokens.primaryForeground,
     },
     statusButtonTextDanger: {
       color: tokens.destructive,
+    },
+    // Invoice Display Styles (from BillingPreview)
+    invoiceCard: {
+      borderRadius: tokens.radiusLg, // 16px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.card,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 3,
+    },
+    brandRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    brandName: {
+      fontSize: 18, // Slightly smaller for better balance
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      letterSpacing: -0.2,
+    },
+    brandMeta: {
+      color: tokens.mutedForeground,
+      fontSize: 12, // Secondary size
+      marginTop: tokens.spacingXs, // 4px
+      lineHeight: 16,
+    },
+    metaBadge: {
+      borderRadius: tokens.radiusFull, // 999
+      borderWidth: 1,
+      borderColor: tokens.border,
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: tokens.spacingXs, // 4px
+      backgroundColor: tokens.surface_container_low,
+    },
+    metaBadgeLabel: {
+      fontSize: 11, // Smaller for better proportion
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.primary,
+      letterSpacing: 0.5,
+    },
+    metaGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    metaBlock: {
+      flex: 1,
+      minWidth: 140,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
+    },
+    metaLabel: {
+      fontSize: 11, // Small size for labels
+      fontWeight: '600', // Semi-bold
+      color: tokens.mutedForeground,
+      marginBottom: tokens.spacingXs, // 4px
+      textTransform: 'uppercase',
+      letterSpacing: 0.5,
+    },
+    metaValue: {
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      color: tokens.foreground,
+    },
+    metaSubValue: {
+      fontSize: 12, // Secondary size
+      color: tokens.mutedForeground,
+      marginTop: tokens.spacingXs, // 4px
+    },
+    billToRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: tokens.spacingSm, // 8px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    billToBlock: {
+      flex: 1,
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingMd, // 12px
+    },
+    itemsTable: {
+      borderRadius: tokens.radiusSm, // 8px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.card,
+      marginBottom: tokens.spacingLg, // 16px
+      overflow: 'hidden',
+    },
+    tableRow: {
+      flexDirection: 'row',
+      paddingVertical: tokens.spacingSm, // 8px
+      paddingHorizontal: tokens.spacingMd, // 12px
+      borderBottomWidth: 1,
+      borderBottomColor: tokens.border,
+    },
+    tableHeader: {
+      backgroundColor: tokens.surface_container_low,
+      borderBottomWidth: 1,
+      borderBottomColor: tokens.border,
+    },
+    headerText: {
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      fontSize: 12, // Secondary size
+      letterSpacing: 0.3,
+    },
+    colDescription: {
+      flex: 2,
+      color: tokens.foreground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colQty: {
+      flex: 0.5,
+      color: tokens.foreground,
+      textAlign: 'center',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colRate: {
+      flex: 1,
+      color: tokens.foreground,
+      textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    colAmount: {
+      flex: 1,
+      color: tokens.foreground,
+      textAlign: 'right',
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold for emphasis
+    },
+    emptyState: {
+      paddingVertical: tokens.spacingXxl, // 32px
+      alignItems: 'center',
+      backgroundColor: tokens.surface_container_low,
+    },
+    emptyStateText: {
+      color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '600', // Semi-bold
+      textAlign: 'center',
+    },
+    totalCard: {
+      borderRadius: tokens.radiusSm, // 8px
+      borderWidth: 1,
+      borderColor: tokens.border,
+      backgroundColor: tokens.surface_container_low,
+      padding: tokens.spacingLg, // 16px
+      marginBottom: tokens.spacingLg, // 16px
+    },
+    totalRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: tokens.spacingSm, // 8px
+    },
+    totalLabel: {
+      color: tokens.mutedForeground,
+      fontSize: 14, // Emphasis size
+      fontWeight: '500', // Medium weight
+    },
+    totalValue: {
+      color: tokens.foreground,
+      fontWeight: '600', // Semi-bold
+      fontSize: 15, // Primary size
+    },
+    totalLabelBold: {
+      color: tokens.foreground,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 16, // Primary size
+    },
+    totalValueBold: {
+      color: tokens.primary,
+      fontWeight: '700', // Bold for emphasis
+      fontSize: 18, // Larger for emphasis
+    },
+    totalDivider: {
+      height: 1,
+      backgroundColor: tokens.border,
+      marginVertical: tokens.spacingSm, // 8px
+    },
+    footerNote: {
+      backgroundColor: tokens.surface_container_low,
+      borderRadius: tokens.radiusSm, // 8px
+      padding: tokens.spacingLg, // 16px
+    },
+    footerNoteTitle: {
+      fontWeight: '700', // Bold for emphasis
+      color: tokens.foreground,
+      fontSize: 14, // Emphasis size
+      marginBottom: tokens.spacingXs, // 4px
+    },
+    footerNoteText: {
+      color: tokens.mutedForeground,
+      fontSize: 13, // Secondary size
+      lineHeight: 18,
     },
   });
 

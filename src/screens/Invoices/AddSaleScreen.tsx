@@ -19,7 +19,6 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useThemeTokens } from "../../theme/ThemeProvider";
 import { ThemeTokens } from "../../theme/tokens";
 import { useInvoiceStore } from "../../stores/invoiceStore";
-import ItemSelectionSheet from "../../components/modals/ItemSelectionSheet";
 import BarcodeScanner from "../../components/Scanner/BarcodeScanner";
 import SelectPartyBottomSheet from "../../components/modals/SelectPartyBottomSheet";
 import AdjustmentsBottomSheet, {
@@ -137,10 +136,9 @@ const AddSaleScreen = () => {
   const { width } = useWindowDimensions();
   const isTablet = width > 768;
 
-  const [isItemSheetVisible, setItemSheetVisible] = useState(false);
   const [isScannerVisible, setScannerVisible] = useState(false);
 
-  const openAddItems = () => setItemSheetVisible(true);
+  const openAddItems = () => navigation.navigate("AddItems");
   // New Stitch UI state
   const [isPartySheetVisible, setPartySheetVisible] = useState(false);
   const [isAdjustmentsSheetVisible, setAdjustmentsSheetVisible] =
@@ -349,29 +347,6 @@ const AddSaleScreen = () => {
         totalAmount={grandTotal}
       />
 
-      <ItemSelectionSheet
-        visible={isItemSheetVisible}
-        onClose={() => setItemSheetVisible(false)}
-        onSelectProduct={addItemWithAnim}
-        onUpdateQuantity={(productId, delta) => {
-          const lineItem = lineItems.find(
-            (item) => item.product.id === productId,
-          );
-          if (lineItem) {
-            const newQty = lineItem.quantity + delta;
-            if (newQty > 0) {
-              updateQuantity(lineItem.id, newQty);
-            } else {
-              removeLineItem(lineItem.id);
-            }
-          } else if (delta > 0) {
-            const product = products.find((p) => p.id === productId);
-            if (product) addItemWithAnim(product);
-          }
-        }}
-        currentLineItems={lineItems}
-      />
-
       <Modal
         visible={isScannerVisible}
         animationType="slide"
@@ -423,7 +398,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 16,
       paddingTop: 8,
       gap: 12,
-      paddingBottom: 120,
+      paddingBottom: 24,
     },
 
     // Meta Strip removed and extracted to InvoiceMetaStrip

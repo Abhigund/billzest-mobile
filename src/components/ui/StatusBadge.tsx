@@ -41,18 +41,18 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       case 'success':
       case 'default':
         return {
-          bg: variant === 'solid' ? tokens.success : tokens.success + '33',
+          bg: variant === 'solid' ? tokens.success : tokens.primaryAlpha20,
           text: variant === 'solid' ? tokens.successForeground : tokens.success,
         };
       case 'warning':
         return {
-          bg: variant === 'solid' ? tokens.warning : tokens.warning + '33',
+          bg: variant === 'solid' ? tokens.warning : tokens.warningAlpha20,
           text: variant === 'solid' ? tokens.warningForeground : tokens.warning,
         };
       case 'error':
       case 'destructive':
         return {
-          bg: variant === 'solid' ? tokens.destructive : tokens.destructive + '33',
+          bg: variant === 'solid' ? tokens.destructive : tokens.destructiveAlpha20,
           text:
             variant === 'solid'
               ? tokens.destructiveForeground
@@ -60,7 +60,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         };
       case 'info':
         return {
-          bg: variant === 'solid' ? tokens.info : tokens.info + '33',
+          bg: variant === 'solid' ? tokens.info : tokens.infoAlpha15,
           text: variant === 'solid' ? tokens.infoForeground : tokens.info,
         };
       case 'secondary':

@@ -44,7 +44,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
           style={styles.iconButton}
           onPress={handleBack}
         >
-          <ArrowLeft color={tokens.foreground} size={18} />
+          <ArrowLeft color={tokens.primary} size={24} strokeWidth={2.5} />
         </Pressable>
       )}
       {!showBack && <View style={styles.iconButton} />}
@@ -73,11 +73,9 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      paddingHorizontal: 20,
+      paddingHorizontal: 16,
       paddingVertical: 12,
       backgroundColor: tokens.background,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
     },
     iconButton: {
       width: 36,

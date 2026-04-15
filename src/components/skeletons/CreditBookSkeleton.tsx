@@ -58,7 +58,7 @@ const CreditBookSkeleton: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      padding: 20,
+      paddingTop: 8,
       gap: 20,
     },
     summaryRow: {

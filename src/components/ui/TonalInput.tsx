@@ -43,7 +43,7 @@ const TonalInput: React.FC<TonalInputProps> = ({
         )}
         <TextInput
           style={[styles.input, inputStyle]}
-          placeholderTextColor={tokens.border + '80'} // 50% opacity
+          placeholderTextColor='rgba(180,180,180,0.7)'
           {...props}
         />
       </View>
@@ -55,26 +55,25 @@ const TonalInput: React.FC<TonalInputProps> = ({
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: {
-      marginBottom: 8,
+      marginBottom: tokens.spacingSm, // 8px
     },
     label: {
-      fontSize: 11,
-      fontWeight: '700',
+      fontSize: 12, // Secondary size
+      fontWeight: '600', // Semi-bold
       color: tokens.mutedForeground,
-      marginBottom: 2,
-      marginLeft: 4,
+      marginBottom: tokens.spacingXs, // 4px
+      marginLeft: tokens.spacingXs, // 4px
     },
     inputContainer: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'stretch',
       backgroundColor: tokens.muted,
-      borderRadius: 14,
+      borderRadius: tokens.radiusSm, // 8px
       overflow: 'hidden',
-      minHeight: 44, // Minimum height for a compact look, allows growth for multiline
+      minHeight: 40, // Reduced height for more compact look
     },
     prefixContainer: {
-      paddingHorizontal: 16,
-      height: '100%',
+      paddingHorizontal: tokens.spacingMd, // 12px
       justifyContent: 'center',
       backgroundColor: tokens.secondary,
     },
@@ -85,12 +84,13 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     input: {
       flex: 1,
-      minHeight: 44,
-      paddingHorizontal: 16,
-      paddingVertical: 10, // Re-adding some internal padding for multiline text alignment
-      fontSize: 14,
+      minHeight: 40, // Match container height
+      paddingHorizontal: tokens.spacingMd, // 12px
+      paddingVertical: 8, // Reduced vertical padding
+      fontSize: 15, // Primary size
       color: tokens.foreground,
       fontWeight: '500',
+      textAlignVertical: 'center',
     },
     errorBorder: {
       borderWidth: 1,
@@ -99,8 +99,8 @@ const createStyles = (tokens: ThemeTokens) =>
     errorText: {
       fontSize: 11,
       color: tokens.destructive,
-      marginTop: 4,
-      marginLeft: 4,
+      marginTop: tokens.spacingXs, // 4px
+      marginLeft: tokens.spacingXs, // 4px
     },
   });
 

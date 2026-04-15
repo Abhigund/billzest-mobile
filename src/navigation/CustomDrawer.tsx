@@ -102,7 +102,7 @@ const CustomDrawer: React.FC<DrawerContentComponentProps> = props => {
           <Switch
             value={simplifiedPOSEnabled}
             onValueChange={setSimplifiedPOSEnabled}
-            trackColor={{ false: tokens.border, true: tokens.primary + '60' }}
+            trackColor={{ false: tokens.border, true: 'rgba(29,185,84,0.6)' }}
             thumbColor={simplifiedPOSEnabled ? tokens.primary : tokens.mutedForeground}
           />
         </View>
@@ -175,7 +175,8 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingHorizontal: 8,
       paddingVertical: 10,
       borderRadius: 10,
-      backgroundColor: tokens.muted + '60',
+      backgroundColor: tokens.muted,
+      opacity: 0.6,
     },
     toggleIcon: {
       width: 28,

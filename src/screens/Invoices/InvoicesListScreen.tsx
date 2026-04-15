@@ -26,13 +26,14 @@ import InvoiceFilterSheet, {
 } from '../../components/modals/InvoiceFilterSheet';
 import { useAppSettingsStore } from '../../stores/appSettingsStore';
 import { useScreenContentPadding } from '../../components/layout/ScreenContent';
+import ListHeader from '../../components/layout/ListHeader';
 import {
   ArrowUpDown,
   Plus,
   FileText,
   BarChart3,
-  ArrowUpCircle,
-  ArrowDownCircle,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react-native';
 import type { InvoicesStackParamList } from '../../navigation/types';
 
@@ -149,6 +150,18 @@ const InvoicesListScreen: React.FC = () => {
 
   return (
     <ScreenWrapper>
+      <ListHeader
+        title="Invoices"
+        rightElement={
+          <Pressable
+            style={styles.headerAction}
+            onPress={() => navigation.navigate('Reports')}
+            accessibilityLabel="Open reports"
+          >
+            <BarChart3 color={tokens.primary} size={18} />
+          </Pressable>
+        }
+      />
       <FlatList
         style={styles.container}
         contentContainerStyle={contentContainerStyle}
@@ -164,22 +177,10 @@ const InvoicesListScreen: React.FC = () => {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <>
-            <View style={styles.headerRow}>
-              <Text style={styles.headerTitle}>Invoices</Text>
-              <Pressable
-                style={styles.headerAction}
-                onPress={() => navigation.navigate('Reports')}
-                accessibilityLabel="Open reports"
-              >
-                <BarChart3 color={tokens.primary} size={18} />
-                <Text style={styles.headerActionText}>Reports</Text>
-              </Pressable>
-            </View>
-
             <View style={styles.summaryRow}>
               <View style={styles.summaryStatItem}>
-                <View style={[styles.summaryIconCircle, styles.summaryIconCircleOutstanding]}>
-                  <ArrowUpCircle color={tokens.destructive} size={18} />
+                <View style={[styles.summaryIconBox, styles.summaryIconBoxOutstanding]}>
+                  <TrendingUp color={tokens.destructive} size={16} />
                 </View>
                 <View style={styles.summaryStatText}>
                   <Text style={styles.summaryStatLabel}>OUTSTANDING</Text>
@@ -188,8 +189,8 @@ const InvoicesListScreen: React.FC = () => {
               </View>
               <View style={styles.summaryDivider} />
               <View style={styles.summaryStatItem}>
-                <View style={[styles.summaryIconCircle, styles.summaryIconCircleReceived]}>
-                  <ArrowDownCircle color={tokens.primary} size={18} />
+                <View style={[styles.summaryIconBox, styles.summaryIconBoxReceived]}>
+                  <TrendingDown color={tokens.primary} size={16} />
                 </View>
                 <View style={styles.summaryStatText}>
                   <Text style={styles.summaryStatLabel}>RECEIVED</Text>
@@ -246,28 +247,31 @@ const InvoicesListScreen: React.FC = () => {
             />
           ) : null
         }
-        renderItem={({ item: invoice }) => {
+        renderItem={({ item: invoice, index }) => {
           const clientName = invoice.party?.name || 'Customer';
           return (
-            <InvoiceCard
-              invoice={{
-                id: invoice.id,
-                invoiceNumber: invoice.invoice_number,
-                clientName,
-                date: invoice.created_at || new Date().toISOString(),
-                dueDate: invoice.created_at || new Date().toISOString(),
-                amount: invoice.total_amount,
-                status: invoice.status,
-              }}
-              onPress={() =>
-                navigation.navigate('InvoiceDetail', {
-                  orderId: invoice.id,
-                  invoice,
-                })
-              }
-              onShare={() => handleShareInvoice(invoice.invoice_number)}
-              onPayment={() => handlePayment(invoice.id, invoice)}
-            />
+            <>
+              {index > 0 && <View style={styles.rowDivider} />}
+              <InvoiceCard
+                invoice={{
+                  id: invoice.id,
+                  invoiceNumber: invoice.invoice_number,
+                  clientName,
+                  date: invoice.created_at || new Date().toISOString(),
+                  dueDate: invoice.created_at || new Date().toISOString(),
+                  amount: invoice.total_amount,
+                  status: invoice.status,
+                }}
+                onPress={() =>
+                  navigation.navigate('InvoiceDetail', {
+                    orderId: invoice.id,
+                    invoice,
+                  })
+                }
+                onShare={() => handleShareInvoice(invoice.invoice_number)}
+                onPayment={() => handlePayment(invoice.id, invoice)}
+              />
+            </>
           );
         }}
         onEndReached={handleLoadMore}
@@ -311,8 +315,8 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       paddingVertical: 8,
-      paddingHorizontal: 4,
-      marginBottom: 20,
+      paddingHorizontal: 16,
+      marginBottom: 8,
       gap: 0,
     },
     summaryStatItem: {
@@ -321,18 +325,18 @@ const createStyles = (tokens: ThemeTokens) =>
       alignItems: 'center',
       gap: 12,
     },
-    summaryIconCircle: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
+    summaryIconBox: {
+      width: 34,
+      height: 34,
+      borderRadius: 8,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    summaryIconCircleOutstanding: {
-      backgroundColor: 'rgba(239,68,68,0.1)',
+    summaryIconBoxOutstanding: {
+      backgroundColor: 'rgba(239,68,68,0.10)',
     },
-    summaryIconCircleReceived: {
-      backgroundColor: 'rgba(34,197,94,0.1)',
+    summaryIconBoxReceived: {
+      backgroundColor: 'rgba(29,185,84,0.10)',
     },
     summaryStatText: {
       gap: 2,
@@ -356,6 +360,12 @@ const createStyles = (tokens: ThemeTokens) =>
       marginHorizontal: 16,
       opacity: 0.4,
     },
+    rowDivider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: tokens.border,
+      marginLeft: tokens.spacingMd,
+      opacity: 0.5,
+    },
     recentActivityHeader: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -375,17 +385,6 @@ const createStyles = (tokens: ThemeTokens) =>
       fontWeight: '500',
       color: tokens.mutedForeground,
     },
-    headerRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 14,
-    },
-    headerTitle: {
-      color: tokens.foreground,
-      fontWeight: '700',
-      fontSize: 20,
-    },
     headerAction: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -399,11 +398,6 @@ const createStyles = (tokens: ThemeTokens) =>
       shadowOpacity: 0.05,
       shadowRadius: 4,
       elevation: 2,
-    },
-    headerActionText: {
-      color: tokens.primary,
-      fontWeight: '600',
-      fontSize: 13,
     },
     searchRow: {
       flexDirection: 'row',

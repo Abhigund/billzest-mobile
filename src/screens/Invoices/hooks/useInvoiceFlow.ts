@@ -290,18 +290,8 @@ export const useInvoiceFlow = ({
           routes: [
             { name: "InvoicesMain" },
             {
-              name: "InvoiceSummary",
-              params: {
-                invoiceId: created.id,
-                invoiceNumber,
-                subtotal,
-                discount: discountAmt,
-                cgst,
-                sgst,
-                totalAmount: finalTotal,
-                amountReceived,
-                dueDate: dueDate.toISOString(),
-              },
+              name: "InvoiceDetail",
+              params: { orderId: created.id, invoice: created },
             },
           ],
         });

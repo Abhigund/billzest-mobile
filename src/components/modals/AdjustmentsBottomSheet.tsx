@@ -473,7 +473,7 @@ const createStyles = (tokens: ThemeTokens) =>
       padding: 16,
       marginBottom: 12,
       borderWidth: 1,
-      borderColor: tokens.border + "30",
+      borderColor: 'rgba(0,0,0,0.08)',
     },
     sectionTitleRow: {
       flexDirection: "row",
@@ -622,7 +622,7 @@ const createStyles = (tokens: ThemeTokens) =>
       borderBottomColor: tokens.border,
     },
     tcsOptionActive: {
-      backgroundColor: tokens.primary + "10",
+      backgroundColor: tokens.primaryAlpha10,
     },
     tcsOptionText: {
       fontSize: 14,
@@ -679,7 +679,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingVertical: 16,
       paddingBottom: 32,
       borderTopWidth: 1,
-      borderTopColor: tokens.border + "30",
+      borderTopColor: 'rgba(0,0,0,0.08)',
       backgroundColor: tokens.card,
     },
     cancelButton: {

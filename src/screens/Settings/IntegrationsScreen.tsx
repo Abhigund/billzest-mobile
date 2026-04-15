@@ -136,7 +136,7 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 44,
       height: 44,
       borderRadius: 22,
-      backgroundColor: tokens.primary || tokens.primary + '22',
+      backgroundColor: tokens.primaryAlpha20,
       alignItems: 'center',
       justifyContent: 'center',
       marginBottom: 12,

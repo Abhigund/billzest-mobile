@@ -26,7 +26,7 @@ export const useScreenContentPadding = (
   options: ScreenContentPaddingOptions = {},
 ): ViewStyle => {
   const insets = useSafeAreaInsets();
-  const { horizontal = 20, top = 'compact', bottom = 120 } = options;
+  const { horizontal = 16, top = 'compact', bottom = 120 } = options;
 
   return useMemo(
     () => ({

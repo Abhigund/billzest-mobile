@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Text,
   Platform,
+  Pressable,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -14,9 +15,9 @@ import type { NavigationProp } from '@react-navigation/native';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
-import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { X, Calendar, ChevronDown } from 'lucide-react-native';
+import { X, Calendar, ChevronDown, CheckCircle2 } from 'lucide-react-native';
+import FormActionBar from '../../components/ui/FormActionBar';
 import { useAddCreditTransaction } from '../../hooks/useCredit';
 import ClientSelectionSheet from '../../components/modals/ClientSelectionSheet';
 import { Party } from '../../types/domain';
@@ -81,12 +82,15 @@ const AddCreditTransactionSheet: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerTop}>
           <Text style={styles.title}>Add Transaction</Text>
-          <Button
-            variant="ghost"
-            size="icon"
+          <Pressable
             onPress={() => navigation.goBack()}
-            icon={<X color={tokens.foreground} size={24} />}
-          />
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityLabel="Close"
+            accessibilityRole="button"
+            style={{ padding: 8 }}
+          >
+            <X color={tokens.foreground} size={24} />
+          </Pressable>
         </View>
         <Text style={styles.subtitle}>
           Record a payment received or credit given manually.
@@ -198,15 +202,18 @@ const AddCreditTransactionSheet: React.FC = () => {
         />
       </ScrollView>
 
-      <View style={styles.footer}>
-        <Button
-          label={loading ? 'Saving...' : 'Save Transaction'}
-          onPress={handleSubmit}
-          disabled={loading}
-          fullWidth
-          variant={type === 'received' ? 'primary' : 'destructive'}
-        />
-      </View>
+      <FormActionBar
+        variant="dual"
+        secondaryLabel="Cancel"
+        secondaryIcon={<X size={16} color={tokens.mutedForeground} />}
+        onSecondary={() => navigation.goBack()}
+        primaryLabel={loading ? 'Saving...' : 'Save Transaction'}
+        primaryIcon={<CheckCircle2 size={16} color={tokens.primaryForeground} />}
+        onPrimary={handleSubmit}
+        loading={loading}
+        disabled={loading}
+        primaryDestructive={type === 'given'}
+      />
 
       <ClientSelectionSheet
         visible={partySelectorVisible}
@@ -328,12 +335,6 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     input: {
       marginBottom: 20,
-    },
-    footer: {
-      padding: 20,
-      borderTopWidth: 1,
-      borderTopColor: tokens.border,
-      backgroundColor: tokens.background,
     },
   });
 

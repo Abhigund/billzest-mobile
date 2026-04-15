@@ -15,8 +15,8 @@ import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DetailHeader from '../../components/DetailHeader';
 import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
-import { Plus, FileText, Truck, Calendar } from 'lucide-react-native';
+import { Plus, FileText, Truck, Calendar, CheckCircle2, Inbox } from 'lucide-react-native';
+import FormActionBar from '../../components/ui/FormActionBar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useCreatePurchase } from '../../logic/purchaseLogic';
 import ItemSelectionSheet from '../../components/modals/ItemSelectionSheet';
@@ -444,23 +444,6 @@ const CreatePurchaseScreen: React.FC = () => {
           </View>
         </View>
 
-        <View style={styles.actionsStack}>
-          <Button
-            label="Save Draft"
-            variant="secondary"
-            fullWidth
-            style={styles.stackSpacing}
-            disabled={isSubmitting || createPurchase.isPending}
-          />
-          <Button
-            label={isSubmitting || createPurchase.isPending ? 'Saving…' : 'Record Purchase'}
-            fullWidth
-            onPress={handleRecordPurchase}
-            disabled={isSubmitting || createPurchase.isPending}
-          />
-        </View>
-
-
         <ItemSelectionSheet
           visible={isProductSheetVisible}
           onClose={() => setProductSheetVisible(false)}
@@ -483,6 +466,19 @@ const CreatePurchaseScreen: React.FC = () => {
           }))}
         />
       </ScrollView>
+
+      <FormActionBar
+        variant="dual"
+        secondaryLabel="Save Draft"
+        secondaryIcon={<Inbox size={16} color={tokens.primary} />}
+        secondaryVariant="accent"
+        onSecondary={() => {}}
+        primaryLabel={isSubmitting || createPurchase.isPending ? 'Saving…' : 'Record Purchase'}
+        primaryIcon={<CheckCircle2 size={16} color={tokens.primaryForeground} />}
+        onPrimary={handleRecordPurchase}
+        loading={isSubmitting || createPurchase.isPending}
+        disabled={isSubmitting || createPurchase.isPending}
+      />
     </ScreenWrapper>
   );
 };
@@ -494,7 +490,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     content: {
       padding: 20,
-      paddingBottom: 80,
+      paddingBottom: 24,
     },
     headerBlock: {
       flexDirection: 'row',
@@ -687,19 +683,13 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: tokens.border,
       marginVertical: 10,
     },
-    actionsStack: {
-      marginBottom: 24,
-    },
-    stackSpacing: {
-      marginBottom: 12,
-    },
     errorContainer: {
       marginTop: 8,
       padding: 12,
-      backgroundColor: tokens.destructive + '15',
+      backgroundColor: tokens.destructiveAlpha15,
       borderRadius: 8,
       borderWidth: 1,
-      borderColor: tokens.destructive + '30',
+      borderColor: tokens.destructiveAlpha30,
     },
     errorText: {
       color: tokens.destructive,

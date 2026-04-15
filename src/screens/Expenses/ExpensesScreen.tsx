@@ -266,7 +266,7 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       alignItems: 'center',
       alignSelf: 'flex-start',
-      backgroundColor: tokens.primary + '15',
+      backgroundColor: tokens.primaryAlpha15,
       borderRadius: 8,
       paddingHorizontal: 10,
       paddingVertical: 4,

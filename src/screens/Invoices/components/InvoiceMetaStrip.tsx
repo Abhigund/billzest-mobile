@@ -64,8 +64,8 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingVertical: 5,
       borderRadius: 8,
       borderWidth: 1,
-      borderColor: tokens.primary + "50",
-      backgroundColor: tokens.primary + "08",
+      borderColor: 'rgba(29,185,84,0.35)',
+      backgroundColor: 'rgba(29,185,84,0.05)',
     },
     metaEditText: { fontSize: 11, fontWeight: "700", color: tokens.primary },
   });
