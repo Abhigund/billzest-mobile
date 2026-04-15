@@ -41,7 +41,11 @@ export interface Product {
   sku: string | null;
   hsn?: string | null;
   barcode?: string;
-  unit: string;
+  unit: string; // Legacy field, keeping for compatibility
+  inventory_unit?: string | null;
+  invoice_unit?: string | null;
+  price_basis?: 'PER_INVENTORY_UNIT' | 'PER_INVOICE_UNIT' | null;
+  base_quantity?: number | null; // e.g., 500 for a 500ml bottle
   selling_price: number;
   purchase_price: number;
   mrp: number;
@@ -107,15 +111,6 @@ export interface Order {
   invoice_number: string;
   invoice_sequence?: number | null;
   invoice_type?: string;
-  status:
-    | 'draft'
-    | 'pending'
-    | 'sent'
-    | 'paid'
-    | 'cancelled'
-    | 'overdue'
-    | 'completed'
-    | string;
   payment_status: 'PENDING' | 'PARTIAL' | 'PAID' | string;
   payment_method?: string;
   subtotal: number;

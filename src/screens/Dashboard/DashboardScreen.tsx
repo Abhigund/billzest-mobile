@@ -57,7 +57,7 @@ const DashboardScreen: React.FC = () => {
   const [dateRange, setDateRange] = useState<"Today" | "Week" | "Month" | "Year">("Month");
   const [refreshing, setRefreshing] = useState(false);
   const [txnSearch, setTxnSearch] = useState("");
-  const [txnFilters, setTxnFilters] = useState<TxnFilters>({ status: 'all', type: 'all' });
+  const [txnFilters, setTxnFilters] = useState<TxnFilters>({ payment_status: 'all', type: 'all' });
   const [txnFilterSheetVisible, setTxnFilterSheetVisible] = useState(false);
 
   const {
@@ -78,7 +78,7 @@ const DashboardScreen: React.FC = () => {
       const [ordersResult, partiesResult] = await Promise.all([
         supabase
           .from("orders")
-          .select("party_id, total_amount, received_amount, status, is_cancelled")
+          .select("party_id, total_amount, received_amount, payment_status, is_cancelled")
           .eq("organization_id", organization.id)
           .eq("is_cancelled", false),
         supabase
@@ -93,8 +93,7 @@ const DashboardScreen: React.FC = () => {
       parties.forEach((p) => partyTypeMap.set(p.id, p.type));
       const balanceByParty = new Map<string, number>();
       orders.forEach((ord) => {
-        if (ord.status === "cancelled") return;
-        const outstanding = Math.max(0, (ord.total_amount ?? 0) - ((ord as any).received_amount ?? 0));
+        const outstanding = Math.max(0, (ord.total_amount ?? 0) - (ord.received_amount ?? 0));
         balanceByParty.set(ord.party_id, (balanceByParty.get(ord.party_id) ?? 0) + outstanding);
       });
       let receivables = 0;
@@ -111,12 +110,12 @@ const DashboardScreen: React.FC = () => {
   });
 
   const overdueCount = useMemo(
-    () => invoices.filter((inv) => inv.status === "overdue").length,
+    () => invoices.filter((inv) => inv.payment_status?.toLowerCase() === "overdue").length,
     [invoices],
   );
   const overdueAmount = useMemo(
     () => invoices
-      .filter((inv) => inv.status === "overdue")
+      .filter((inv) => inv.payment_status?.toLowerCase() === "overdue")
       .reduce((sum, inv) => sum + (inv.total_amount ?? 0), 0),
     [invoices],
   );
@@ -134,13 +133,13 @@ const DashboardScreen: React.FC = () => {
       return dt.toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
     };
     return invoices
-      .filter((inv) => inv.status !== "cancelled")
+      .filter((inv) => !inv.is_cancelled)
       .sort((a, b) => getTs(b.created_at) - getTs(a.created_at))
       .slice(0, 7)
       .map((inv) => {
         const received = (inv as any).received_amount ?? 0;
         const balance = Math.max(0, (inv.total_amount ?? 0) - received);
-        const s = inv.status?.toLowerCase() ?? "pending";
+        const s = inv.payment_status?.toLowerCase() ?? "pending";
         return {
           id: inv.id,
           title: (inv as any).party?.name || "Cash Sale",

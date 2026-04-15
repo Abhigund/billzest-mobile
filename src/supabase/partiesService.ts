@@ -117,8 +117,19 @@ export const partiesService = {
 
     if (error) {
       if (error?.code === '23505') {
-        throw new AppError('conflict', 'This party already exists.', {
+        // Conflict resolution: find the ID of the existing record
+        const { data: existing } = await supabase
+          .from('parties')
+          .select('id')
+          .eq('organization_id', orgId)
+          .eq('name', party.name)
+          .eq('phone', party.phone)
+          .is('deleted_at', null)
+          .maybeSingle();
+
+        throw new AppError('conflict', 'A party with this name and phone already exists.', {
           cause: error,
+          details: { existingId: existing?.id }
         });
       }
       throw toAppError('parties.create', error, 'Unable to save party.');

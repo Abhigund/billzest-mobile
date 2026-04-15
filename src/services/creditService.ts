@@ -102,11 +102,10 @@ export const creditService = {
       const payload: CreateOrderPayload = {
         order: {
           party_id,
-          status: 'delivered',
+          payment_status: 'PENDING',
           total_amount: amount,
           notes: description || 'Manual Credit Entry',
           invoice_number: `MANUAL-${Date.now()}`,
-          payment_status: 'unpaid',
           // @ts-ignore: passing created_at for backdated manual entry
           created_at: txnDate,
         },

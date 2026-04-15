@@ -59,7 +59,7 @@ export const generateInvoiceHTML = async (
   const dueDate = formatDate(
     (invoice as any).due_date || invoice.created_at || new Date().toISOString(),
   );
-  const status = (invoice.status || 'draft').toUpperCase();
+  const status = (invoice.payment_status || 'PENDING').toUpperCase();
 
   const subtotal = invoice.subtotal || 0;
   const taxAmount = invoice.tax_amount || 0;
@@ -340,7 +340,7 @@ export const pdfService = {
         invoice.created_at ||
         new Date().toISOString(),
     )}\n`;
-    text += `Status: ${(invoice.status || 'draft').toUpperCase()}\n\n`;
+    text += `Payment Status: ${(invoice.payment_status || 'PENDING').toUpperCase()}\n\n`;
     text += `ITEMS:\n`;
     text += `${'Description'.padEnd(30)} ${'Qty'.padEnd(8)} ${'Rate'.padEnd(12)} ${'Amount'.padEnd(12)}\n`;
     text += `${'-'.repeat(70)}\n`;
@@ -380,7 +380,7 @@ export const pdfService = {
 
     const orderNumber = purchase.order_number;
     const orderDate = formatDate(purchase.order_date);
-    const status = (purchase.status || 'completed').toUpperCase();
+    const status = (purchase.payment_status || 'PAID').toUpperCase();
 
     const totalAmount = purchase.total_amount || 0;
     const totalQuantity = purchase.total_quantity || 0;
@@ -625,7 +625,7 @@ export const pdfService = {
       text += `Phone: ${purchase.vendor_phone}\n`;
     }
     text += `Order Date: ${formatDate(purchase.order_date)}\n`;
-    text += `Status: ${(purchase.status || 'completed').toUpperCase()}\n\n`;
+    text += `Payment Status: ${(purchase.payment_status || 'PAID').toUpperCase()}\n\n`;
     text += `ITEMS:\n`;
     text += `${'Product Name'.padEnd(30)} ${'SKU'.padEnd(15)} ${'Qty'.padEnd(8)} ${'Rate'.padEnd(12)} ${'Amount'.padEnd(12)}\n`;
     text += `${'-'.repeat(85)}\n`;

@@ -4,13 +4,14 @@ import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CONFIG } from '../config';
 import { logger } from '../utils/logger';
+import { Database } from '../database.types';
 
 if (__DEV__) {
   logger.log('[Supabase] Initializing client...');
   logger.log('[Supabase] URL:', CONFIG.SUPABASE_URL);
 }
 
-export const supabase = createClient(
+export const supabase = createClient<Database>(
   CONFIG.SUPABASE_URL,
   CONFIG.SUPABASE_ANON_KEY,
   {

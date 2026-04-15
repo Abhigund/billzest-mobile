@@ -97,8 +97,8 @@ export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { orderId: string; status: string }) =>
-      ordersService.updateOrderStatus(params.orderId, params.status),
+    mutationFn: (params: { orderId: string; paymentStatus: string }) =>
+      ordersService.updateOrderStatus(params.orderId, params.paymentStatus),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
@@ -126,7 +126,7 @@ export const useRecordOrderPayment = () => {
         reference_id: params.orderId,
       });
 
-      await ordersService.updateOrderStatus(params.orderId, 'paid');
+      await ordersService.updateOrderStatus(params.orderId, 'PAID');
       return payment;
     },
     onSuccess: (_payment, variables) => {

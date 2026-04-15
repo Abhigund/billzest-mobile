@@ -205,7 +205,6 @@ export const useInvoiceFlow = ({
             order_date: issueDate.toISOString(),
             total_quantity: totalQuantity,
             total_amount: finalTotal,
-            status: "completed",
             notes: null,
           },
           items: purchaseItems,
@@ -233,7 +232,6 @@ export const useInvoiceFlow = ({
         const updated = await updateInvoice.mutateAsync({
           orderId: invoiceId,
           order: {
-            status: "sent",
             subtotal,
             tax_amount: taxAmount,
             total_amount: finalTotal,
@@ -267,7 +265,6 @@ export const useInvoiceFlow = ({
             party_id: selectedClient.id,
             invoice_number: invoiceNumber,
             payment_status: "PENDING",
-            status: "sent",
             subtotal,
             tax_amount: taxAmount,
             total_amount: finalTotal,

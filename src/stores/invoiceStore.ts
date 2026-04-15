@@ -65,17 +65,27 @@ export const useInvoiceStore = create<InvoiceState>()(
           );
 
           if (existingItem) {
+            const nextQty = existingItem.quantity + 1;
+            const basis = existingItem.product.price_basis || 'PER_INVENTORY_UNIT';
+            const baseQty = existingItem.product.base_quantity || 1;
+            
+            let itemSubtotal = 0;
+            if (basis === 'PER_INVOICE_UNIT') {
+              itemSubtotal = (nextQty / baseQty) * existingItem.rate;
+            } else {
+              itemSubtotal = nextQty * existingItem.rate;
+            }
+
+            const newTaxAmount = (itemSubtotal * existingItem.taxRate) / 100;
+            
             return {
               lineItems: state.lineItems.map(i => {
                 if (i.product.id === product.id) {
-                  const taxPerUnit = (i.rate * i.taxRate) / 100;
-                  const newQty = i.quantity + 1;
-                  const newTaxAmount = taxPerUnit * newQty;
                   return {
                     ...i,
-                    quantity: newQty,
+                    quantity: nextQty,
                     taxAmount: newTaxAmount,
-                    total: i.rate * newQty + newTaxAmount,
+                    total: itemSubtotal + newTaxAmount,
                   };
                 }
                 return i;
@@ -83,9 +93,18 @@ export const useInvoiceStore = create<InvoiceState>()(
             };
           }
 
-          const taxRate = product.tax_rate ?? 18; // Default to 18% if not on product
-          const taxAmount = (product.selling_price * taxRate) / 100;
-          const total = product.selling_price + taxAmount;
+          const taxRate = product.tax_rate ?? 18;
+          const basis = product.price_basis || 'PER_INVENTORY_UNIT';
+          const baseQty = product.base_quantity || 1;
+          
+          let itemSubtotal = 0;
+          if (basis === 'PER_INVOICE_UNIT') {
+            itemSubtotal = (1 / baseQty) * product.selling_price;
+          } else {
+            itemSubtotal = product.selling_price;
+          }
+
+          const taxAmount = (itemSubtotal * taxRate) / 100;
 
           const newItem: InvoiceLineItem = {
             id: Math.random().toString(36).substring(7),
@@ -94,7 +113,7 @@ export const useInvoiceStore = create<InvoiceState>()(
             rate: product.selling_price,
             taxRate,
             taxAmount,
-            total,
+            total: itemSubtotal + taxAmount,
           };
 
           return { lineItems: [...state.lineItems, newItem] };
@@ -111,13 +130,22 @@ export const useInvoiceStore = create<InvoiceState>()(
           return {
             lineItems: state.lineItems.map(item => {
               if (item.id === itemId) {
-                const taxPerUnit = (item.rate * item.taxRate) / 100;
-                const newTaxAmount = taxPerUnit * newQty;
+                const basis = item.product.price_basis || 'PER_INVENTORY_UNIT';
+                const baseQty = item.product.base_quantity || 1;
+
+                let itemSubtotal = 0;
+                if (basis === 'PER_INVOICE_UNIT') {
+                  itemSubtotal = (newQty / baseQty) * item.rate;
+                } else {
+                  itemSubtotal = newQty * item.rate;
+                }
+
+                const newTaxAmount = (itemSubtotal * item.taxRate) / 100;
                 return {
                   ...item,
                   quantity: newQty,
                   taxAmount: newTaxAmount,
-                  total: item.rate * newQty + newTaxAmount,
+                  total: itemSubtotal + newTaxAmount,
                 };
               }
               return item;

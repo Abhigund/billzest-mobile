@@ -66,7 +66,9 @@ export const ordersService = {
       .order('created_at', { ascending: false });
 
     if (status && status !== 'All') {
-      query = query.eq('status', status.toLowerCase());
+      // status is not a column in orders table per database.types.ts
+      // we could filter by payment_status or delivery_status here if needed
+      // query = query.eq('payment_status', status.toUpperCase());
     }
 
     if (search && search.trim()) {
@@ -280,9 +282,10 @@ export const ordersService = {
 
   /**
    * Update order status shorthand.
+   * Note: Refactored to use payment_status as 'status' column is non-existent.
    */
-  async updateOrderStatus(id: string, status: string): Promise<Order> {
-    return this.updateOrder(id, { status });
+  async updateOrderStatus(id: string, paymentStatus: string): Promise<Order> {
+    return this.updateOrder(id, { payment_status: paymentStatus });
   },
 
   /**
@@ -303,7 +306,6 @@ export const ordersService = {
       .from('orders')
       .update({
         is_cancelled: true,
-        status: 'cancelled',
         updated_at: new Date().toISOString(),
         updated_by: user?.id ?? null,
       })

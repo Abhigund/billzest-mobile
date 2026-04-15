@@ -9,8 +9,14 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import {
+  useNavigation,
+  useRoute,
+  RouteProp,
+  CommonActions,
+} from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomersStackParamList } from '../../navigation/types';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import DetailHeader from '../../components/DetailHeader';
@@ -24,15 +30,29 @@ import {
   Edit,
 } from 'lucide-react-native';
 // Removed BillingPreview import - now using inline invoice display
+import { pdfService } from '../../services/pdfService';
+import StatusBadge from '../../components/ui/StatusBadge';
+import { ReconciliationResult } from '../../utils/reconciliation';
+import {
+  Send,
+  CheckCircle,
+  ArrowRight,
+  AlertTriangle,
+  RefreshCw,
+} from 'lucide-react-native';
+import type { InvoicesStackParamList } from '../../navigation/types';
+import {
+  validateInvoiceIntegrity,
+  calculateRepairedTotals,
+} from '../../utils/reconciliation';
 import {
   useRecordOrderPayment,
   useOrderDetail,
   useUpdateOrderStatus,
+  useUpdateOrder,
 } from '../../logic/orderLogic';
-import { pdfService } from '../../services/pdfService';
-import StatusBadge from '../../components/ui/StatusBadge';
-import { Send, CheckCircle, ArrowRight } from 'lucide-react-native';
-import type { InvoicesStackParamList } from '../../navigation/types';
+
+
 
 export type BillLineItem = {
   id: string;
@@ -131,6 +151,47 @@ const InvoiceDetailScreen: React.FC = () => {
 
   const { mutate: updateStatus, isPending: isUpdatingStatus } =
     useUpdateOrderStatus();
+
+  const { mutate: updateOrder, isPending: isRepairing } = useUpdateOrder();
+
+  // Data Integrity Check
+  const reconciliation = useMemo(() => {
+    if (!fullInvoice) return null;
+    return validateInvoiceIntegrity(fullInvoice);
+  }, [fullInvoice]);
+
+  const handleRepair = React.useCallback(() => {
+    if (!fullInvoice?.items) return;
+
+    const repairedTotals = calculateRepairedTotals(fullInvoice.items);
+
+    Alert.alert(
+      'Repair Invoice?',
+      'This will recalculate the header totals (Subtotal, Tax, Final) based on the current line items and update the database to resolve the mismatch.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Repair & Sync',
+          onPress: () => {
+            updateOrder(
+              {
+                orderId: fullInvoice.id,
+                order: repairedTotals,
+              },
+              {
+                onSuccess: () => {
+                  Alert.alert('Success', 'Invoice totals have been repaired.');
+                },
+                onError: (error: any) => {
+                  Alert.alert('Repair Failed', error?.message || 'Unexpected error occurred.');
+                },
+              },
+            );
+          },
+        },
+      ],
+    );
+  }, [fullInvoice, updateOrder]);
 
   // Convert invoice items to BillLineItem format for BillingPreview
   const lineItems: BillLineItem[] = useMemo(() => {
@@ -363,7 +424,7 @@ const InvoiceDetailScreen: React.FC = () => {
             text: 'Confirm',
             onPress: () => {
               updateStatus(
-                { orderId: invoice.id, status: newStatus },
+                { orderId: invoice.id, paymentStatus: newStatus.toUpperCase() },
                 {
                   onSuccess: () => {
                     Alert.alert(
@@ -431,6 +492,35 @@ const InvoiceDetailScreen: React.FC = () => {
         ]}
       />
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Data Mismatch Banner */}
+        {reconciliation && !reconciliation.isValid && (
+          <View style={styles.mismatchBanner}>
+            <View style={styles.mismatchIconWrap}>
+              <AlertTriangle size={20} color={tokens.destructive} />
+            </View>
+            <View style={styles.mismatchCopy}>
+              <Text style={styles.mismatchTitle}>Data Integrity Error</Text>
+              <Text style={styles.mismatchText}>
+                The sum of items (₹{reconciliation.expectedTotal}) does not match the recorded total (₹{reconciliation.actualTotal}).
+              </Text>
+            </View>
+            <Pressable
+              style={styles.repairButton}
+              onPress={handleRepair}
+              disabled={isRepairing}
+            >
+              {isRepairing ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <>
+                  <RefreshCw size={14} color="#fff" />
+                  <Text style={styles.repairButtonText}>Repair</Text>
+                </>
+              )}
+            </Pressable>
+          </View>
+        )}
+
         {/* Inline Invoice Display */}
         <View style={styles.invoiceCard}>
           <View style={styles.brandRow}>
@@ -701,6 +791,49 @@ const createStyles = (tokens: ThemeTokens) =>
       shadowOpacity: 0.05,
       shadowRadius: 4,
       elevation: 2,
+    },
+    mismatchBanner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: tokens.destructiveAlpha15,
+      padding: tokens.spacingMd,
+      borderRadius: tokens.radiusLg,
+      marginBottom: tokens.spacingLg,
+      borderWidth: 1,
+      borderColor: tokens.destructiveAlpha30,
+    },
+    mismatchIconWrap: {
+      marginRight: tokens.spacingMd,
+    },
+    mismatchCopy: {
+      flex: 1,
+    },
+    mismatchTitle: {
+      fontSize: 14,
+      fontWeight: '800',
+      color: tokens.destructive,
+      letterSpacing: 0.5,
+      textTransform: 'uppercase',
+      marginBottom: 2,
+    },
+    mismatchText: {
+      fontSize: 12,
+      color: tokens.destructive,
+      opacity: 0.8,
+    },
+    repairButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: tokens.destructive,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: tokens.radiusMd,
+      gap: 6,
+    },
+    repairButtonText: {
+      color: '#fff',
+      fontSize: 12,
+      fontWeight: '700',
     },
     sectionHeader: {
       flexDirection: 'row',

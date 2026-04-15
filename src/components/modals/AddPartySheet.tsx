@@ -6,6 +6,8 @@ import {
   RouteProp,
   CommonActions,
 } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CustomersStackParamList } from '../../navigation/types';
 import { useThemeTokens } from '../../theme/ThemeProvider';
 import { ThemeTokens } from '../../theme/tokens';
 import ScreenWrapper from '../../components/ScreenWrapper';
@@ -31,7 +33,7 @@ type AddPartySheetRoute = RouteProp<
 const AddPartySheet: React.FC = () => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<CustomersStackParamList>>();
   const route = useRoute<AddPartySheetRoute>();
   const queryClient = useQueryClient();
   const { organizationId } = useOrganization();
@@ -125,12 +127,29 @@ const AddPartySheet: React.FC = () => {
           },
         ],
       );
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : 'Failed to add party. Please try again.';
-      Alert.alert('Error', errorMessage);
+    } catch (error: any) {
+      if (error.code === 'conflict' && error.details?.existingId) {
+        Alert.alert(
+          'Party Already Exists',
+          error.message,
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'View Existing', 
+              onPress: () => {
+                // Navigate to the detail view. Note: screen name usually 'CustomerDetail' across stacks
+                navigation.navigate('CustomerDetail', { customerId: error.details.existingId });
+              } 
+            }
+          ]
+        );
+      } else {
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Failed to add party. Please try again.';
+        Alert.alert('Error', errorMessage);
+      }
     } finally {
       setLoading(false);
     }

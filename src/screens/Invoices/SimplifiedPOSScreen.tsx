@@ -270,7 +270,6 @@ const SimplifiedPOSScreen: React.FC = () => {
             party_id: party.id,
             invoice_number: invoiceNumber,
             payment_status: 'PENDING',
-            status: 'sent',
             subtotal,
             tax_amount: taxAmount,
             total_amount: finalTotal,

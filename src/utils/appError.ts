@@ -4,6 +4,7 @@ export type AppErrorCode =
   | 'not-found'
   | 'conflict'
   | 'server'
+  | 'mismatch'
   | 'unknown';
 
 export type AppErrorOptions = {
@@ -12,69 +13,66 @@ export type AppErrorOptions = {
 };
 
 export class AppError extends Error {
-  code: AppErrorCode;
-  cause?: unknown;
-  details?: Record<string, any>;
+  readonly code: AppErrorCode;
+  readonly details?: Record<string, any>;
 
-  constructor(code: AppErrorCode, message: string, options: AppErrorOptions = {}) {
+  constructor(code: AppErrorCode, message: string, options?: AppErrorOptions) {
     super(message);
+    this.name = 'AppError';
     this.code = code;
-    this.cause = options.cause;
-    this.details = options.details;
+    this.details = options?.details;
+    if (options?.cause) {
+      this.cause = options.cause;
+    }
   }
 }
 
-const networkHints = ['Failed to fetch', 'Network request failed', 'fetch failed', 'ENOTFOUND', 'ETIMEDOUT', 'ECONNREFUSED'];
-
-const isNetworkError = (err: unknown) => {
-  const message = (err as any)?.message ?? String(err ?? '');
-  return networkHints.some(hint => message.includes(hint));
-};
+export class DataMismatchException extends AppError {
+  constructor(message: string, details?: Record<string, any>) {
+    super('mismatch', message, { details });
+    this.name = 'DataMismatchException';
+  }
+}
 
 export const toAppError = (
-  context: string,
-  err: unknown,
-  fallbackMessage: string,
-  overrides?: { code?: AppErrorCode },
+  operation: string,
+  error: any,
+  message?: string
 ): AppError => {
-  if (err instanceof AppError) return err;
+  if (error instanceof AppError) return error;
 
-  const codeOverride = overrides?.code;
+  let code: AppErrorCode = 'unknown';
 
-  // Supabase/PostgREST error shape
-  const supaCode = (err as any)?.code as string | undefined;
-  const supaMessage = (err as any)?.message as string | undefined;
-
-  if (codeOverride) {
-    return new AppError(codeOverride, fallbackMessage, { cause: err });
+  // Handle Supabase/PostgREST error codes
+  if (error?.code) {
+    switch (error.code) {
+      case '23505': // unique_violation
+        code = 'conflict';
+        break;
+      case 'PGRST116': // no-rows
+        code = 'not-found';
+        break;
+      case '42P01': // undefined_table
+      case '42703': // undefined_column
+        code = 'server';
+        break;
+      default:
+        code = 'server';
+    }
+  } else if (error?.status) {
+    // Handle HTTP status codes if available
+    if (error.status === 404) code = 'not-found';
+    else if (error.status === 409) code = 'conflict';
+    else if (error.status >= 500) code = 'server';
+    else if (error.status === 401 || error.status === 403) code = 'auth';
   }
 
-  if (isNetworkError(err)) {
-    return new AppError('server', fallbackMessage, { cause: err });
-  }
-
-  if (supaCode === 'PGRST116') {
-    return new AppError('not-found', fallbackMessage, { cause: err });
-  }
-
-  if (supaCode === '23505') {
-    // unique_violation
-    return new AppError('conflict', fallbackMessage, { cause: err });
-  }
-
-  if (supaCode === '42501' || supaCode === 'PGRST301') {
-    return new AppError('auth', 'You are not authorized to perform this action.', { cause: err });
-  }
-
-  if (supaCode === '22001') {
-    return new AppError('validation', fallbackMessage, { cause: err });
-  }
-
-  return new AppError('server', supaMessage ?? fallbackMessage, { cause: err });
-};
-
-export const requireUser = (user: { id: string } | null, message: string): asserts user is { id: string } => {
-  if (!user) {
-    throw new AppError('auth', message);
-  }
+  return new AppError(code, message || error?.message || 'An unexpected error occurred.', {
+    cause: error,
+    details: {
+      operation,
+      originalError: error?.message,
+      errorCode: error?.code,
+    },
+  });
 };

@@ -70,10 +70,10 @@ const InvoicesListScreen: React.FC = () => {
 
   const kpis = useMemo(() => {
     const received = (invoices as Order[])
-      .filter(inv => inv.status === 'paid')
+      .filter(inv => inv.payment_status?.toLowerCase() === 'paid')
       .reduce((sum, inv) => sum + (inv.total_amount ?? 0), 0);
     const outstanding = (invoices as Order[])
-      .filter(inv => inv.status !== 'paid' && inv.status !== 'cancelled')
+      .filter(inv => inv.payment_status?.toLowerCase() !== 'paid' && !inv.is_cancelled)
       .reduce((sum, inv) => sum + (inv.total_amount ?? 0), 0);
     return { outstanding, received };
   }, [invoices]);
@@ -118,7 +118,7 @@ const InvoicesListScreen: React.FC = () => {
           invoice_number: invoice.invoice_number,
           client_name: invoice.party?.name ?? 'Customer',
           created_at: invoice.created_at,
-          status: invoice.status,
+          payment_status: invoice.payment_status,
           subtotal: invoice.subtotal,
           tax_amount: invoice.tax_amount ?? 0,
           total_amount: invoice.total_amount,
@@ -260,7 +260,7 @@ const InvoicesListScreen: React.FC = () => {
                   date: invoice.created_at || new Date().toISOString(),
                   dueDate: invoice.created_at || new Date().toISOString(),
                   amount: invoice.total_amount,
-                  status: invoice.status,
+                  status: invoice.payment_status || 'PENDING',
                 }}
                 onPress={() =>
                   navigation.navigate('InvoiceDetail', {
