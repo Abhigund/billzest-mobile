@@ -44,7 +44,7 @@ export interface Product {
   unit: string; // Legacy field, keeping for compatibility
   inventory_unit?: string | null;
   invoice_unit?: string | null;
-  price_basis?: 'PER_INVENTORY_UNIT' | 'PER_INVOICE_UNIT' | null;
+  price_basis?: "PER_INVENTORY_UNIT" | "PER_INVOICE_UNIT" | null;
   base_quantity?: number | null; // e.g., 500 for a 500ml bottle
   selling_price: number;
   purchase_price: number;
@@ -78,13 +78,14 @@ export interface Category {
   igst_rate: number | null;
   parent_id: string | null;
   created_at?: string;
+  product_count?: number;
 }
 
 export interface Party {
   id: string;
   organization_id: string;
   name: string;
-  type: 'CUSTOMER' | 'VENDOR' | 'expense' | string;
+  type: "CUSTOMER" | "VENDOR" | "expense" | string;
   party_type?: string | null;
   email: string | null;
   phone: string | null;
@@ -111,7 +112,16 @@ export interface Order {
   invoice_number: string;
   invoice_sequence?: number | null;
   invoice_type?: string;
-  payment_status: 'PENDING' | 'PARTIAL' | 'PAID' | string;
+  status:
+    | "draft"
+    | "pending"
+    | "sent"
+    | "paid"
+    | "cancelled"
+    | "overdue"
+    | "completed"
+    | string;
+  payment_status: "PENDING" | "PARTIAL" | "PAID" | string;
   payment_method?: string;
   subtotal: number;
   tax_amount: number;
@@ -201,7 +211,7 @@ export interface CreditTransaction {
   user_id: string;
   organization_id: string;
   party_id: string;
-  type: 'received' | 'given';
+  type: "received" | "given";
   amount: number;
   date: string;
   description: string | null;

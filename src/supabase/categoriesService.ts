@@ -12,7 +12,7 @@ export const categoriesService = {
   async getCategories(orgId: string): Promise<Category[]> {
     const { data, error } = await supabase
       .from('categories')
-      .select('*')
+      .select('*, products(count)')
       .eq('organization_id', orgId)
       .is('deleted_at', null)
       .order('name');
@@ -22,7 +22,11 @@ export const categoriesService = {
       return [];
     }
 
-    return (data ?? []) as Category[];
+    return (data ?? []).map((row: any) => ({
+      ...row,
+      product_count: Array.isArray(row.products) ? (row.products[0]?.count ?? 0) : 0,
+      products: undefined,
+    })) as Category[];
   },
 
   /**

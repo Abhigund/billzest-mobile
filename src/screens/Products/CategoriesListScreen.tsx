@@ -129,9 +129,8 @@ const CategoriesListScreen = () => {
                     <View style={styles.titleContainer}>
                       <Text style={styles.categoryName}>{category.name}</Text>
                       <View style={styles.badgesRow}>
-                         {/* Fallback to 0 if product count missing in summary */}
                         <Badge variant="secondary">
-                          {`${0} products`}
+                          {`${category.product_count ?? 0} products`}
                         </Badge>
                         <Badge variant={category.is_active ? 'success' : 'outline'}>
                           {category.is_active ? 'ACTIVE' : 'INACTIVE'}
