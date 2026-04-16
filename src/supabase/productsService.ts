@@ -33,6 +33,7 @@ const mapProductRow = (row: Record<string, any>): Product => ({
   expiry_date: row.expiry_date ?? null,
   created_at: row.created_at ?? undefined,
   updated_at: row.updated_at ?? undefined,
+  category: row.categories ? (row.categories as any) : null,
 });
 
 export const productsService = {
@@ -42,7 +43,7 @@ export const productsService = {
   async getProducts(orgId: string): Promise<Product[]> {
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select('*, categories(*)')
       .eq('organization_id', orgId)
       .is('deleted_at', null)
       .eq('is_active', true)
@@ -62,7 +63,7 @@ export const productsService = {
   async getProductById(id: string): Promise<Product | null> {
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select('*, categories(*)')
       .eq('id', id)
       .maybeSingle();
 
@@ -175,7 +176,7 @@ export const productsService = {
         ...product,
         organization_id: orgId,
       })
-      .select()
+      .select('*, categories(*)')
       .single();
 
     if (error) {
@@ -224,7 +225,7 @@ export const productsService = {
       .from('products')
       .update({ ...dbUpdates, updated_at: new Date().toISOString() })
       .eq('id', id)
-      .select()
+      .select('*, categories(*)')
       .single();
 
     if (error) {
@@ -259,7 +260,7 @@ export const productsService = {
 
     const { data, error } = await supabase
       .from('products')
-      .select('*')
+      .select('*, categories(*)')
       .eq('organization_id', orgId)
       .eq('barcode', barcode)
       .is('deleted_at', null)

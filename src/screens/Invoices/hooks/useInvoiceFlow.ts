@@ -1,15 +1,19 @@
-import { Alert } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import type { NavigationProp } from '@react-navigation/native';
-import { useInvoiceStore } from '../../../stores/invoiceStore';
-import { useCreateOrder, useUpdateOrder, useUpdateOrderStatus } from '../../../logic/orderLogic';
-import { useCreatePurchase } from '../../../logic/purchaseLogic';
-import { useOrganization } from '../../../contexts/OrganizationContext';
+import { Alert } from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import type { NavigationProp } from "@react-navigation/native";
+import { useInvoiceStore } from "../../../stores/invoiceStore";
+import {
+  useCreateOrder,
+  useUpdateOrder,
+  useUpdateOrderStatus,
+} from "../../../logic/orderLogic";
+import { useCreatePurchase } from "../../../logic/purchaseLogic";
+import { useOrganization } from "../../../contexts/OrganizationContext";
 import {
   generateInvoiceNumber,
   generatePurchaseOrderNumber,
-} from '../../../utils/invoiceNumberGenerator';
-import type { AppNavigationParamList } from '../../../navigation/types';
+} from "../../../utils/invoiceNumberGenerator";
+import type { AppNavigationParamList } from "../../../navigation/types";
 
 export interface UseInvoiceFlowProps {
   finalTotal: number;
@@ -39,7 +43,7 @@ export const useInvoiceFlow = ({
   const navigation = useNavigation<NavigationProp<AppNavigationParamList>>();
   const route = useRoute<any>();
   const { organizationId } = useOrganization();
-  
+
   const createInvoice = useCreateOrder();
   const updateInvoice = useUpdateOrder();
   const createPurchase = useCreatePurchase();
@@ -57,7 +61,10 @@ export const useInvoiceFlow = ({
     setMode,
   } = useInvoiceStore();
 
-  const isSubmitting = createInvoice.isPending || updateInvoice.isPending || createPurchase.isPending;
+  const isSubmitting =
+    createInvoice.isPending ||
+    updateInvoice.isPending ||
+    createPurchase.isPending;
 
   const validate = (): { isValid: boolean; error?: string } => {
     if (!selectedClient) {
@@ -148,7 +155,8 @@ export const useInvoiceFlow = ({
     try {
       let product = products.find((p) => p.barcode === code || p.sku === code);
       if (!product) {
-        const { productsService } = await import("../../../supabase/productsService");
+        const { productsService } =
+          await import("../../../supabase/productsService");
         const foundProduct = await productsService.findProductByBarcode(
           organizationId!,
           code,
@@ -205,6 +213,7 @@ export const useInvoiceFlow = ({
             order_date: issueDate.toISOString(),
             total_quantity: totalQuantity,
             total_amount: finalTotal,
+            status: "completed",
             notes: null,
           },
           items: purchaseItems,
@@ -232,6 +241,7 @@ export const useInvoiceFlow = ({
         const updated = await updateInvoice.mutateAsync({
           orderId: invoiceId,
           order: {
+            status: "sent",
             subtotal,
             tax_amount: taxAmount,
             total_amount: finalTotal,
@@ -265,6 +275,7 @@ export const useInvoiceFlow = ({
             party_id: selectedClient.id,
             invoice_number: invoiceNumber,
             payment_status: "PENDING",
+            status: "sent",
             subtotal,
             tax_amount: taxAmount,
             total_amount: finalTotal,

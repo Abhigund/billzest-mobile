@@ -1,8 +1,8 @@
-import { supabase } from './supabaseClient';
-import type { Order, OrderItem } from '../types/domain';
-import { AppError, toAppError } from '../utils/appError';
-import { logger } from '../utils/logger';
-import { partyBalanceService } from './partyBalanceService';
+import { supabase } from "./supabaseClient";
+import type { Order, OrderItem, Party } from "../types/domain";
+import { AppError, toAppError } from "../utils/appError";
+import { logger } from "../utils/logger";
+import { partyBalanceService } from "./partyBalanceService";
 
 // ── Composite types ─────────────────────────────────────────────────────
 
@@ -16,17 +16,18 @@ export type OrderWithParty = Order & {
 
 export type OrderWithItems = Order & {
   order_items: OrderItem[];
+  party?: Party | null;
 };
 
 export type CreateOrderPayload = {
   order: Omit<
     Order,
-    'id' | 'organization_id' | 'items' | 'party' | 'created_at' | 'updated_at'
+    "id" | "organization_id" | "items" | "party" | "created_at" | "updated_at"
   >;
   items: Array<
     Pick<
       OrderItem,
-      'product_id' | 'product_name' | 'quantity' | 'unit_price' | 'total_price'
+      "product_id" | "product_name" | "quantity" | "unit_price" | "total_price"
     > & {
       hsn?: string | null;
       gst_rate?: number;
@@ -43,8 +44,8 @@ export type CreateOrderPayload = {
 
 export type UpdateOrderPayload = {
   orderId: string;
-  order: Partial<Omit<Order, 'id' | 'organization_id' | 'items' | 'party'>>;
-  items?: CreateOrderPayload['items'];
+  order: Partial<Omit<Order, "id" | "organization_id" | "items" | "party">>;
+  items?: CreateOrderPayload["items"];
 };
 
 // ── Service ─────────────────────────────────────────────────────────────
@@ -55,20 +56,23 @@ export const ordersService = {
    */
   async listOrders(
     orgId: string,
-    params: { search?: string; status?: string; from?: number; to?: number } = {},
+    params: {
+      search?: string;
+      status?: string;
+      from?: number;
+      to?: number;
+    } = {},
   ): Promise<OrderWithParty[]> {
     const { search, status, from, to } = params;
 
     let query = supabase
-      .from('orders')
-      .select('*, parties!orders_party_id_fkey(name, phone, email)')
-      .eq('organization_id', orgId)
-      .order('created_at', { ascending: false });
+      .from("orders")
+      .select("*, parties!orders_party_id_fkey(name, phone, email)")
+      .eq("organization_id", orgId)
+      .order("created_at", { ascending: false });
 
-    if (status && status !== 'All') {
-      // status is not a column in orders table per database.types.ts
-      // we could filter by payment_status or delivery_status here if needed
-      // query = query.eq('payment_status', status.toUpperCase());
+    if (status && status !== "All") {
+      query = query.eq("status", status.toLowerCase());
     }
 
     if (search && search.trim()) {
@@ -78,15 +82,15 @@ export const ordersService = {
       );
     }
 
-    if (typeof from === 'number' && typeof to === 'number') {
+    if (typeof from === "number" && typeof to === "number") {
       query = query.range(from, to);
     }
 
     const { data, error } = await query;
 
     if (error) {
-      logger.error('[Orders] Failed to fetch', error);
-      throw toAppError('orders.list', error, 'Unable to load orders.');
+      logger.error("[Orders] Failed to fetch", error);
+      throw toAppError("orders.list", error, "Unable to load orders.");
     }
 
     return (data ?? []) as OrderWithParty[];
@@ -97,13 +101,13 @@ export const ordersService = {
    */
   async getOrderById(id: string): Promise<OrderWithItems | null> {
     const { data, error } = await supabase
-      .from('orders')
-      .select('*, order_items(*)')
-      .eq('id', id)
+      .from("orders")
+      .select("*, order_items(*), party:parties!orders_party_id_fkey(*)")
+      .eq("id", id)
       .maybeSingle();
 
     if (error) {
-      logger.error('[Orders] Failed to fetch order detail', error);
+      logger.error("[Orders] Failed to fetch order detail", error);
       return null;
     }
 
@@ -121,53 +125,52 @@ export const ordersService = {
     const { data: authData } = await supabase.auth.getUser();
     const user = authData?.user;
 
-    if (!user) throw new Error('User not authenticated');
+    if (!user) throw new Error("User not authenticated");
 
     const { order, items, productIds } = payload;
 
     // 1. Insert the order
     const { data: insertedOrder, error: orderError } = await supabase
-      .from('orders')
+      .from("orders")
       .insert({
         ...order,
         organization_id: orgId,
         created_by: user.id,
         updated_at: new Date().toISOString(),
       })
-      .select('*')
+      .select("*")
       .single();
 
     if (orderError) {
-      throw toAppError(
-        'orders.create',
-        orderError,
-        'Unable to create order.',
-      );
+      throw toAppError("orders.create", orderError, "Unable to create order.");
     }
 
     const orderId = insertedOrder.id;
 
     // 2. Insert order items
     if (items.length > 0) {
-      const orderItems = items.map(item => ({
+      const orderItems = items.map((item) => ({
         ...item,
         order_id: orderId,
         organization_id: orgId,
       }));
 
       const { error: itemsError } = await supabase
-        .from('order_items')
+        .from("order_items")
         .insert(orderItems);
 
       if (itemsError) {
-        logger.error('[Orders] Failed to create order items, deleting orphaned header', itemsError);
+        logger.error(
+          "[Orders] Failed to create order items, deleting orphaned header",
+          itemsError,
+        );
         // Manually delete the orphaned order header
-        await supabase.from('orders').delete().eq('id', orderId);
+        await supabase.from("orders").delete().eq("id", orderId);
 
         throw toAppError(
-          'orders.create.items',
+          "orders.create.items",
           itemsError,
-          'Failed to add items, order header deleted to prevent corruption.',
+          "Failed to add items, order header deleted to prevent corruption.",
         );
       }
     }
@@ -185,17 +188,17 @@ export const ordersService = {
       if (productQuantities.size > 0) {
         const pIds = Array.from(productQuantities.keys());
         const { data: prods } = await supabase
-          .from('products')
-          .select('id, stock_quantity')
-          .in('id', pIds);
+          .from("products")
+          .select("id, stock_quantity")
+          .in("id", pIds);
 
         for (const prod of prods ?? []) {
           const decrease = productQuantities.get(prod.id as string) ?? 0;
           const currentStock = (prod.stock_quantity as number) ?? 0;
           await supabase
-            .from('products')
+            .from("products")
             .update({ stock_quantity: Math.max(0, currentStock - decrease) })
-            .eq('id', prod.id);
+            .eq("id", prod.id);
         }
 
         // 4. Create stock_ledger entries
@@ -204,17 +207,17 @@ export const ordersService = {
             organization_id: orgId,
             product_id: productId,
             quantity_change: -qty,
-            movement_type: 'SALE',
+            movement_type: "SALE",
             reference_id: orderId,
             notes: `Order #${order.invoice_number}`,
             created_by: user.id,
           }),
         );
 
-        await supabase.from('stock_ledger').insert(ledgerEntries);
+        await supabase.from("stock_ledger").insert(ledgerEntries);
       }
     } catch (stockErr) {
-      logger.error('[Orders] Stock adjustment failed', stockErr);
+      logger.error("[Orders] Stock adjustment failed", stockErr);
     }
 
     // 4.5. Update party balance ledger if there is an unpaid amount
@@ -228,19 +231,19 @@ export const ordersService = {
         await partyBalanceService.recordCreditTransaction(orgId, {
           party_id: partyId,
           amount: unpaidAmount,
-          type: 'given',
+          type: "given",
           description: `Unpaid invoice amount for Order #${order.invoice_number}`,
           reference_number: orderId,
         });
       }
     } catch (ledgerErr) {
-      logger.error('[Orders] Party ledger update failed', ledgerErr);
+      logger.error("[Orders] Party ledger update failed", ledgerErr);
     }
 
     // 5. Return the created order with items
     const withItems = await this.getOrderById(orderId);
     if (!withItems) {
-      throw new AppError('server', 'Order created but cannot fetch details.');
+      throw new AppError("server", "Order created but cannot fetch details.");
     }
     return withItems;
   },
@@ -250,31 +253,31 @@ export const ordersService = {
    */
   async updateOrder(
     id: string,
-    updates: Partial<Omit<Order, 'id' | 'organization_id' | 'items' | 'party'>>,
-    itemsPayload?: CreateOrderPayload['items']
+    updates: Partial<Omit<Order, "id" | "organization_id" | "items" | "party">>,
+    itemsPayload?: CreateOrderPayload["items"],
   ): Promise<Order> {
     const { data, error } = await supabase
-      .from('orders')
+      .from("orders")
       .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select('*')
+      .eq("id", id)
+      .select("*")
       .single();
 
     if (error) {
-      throw toAppError('orders.update', error, 'Unable to update order.');
+      throw toAppError("orders.update", error, "Unable to update order.");
     }
 
     if (itemsPayload) {
       const orgId = data.organization_id;
       // Delete existing items
-      await supabase.from('order_items').delete().eq('order_id', id);
+      await supabase.from("order_items").delete().eq("order_id", id);
       // Insert new items
-      const orderItems = itemsPayload.map(item => ({
+      const orderItems = itemsPayload.map((item) => ({
         ...item,
         order_id: id,
         organization_id: orgId,
       }));
-      await supabase.from('order_items').insert(orderItems);
+      await supabase.from("order_items").insert(orderItems);
     }
 
     return data as Order;
@@ -282,10 +285,9 @@ export const ordersService = {
 
   /**
    * Update order status shorthand.
-   * Note: Refactored to use payment_status as 'status' column is non-existent.
    */
-  async updateOrderStatus(id: string, paymentStatus: string): Promise<Order> {
-    return this.updateOrder(id, { payment_status: paymentStatus });
+  async updateOrderStatus(id: string, status: string): Promise<Order> {
+    return this.updateOrder(id, { status });
   },
 
   /**
@@ -298,23 +300,24 @@ export const ordersService = {
     // 1. Get the order with items for stock restoration
     const orderWithItems = await this.getOrderById(id);
     if (!orderWithItems) {
-      throw new AppError('server', 'Order not found.');
+      throw new AppError("server", "Order not found.");
     }
 
     // 2. Mark as cancelled
     const { data, error } = await supabase
-      .from('orders')
+      .from("orders")
       .update({
         is_cancelled: true,
+        status: "cancelled",
         updated_at: new Date().toISOString(),
         updated_by: user?.id ?? null,
       })
-      .eq('id', id)
-      .select('*')
+      .eq("id", id)
+      .select("*")
       .single();
 
     if (error) {
-      throw toAppError('orders.cancel', error, 'Unable to cancel order.');
+      throw toAppError("orders.cancel", error, "Unable to cancel order.");
     }
 
     // 3. Restore stock
@@ -323,39 +326,39 @@ export const ordersService = {
         if (!item.product_id || !item.quantity || item.is_returned) continue;
 
         const { data: prod } = await supabase
-          .from('products')
-          .select('id, stock_quantity')
-          .eq('id', item.product_id)
+          .from("products")
+          .select("id, stock_quantity")
+          .eq("id", item.product_id)
           .single();
 
         if (prod) {
           const currentStock = (prod.stock_quantity as number) ?? 0;
           await supabase
-            .from('products')
+            .from("products")
             .update({ stock_quantity: currentStock + item.quantity })
-            .eq('id', prod.id);
+            .eq("id", prod.id);
         }
       }
 
       // Create reversal ledger entries
       const reversals = orderWithItems.order_items
-        .filter(item => item.product_id && item.quantity)
-        .map(item => ({
+        .filter((item) => item.product_id && item.quantity)
+        .map((item) => ({
           organization_id: orgId,
           product_id: item.product_id!,
           quantity_change: item.quantity,
-          movement_type: 'CANCELLATION',
+          movement_type: "CANCELLATION",
           reference_id: id,
           notes: `Cancellation of Order #${orderWithItems.invoice_number}`,
           created_by: user?.id ?? null,
         }));
 
       if (reversals.length > 0) {
-        await supabase.from('stock_ledger').insert(reversals);
+        await supabase.from("stock_ledger").insert(reversals);
       }
     } catch (stockErr) {
       logger.error(
-        '[Orders] Stock restoration failed after cancellation',
+        "[Orders] Stock restoration failed after cancellation",
         stockErr,
       );
     }
@@ -369,23 +372,20 @@ export const ordersService = {
   async deleteOrder(id: string): Promise<void> {
     // Delete items first
     const { error: itemsError } = await supabase
-      .from('order_items')
+      .from("order_items")
       .delete()
-      .eq('order_id', id);
+      .eq("order_id", id);
     if (itemsError) {
       throw toAppError(
-        'orders.delete.items',
+        "orders.delete.items",
         itemsError,
-        'Unable to delete order items.',
+        "Unable to delete order items.",
       );
     }
 
-    const { error } = await supabase
-      .from('orders')
-      .delete()
-      .eq('id', id);
+    const { error } = await supabase.from("orders").delete().eq("id", id);
     if (error) {
-      throw toAppError('orders.delete', error, 'Unable to delete order.');
+      throw toAppError("orders.delete", error, "Unable to delete order.");
     }
   },
 };

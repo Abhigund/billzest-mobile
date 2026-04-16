@@ -4,11 +4,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Pressable,
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { Building2, Phone, MapPin, Edit3, X } from 'lucide-react-native';
+import { Building2, Phone, MapPin, Edit3, X, ShieldCheck } from 'lucide-react-native';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import DetailHeader from '../../components/DetailHeader';
 import Button from '../../components/ui/Button';
@@ -142,46 +141,47 @@ const BusinessInfoScreen: React.FC = () => {
 
   return (
     <ScreenWrapper>
-      <DetailHeader title="Business Information" />
+      <DetailHeader
+        title="Business Information"
+        actions={
+          !isEditing
+            ? [
+                {
+                  icon: <Edit3 color={tokens.primary} size={18} />,
+                  onPress: () => setIsEditing(true),
+                  accessibilityLabel: 'Edit business information',
+                },
+              ]
+            : [
+                {
+                  icon: <X color={tokens.destructive} size={18} />,
+                  onPress: handleCancel,
+                  accessibilityLabel: 'Cancel editing',
+                },
+              ]
+        }
+      />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.header}>
-          <View style={styles.iconBadge}>
-            <Building2 color={tokens.primary} size={22} />
+        {/* ── Page intro ─────────────────────────────────────────────── */}
+        <View style={styles.intro}>
+          <View style={styles.introBadge}>
+            <Building2 color={tokens.primary} size={20} />
           </View>
-          <Text style={styles.subtitle}>
-            Keep your billing details accurate for invoices, GST filings, and
-            customer trust.
-          </Text>
+          <View style={styles.introCopy}>
+            <Text style={styles.introTitle}>Store Profile</Text>
+            <Text style={styles.introSub}>
+              Used on invoices, GST filings & store identity
+            </Text>
+          </View>
         </View>
 
+        {/* ── Identity card ──────────────────────────────────────────── */}
         <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <Text style={styles.cardTitle}>Store Profile</Text>
-            {!isEditing ? (
-              <Pressable
-                style={styles.inlineAction}
-                onPress={() => setIsEditing(true)}
-              >
-                <Edit3 color={tokens.primary} size={16} />
-                <Text style={styles.inlineActionLabel}>Edit</Text>
-              </Pressable>
-            ) : (
-              <Pressable style={styles.inlineAction} onPress={handleCancel}>
-                <X color={tokens.destructive} size={16} />
-                <Text
-                  style={[
-                    styles.inlineActionLabel,
-                    { color: tokens.destructive },
-                  ]}
-                >
-                  Cancel
-                </Text>
-              </Pressable>
-            )}
-          </View>
+          <Text style={styles.cardSectionLabel}>IDENTITY</Text>
 
           {isEditing ? (
             <>
@@ -214,20 +214,29 @@ const BusinessInfoScreen: React.FC = () => {
             </>
           ) : (
             <>
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>Store Name</Text>
-                <Text style={styles.rowValue}>{storeName || 'Not set'}</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Store Name</Text>
+                <Text style={styles.infoValue}>{storeName || 'Not set'}</Text>
               </View>
-              <View style={styles.row}>
-                <Text style={styles.rowLabel}>GSTIN</Text>
-                <Text style={styles.rowValue}>{gstNumber || 'Not set'}</Text>
+              <View style={[styles.infoRow, styles.infoRowLast]}>
+                <View style={styles.infoLabelRow}>
+                  <View style={styles.infoLabelIcon}>
+                    <ShieldCheck size={12} color={tokens.mutedForeground} />
+                  </View>
+                  <Text style={styles.infoLabel}>GSTIN</Text>
+                </View>
+                <Text style={[styles.infoValue, !gstNumber && styles.infoValueMuted]}>
+                  {gstNumber || 'Not set'}
+                </Text>
               </View>
             </>
           )}
         </View>
 
+        {/* ── Contact card ───────────────────────────────────────────── */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Contact & Branch</Text>
+          <Text style={styles.cardSectionLabel}>CONTACT & LOCATION</Text>
+
           {isEditing ? (
             <>
               <Input
@@ -257,21 +266,25 @@ const BusinessInfoScreen: React.FC = () => {
           ) : (
             <>
               <View style={styles.contactRow}>
-                <View style={styles.leadingIcon}>
-                  <Phone color={tokens.primary} size={16} />
+                <View style={styles.contactIconWrap}>
+                  <Phone color={tokens.primary} size={15} />
                 </View>
-                <View style={styles.rowCopy}>
-                  <Text style={styles.rowLabel}>Phone Number</Text>
-                  <Text style={styles.rowValue}>{phone || 'Not set'}</Text>
+                <View style={styles.contactCopy}>
+                  <Text style={styles.infoLabel}>Phone Number</Text>
+                  <Text style={[styles.infoValue, !phone && styles.infoValueMuted]}>
+                    {phone || 'Not set'}
+                  </Text>
                 </View>
               </View>
-              <View style={styles.contactRow}>
-                <View style={styles.leadingIcon}>
-                  <MapPin color={tokens.primary} size={16} />
+              <View style={[styles.contactRow, styles.contactRowLast]}>
+                <View style={styles.contactIconWrap}>
+                  <MapPin color={tokens.primary} size={15} />
                 </View>
-                <View style={styles.rowCopy}>
-                  <Text style={styles.rowLabel}>Store Address</Text>
-                  <Text style={styles.rowValue}>{address || 'Not set'}</Text>
+                <View style={styles.contactCopy}>
+                  <Text style={styles.infoLabel}>Store Address</Text>
+                  <Text style={[styles.infoValue, !address && styles.infoValueMuted]}>
+                    {address || 'Not set'}
+                  </Text>
                 </View>
               </View>
             </>
@@ -297,74 +310,123 @@ const BusinessInfoScreen: React.FC = () => {
 const createStyles = (tokens: ThemeTokens) =>
   StyleSheet.create({
     container: { flex: 1 },
-    content: { padding: 20, paddingBottom: 80 },
-    header: { marginBottom: 16 },
-    iconBadge: {
+    content: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 60 },
+
+    // ── Intro block ──────────────────────────────────────────────────────
+    intro: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    introBadge: {
       width: 44,
       height: 44,
-      borderRadius: 22,
-      backgroundColor: tokens.primaryAlpha20,
+      borderRadius: 14,
+      backgroundColor: tokens.primaryAlpha15,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: 12,
+      marginRight: 14,
     },
-    subtitle: { color: tokens.mutedForeground, marginTop: 6 },
+    introCopy: { flex: 1 },
+    introTitle: {
+      fontSize: 16,
+      fontWeight: '700',
+      color: tokens.foreground,
+    },
+    introSub: {
+      fontSize: 12,
+      color: tokens.mutedForeground,
+      marginTop: 3,
+    },
+
+    // ── Card ─────────────────────────────────────────────────────────────
     card: {
       backgroundColor: tokens.card,
       borderRadius: 20,
-      padding: 18,
-      borderWidth: 1,
-      borderColor: tokens.border,
       marginBottom: 16,
+      shadowColor: tokens.shadowColor,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.07,
+      shadowRadius: 8,
+      elevation: 2,
+      overflow: 'hidden',
+      paddingBottom: 4,
     },
-    cardHeader: {
+    cardSectionLabel: {
+      fontSize: 10,
+      fontWeight: '700',
+      color: tokens.mutedForeground,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+      paddingHorizontal: 18,
+      paddingTop: 16,
+      paddingBottom: 10,
+    },
+
+    // ── Info rows (view mode) ─────────────────────────────────────────────
+    infoRow: {
+      paddingHorizontal: 18,
+      paddingVertical: 11,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: tokens.surface_container_low,
+    },
+    infoRowLast: {
+      borderBottomWidth: 0,
+      marginBottom: 4,
+    },
+    infoLabelRow: {
       flexDirection: 'row',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      marginBottom: 12,
     },
-    cardTitle: { fontSize: 16, fontWeight: '700', color: tokens.foreground },
-    row: { marginBottom: 12 },
-    rowLabel: { color: tokens.mutedForeground, fontSize: 13 },
-    rowValue: { color: tokens.foreground, fontWeight: '600', marginTop: 4 },
+    infoLabelIcon: {
+      marginRight: 4,
+      justifyContent: 'center',
+    },
+    infoLabel: {
+      fontSize: 11,
+      color: tokens.mutedForeground,
+      fontWeight: '500',
+    },
+    infoValue: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: tokens.foreground,
+      marginTop: 3,
+    },
+    infoValueMuted: {
+      color: tokens.mutedForeground,
+      fontWeight: '400',
+    },
+
+    // ── Contact rows (view mode) ──────────────────────────────────────────
     contactRow: {
       flexDirection: 'row',
       alignItems: 'center',
+      paddingHorizontal: 18,
       paddingVertical: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: tokens.surface_container_low,
     },
-    leadingIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: 20,
-      backgroundColor: tokens.background,
+    contactRowLast: {
+      borderBottomWidth: 0,
+      marginBottom: 4,
+    },
+    contactIconWrap: {
+      width: 34,
+      height: 34,
+      borderRadius: 10,
+      backgroundColor: tokens.primaryAlpha10,
       alignItems: 'center',
       justifyContent: 'center',
-      marginRight: 12,
+      marginRight: 13,
     },
-    rowCopy: { flex: 1 },
-    complianceRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingVertical: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
-    },
-    inlineAction: { flexDirection: 'row', alignItems: 'center' },
-    inlineActionLabel: {
-      color: tokens.primary,
-      fontWeight: '600',
-      marginLeft: 4,
-    },
-    inlineButton: {
-      paddingVertical: 10,
-      paddingHorizontal: 16,
-    },
+    contactCopy: { flex: 1 },
+
+    // ── Edit form ─────────────────────────────────────────────────────────
+    field: { marginHorizontal: 14, marginBottom: 12 },
     actions: { marginTop: 8 },
-    secondaryCta: { marginTop: 12 },
-    field: { marginBottom: 16 },
+
+    // ── Loading ───────────────────────────────────────────────────────────
     loadingContainer: {
       flex: 1,
       justifyContent: 'center',
@@ -374,23 +436,6 @@ const createStyles = (tokens: ThemeTokens) =>
     loadingText: {
       marginTop: 12,
       color: tokens.mutedForeground,
-      fontSize: 14,
-    },
-    errorContainer: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 20,
-    },
-    errorTitle: {
-      fontSize: 18,
-      fontWeight: '700',
-      color: tokens.foreground,
-      marginBottom: 8,
-    },
-    errorText: {
-      color: tokens.mutedForeground,
-      textAlign: 'center',
       fontSize: 14,
     },
   });

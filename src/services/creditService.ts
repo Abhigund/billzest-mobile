@@ -1,13 +1,13 @@
-import { supabase } from '../supabase/supabaseClient';
-import { ordersService, CreateOrderPayload } from '../supabase/ordersService';
-import { paymentsService } from '../supabase/paymentsService';
+import { supabase } from "../supabase/supabaseClient";
+import { ordersService, CreateOrderPayload } from "../supabase/ordersService";
+import { paymentsService } from "../supabase/paymentsService";
 
 // Synthetic type representing a unified transaction
 export type CreditTransaction = {
   id: string;
   party_id: string;
   amount: number;
-  type: 'received' | 'given';
+  type: "received" | "given";
   description: string | null;
   date: string;
   created_at: string;
@@ -18,7 +18,7 @@ export type CreateCreditTransactionDTO = {
   organization_id: string;
   party_id: string;
   amount: number;
-  type: 'received' | 'given';
+  type: "received" | "given";
   description?: string | null;
   date?: string;
   payment_method?: string; // Optional: payment method for 'received' type
@@ -33,43 +33,43 @@ export const creditService = {
   ): Promise<CreditTransaction[]> {
     // 1. Fetch Orders (Credit Given)
     const { data: orders, error: ordError } = await supabase
-      .from('orders')
-      .select('id, total_amount, created_at, notes, invoice_number')
-      .eq('organization_id', orgId)
-      .eq('party_id', partyId)
-      .eq('is_cancelled', false);
+      .from("orders")
+      .select("id, total_amount, created_at, notes, invoice_number")
+      .eq("organization_id", orgId)
+      .eq("party_id", partyId)
+      .eq("is_cancelled", false);
 
     if (ordError) throw ordError;
 
     // 2. Fetch Payments (Credit Received) - Joined via Orders
     const { data: payments, error: payError } = await supabase
-      .from('payments')
+      .from("payments")
       .select(
-        'id, amount, payment_date, notes, created_at, order_id, orders!inner(party_id)',
+        "id, amount, payment_date, notes, created_at, order_id, orders!inner(party_id)",
       )
-      .eq('organization_id', orgId)
-      .eq('orders.party_id', partyId);
+      .eq("organization_id", orgId)
+      .eq("orders.party_id", partyId);
 
     if (payError) throw payError;
 
     // 3. Map to unified format
-    const orderTxns: CreditTransaction[] = (orders || []).map(ord => ({
+    const orderTxns: CreditTransaction[] = (orders || []).map((ord) => ({
       id: ord.id,
       party_id: partyId,
       amount: ord.total_amount,
-      type: 'given',
+      type: "given",
       description: ord.notes || `Order #${ord.invoice_number}`,
       date: ord.created_at,
       created_at: ord.created_at || new Date().toISOString(),
       reference_id: ord.id,
     }));
 
-    const paymentTxns: CreditTransaction[] = (payments || []).map(pay => ({
+    const paymentTxns: CreditTransaction[] = (payments || []).map((pay) => ({
       id: pay.id,
       party_id: partyId,
       amount: pay.amount,
-      type: 'received',
-      description: pay.notes || 'Payment Received',
+      type: "received",
+      description: pay.notes || "Payment Received",
       date: pay.payment_date,
       created_at: pay.created_at || new Date().toISOString(),
       reference_id: pay.id,
@@ -97,21 +97,22 @@ export const creditService = {
     } = transaction;
     const txnDate = date || new Date().toISOString();
 
-    if (type === 'given') {
+    if (type === "given") {
       // Create Order
       const payload: CreateOrderPayload = {
         order: {
           party_id,
-          payment_status: 'PENDING',
+          status: "delivered",
           total_amount: amount,
-          notes: description || 'Manual Credit Entry',
+          notes: description || "Manual Credit Entry",
           invoice_number: `MANUAL-${Date.now()}`,
+          payment_status: "unpaid",
           // @ts-ignore: passing created_at for backdated manual entry
           created_at: txnDate,
         },
         items: [
           {
-            product_name: description || 'Credit Given',
+            product_name: description || "Credit Given",
             quantity: 1,
             unit_price: amount,
             total_price: amount,
@@ -124,13 +125,13 @@ export const creditService = {
       // Create Payment (Auto-allocation)
       // 1. Fetch unpaid orders
       const { data: unpaidOrders, error } = await supabase
-        .from('orders')
-        .select('id, total_amount, created_at')
-        .eq('organization_id', organization_id)
-        .eq('party_id', party_id)
-        .neq('payment_status', 'paid')
-        .eq('is_cancelled', false)
-        .order('created_at', { ascending: true }); // Pay oldest first
+        .from("orders")
+        .select("id, total_amount, created_at")
+        .eq("organization_id", organization_id)
+        .eq("party_id", party_id)
+        .neq("payment_status", "paid")
+        .eq("is_cancelled", false)
+        .order("created_at", { ascending: true }); // Pay oldest first
 
       if (error) throw error;
 
@@ -161,16 +162,16 @@ export const creditService = {
           description ||
           (reference_number
             ? `Payment - Ref: ${reference_number}`
-            : 'Manual Payment');
+            : "Manual Payment");
 
         const payment = await paymentsService.createPayment({
           organization_id,
           order_id: order.id,
-          reference_type: 'order',
+          reference_type: "order",
           reference_id: order.id,
           amount: payAmount,
-          payment_method: payment_method || 'cash',
-          payment_flow: 'IN',
+          payment_method: payment_method || "cash",
+          payment_flow: "IN",
           metadata: {
             payment_date: txnDate,
             reference_number: reference_number || null,
@@ -184,11 +185,11 @@ export const creditService = {
         // Update Order Status if fully paid
         if (payAmount >= outstanding) {
           await ordersService.updateOrder(order.id, {
-            payment_status: 'paid',
+            payment_status: "paid",
           });
         } else {
           await ordersService.updateOrder(order.id, {
-            payment_status: 'partial',
+            payment_status: "partial",
           });
         }
       }

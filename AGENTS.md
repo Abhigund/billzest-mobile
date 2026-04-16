@@ -44,7 +44,7 @@ BillZest Mobile is a comprehensive POS (Point of Sale) and invoicing system buil
 3. **Execution:** Use `npx expo start` (or `npm start`). Type `i` to launch the iOS simulator, `a` for Android.
 
 ## Build & Deployment
-- The application uses Expo Application Services (EAS). Build configuration lives within `app.json` (Slug: `BillZest_Expo`).
+- The application uses Expo Application Services (EAS). Build configuration lives within `app.json` (Slug: `BillZest`).
 - **Commands:** Expected to be built via `eas build --platform all`. 
 - **Compilation Notes:** `babel-preset-expo` leverages `react-native-worklets/plugin` for `reanimated` support.
 

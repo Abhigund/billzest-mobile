@@ -1,17 +1,16 @@
-import { AppState } from 'react-native';
-import 'react-native-url-polyfill/auto';
-import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { CONFIG } from '../config';
-import { logger } from '../utils/logger';
-import { Database } from '../database.types';
+import { AppState } from "react-native";
+import "react-native-url-polyfill/auto";
+import { createClient } from "@supabase/supabase-js";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CONFIG } from "../config";
+import { logger } from "../utils/logger";
 
 if (__DEV__) {
-  logger.log('[Supabase] Initializing client...');
-  logger.log('[Supabase] URL:', CONFIG.SUPABASE_URL);
+  logger.log("[Supabase] Initializing client...");
+  logger.log("[Supabase] URL:", CONFIG.SUPABASE_URL);
 }
 
-export const supabase = createClient<Database>(
+export const supabase = createClient(
   CONFIG.SUPABASE_URL,
   CONFIG.SUPABASE_ANON_KEY,
   {
@@ -24,12 +23,12 @@ export const supabase = createClient<Database>(
   },
 );
 if (__DEV__) {
-  logger.log('[Supabase] Client initialized:', !!supabase);
+  logger.log("[Supabase] Client initialized:", !!supabase);
 }
 
 // Optional: specific setup for AppState change handling if needed for refresh
-AppState.addEventListener('change', state => {
-  if (state === 'active') {
+AppState.addEventListener("change", (state) => {
+  if (state === "active") {
     supabase.auth.startAutoRefresh();
   } else {
     supabase.auth.stopAutoRefresh();

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "BillZest_Expo",
-    "slug": "BillZest_Expo",
+    "name": "BillZest",
+    "slug": "BillZest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

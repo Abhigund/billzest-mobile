@@ -1,12 +1,18 @@
-import React, { Component, ReactNode } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, BackHandler } from 'react-native';
-import { useThemeTokens } from '../theme/ThemeProvider';
-import { ThemeTokens } from '../theme/tokens';
-import { navigationRef } from '../navigation/RootNavigator';
-import DetailHeader from './DetailHeader';
-import { AlertTriangle, RefreshCw, Home } from 'lucide-react-native';
-import { logger } from '../utils/logger';
-import type { AppNavigationParamList } from '../navigation/types';
+import React, { Component, ReactNode } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  BackHandler,
+} from "react-native";
+import { useThemeTokens } from "../theme/ThemeProvider";
+import { ThemeTokens } from "../theme/tokens";
+import { navigationRef } from "../navigation/RootNavigator";
+import DetailHeader from "./DetailHeader";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react-native";
+import { logger } from "../utils/logger";
 
 interface Props {
   children: ReactNode;
@@ -39,8 +45,8 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to logger
-    logger.error('[ErrorBoundary] Caught error:', error, errorInfo);
-    
+    logger.error("[ErrorBoundary] Caught error:", error, errorInfo);
+
     // Call custom error handler if provided
     if (this.props.onError) {
       this.props.onError(error, errorInfo);
@@ -66,7 +72,9 @@ class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      return <ErrorFallback error={this.state.error} onReset={this.handleReset} />;
+      return (
+        <ErrorFallback error={this.state.error} onReset={this.handleReset} />
+      );
     }
 
     return this.props.children;
@@ -89,7 +97,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
         // Check if we can reset to Home (the drawer root)
         navigationRef.reset({
           index: 0,
-          routes: [{ name: 'Home' as any }],
+          routes: [{ name: "Home" as any }],
         });
       } else {
         // If navigation is not ready, just reset the boundary
@@ -99,7 +107,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
       try {
         if (navigationRef.isReady()) {
           // Fallback to DashboardTab if Home reset fails
-          navigationRef.navigate('DashboardTab' as any);
+          navigationRef.navigate("DashboardTab" as any);
         } else {
           onReset();
         }
@@ -118,8 +126,8 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
     };
 
     const subscription = BackHandler.addEventListener(
-      'hardwareBackPress',
-      onBackPress
+      "hardwareBackPress",
+      onBackPress,
     );
 
     return () => subscription.remove();
@@ -134,7 +142,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, onReset }) => {
           {
             icon: <Home size={18} color={tokens.foreground} />,
             onPress: handleGoHome,
-            accessibilityLabel: 'Go to home',
+            accessibilityLabel: "Go to home",
           },
         ]}
       />
@@ -178,8 +186,8 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     content: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
+      alignItems: "center",
       padding: 24,
     },
     iconContainer: {
@@ -187,26 +195,26 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 96,
       height: 96,
       borderRadius: 48,
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-      alignItems: 'center',
-      justifyContent: 'center',
+      backgroundColor: "rgba(239, 68, 68, 0.1)",
+      alignItems: "center",
+      justifyContent: "center",
     },
     title: {
       fontSize: 24,
-      fontWeight: '700',
+      fontWeight: "700",
       color: tokens.foreground,
       marginBottom: 12,
-      textAlign: 'center',
+      textAlign: "center",
     },
     message: {
       fontSize: 16,
       color: tokens.mutedForeground,
-      textAlign: 'center',
+      textAlign: "center",
       marginBottom: 32,
       lineHeight: 24,
     },
     errorDetails: {
-      width: '100%',
+      width: "100%",
       backgroundColor: tokens.card,
       borderRadius: 12,
       padding: 16,
@@ -216,30 +224,30 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     errorTitle: {
       fontSize: 14,
-      fontWeight: '600',
+      fontWeight: "600",
       color: tokens.foreground,
       marginBottom: 8,
     },
     errorText: {
       fontSize: 12,
       color: tokens.destructive,
-      fontFamily: 'monospace',
+      fontFamily: "monospace",
       marginBottom: 8,
     },
     errorStack: {
       fontSize: 10,
       color: tokens.mutedForeground,
-      fontFamily: 'monospace',
+      fontFamily: "monospace",
     },
     buttonRow: {
-      flexDirection: 'row',
+      flexDirection: "row",
       gap: 12,
-      width: '100%',
-      justifyContent: 'center',
+      width: "100%",
+      justifyContent: "center",
     },
     resetButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       backgroundColor: tokens.primary,
       paddingHorizontal: 24,
       paddingVertical: 12,
@@ -249,11 +257,11 @@ const createStyles = (tokens: ThemeTokens) =>
     resetButtonText: {
       color: tokens.primaryForeground,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
     secondaryButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      flexDirection: "row",
+      alignItems: "center",
       backgroundColor: tokens.card,
       borderWidth: 1,
       borderColor: tokens.border,
@@ -265,9 +273,8 @@ const createStyles = (tokens: ThemeTokens) =>
     secondaryButtonText: {
       color: tokens.foreground,
       fontSize: 16,
-      fontWeight: '600',
+      fontWeight: "600",
     },
   });
 
 export default ErrorBoundary;
-

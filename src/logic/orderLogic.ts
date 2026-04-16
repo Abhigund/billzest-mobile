@@ -1,27 +1,32 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import {
   ordersService,
   OrderWithParty,
   OrderWithItems,
   CreateOrderPayload,
   UpdateOrderPayload,
-} from '../supabase/ordersService';
-import { paymentsService } from '../supabase/paymentsService';
-import { useOrganization } from '../contexts/OrganizationContext';
+} from "../supabase/ordersService";
+import { paymentsService } from "../supabase/paymentsService";
+import { useOrganization } from "../contexts/OrganizationContext";
 
 export const ORDER_QUERY_KEYS = {
   list: (orgId: string, search?: string, status?: string) => [
-    'orders',
+    "orders",
     orgId,
     { search, status },
   ],
-  detail: (orgId: string, id: string) => ['order', orgId, id],
+  detail: (orgId: string, id: string) => ["order", orgId, id],
 };
 
 export const useOrders = (search?: string, status?: string) => {
   const { organizationId } = useOrganization();
   return useQuery<OrderWithParty[]>({
-    queryKey: ORDER_QUERY_KEYS.list(organizationId || '', search, status),
+    queryKey: ORDER_QUERY_KEYS.list(organizationId || "", search, status),
     queryFn: () =>
       ordersService.listOrders(organizationId!, { search, status }),
     enabled: !!organizationId,
@@ -33,14 +38,23 @@ export const useOrders = (search?: string, status?: string) => {
   });
 };
 
-export const useInfiniteOrders = (search?: string, status?: string, pageSize = 20) => {
+export const useInfiniteOrders = (
+  search?: string,
+  status?: string,
+  pageSize = 20,
+) => {
   const { organizationId } = useOrganization();
   return useInfiniteQuery<OrderWithParty[]>({
-    queryKey: ['infinite-orders', organizationId, { search, status }],
+    queryKey: ["infinite-orders", organizationId, { search, status }],
     queryFn: ({ pageParam = 0 }) => {
       const from = (pageParam as number) * pageSize;
       const to = from + pageSize - 1;
-      return ordersService.listOrders(organizationId!, { search, status, from, to });
+      return ordersService.listOrders(organizationId!, {
+        search,
+        status,
+        from,
+        to,
+      });
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
@@ -55,8 +69,8 @@ export const useOrderDetail = (id?: string) => {
   const { organizationId } = useOrganization();
   return useQuery<OrderWithItems | null>({
     queryKey: id
-      ? ORDER_QUERY_KEYS.detail(organizationId || '', id)
-      : ['order', 'none'],
+      ? ORDER_QUERY_KEYS.detail(organizationId || "", id)
+      : ["order", "none"],
     queryFn: () =>
       id ? ordersService.getOrderById(id) : Promise.resolve(null),
     enabled: !!organizationId && !!id,
@@ -71,9 +85,9 @@ export const useCreateOrder = () => {
     mutationFn: (payload: CreateOrderPayload) =>
       ordersService.createOrder(organizationId!, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['products'] }); // Stock decreased
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] }); // Stock decreased
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 };
@@ -85,10 +99,10 @@ export const useUpdateOrder = () => {
     mutationFn: (payload: UpdateOrderPayload) =>
       ordersService.updateOrder(payload.orderId, payload.order, payload.items),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 };
@@ -97,11 +111,11 @@ export const useUpdateOrderStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: { orderId: string; paymentStatus: string }) =>
-      ordersService.updateOrderStatus(params.orderId, params.paymentStatus),
+    mutationFn: (params: { orderId: string; status: string }) =>
+      ordersService.updateOrderStatus(params.orderId, params.status),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
     },
   });
 };
@@ -120,19 +134,19 @@ export const useRecordOrderPayment = () => {
         organization_id: organizationId!,
         order_id: params.orderId,
         amount: params.amount,
-        payment_method: params.paymentMethod || 'cash',
-        payment_flow: 'IN',
-        reference_type: 'ORDER',
+        payment_method: params.paymentMethod || "cash",
+        payment_flow: "IN",
+        reference_type: "ORDER",
         reference_id: params.orderId,
       });
 
-      await ordersService.updateOrderStatus(params.orderId, 'PAID');
+      await ordersService.updateOrderStatus(params.orderId, "paid");
       return payment;
     },
     onSuccess: (_payment, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
-      queryClient.invalidateQueries({ queryKey: ['party-summary'] });
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", variables.orderId] });
+      queryClient.invalidateQueries({ queryKey: ["party-summary"] });
     },
   });
 };
@@ -144,9 +158,9 @@ export const useCancelOrder = () => {
   return useMutation({
     mutationFn: (id: string) => ordersService.cancelOrder(organizationId!, id),
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-      queryClient.invalidateQueries({ queryKey: ['order', variables] });
-      queryClient.invalidateQueries({ queryKey: ['products'] }); // Stock restored
+      queryClient.invalidateQueries({ queryKey: ["orders"] });
+      queryClient.invalidateQueries({ queryKey: ["order", variables] });
+      queryClient.invalidateQueries({ queryKey: ["products"] }); // Stock restored
     },
   });
 };

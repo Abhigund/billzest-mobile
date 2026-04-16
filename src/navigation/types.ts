@@ -85,9 +85,10 @@ export type AuthStackParamList = {
 
 export type MainTabsParamList = {
   DashboardTab: undefined;
-  ProductsTab: undefined;
-  CustomersTab: undefined;
   InvoicesTab: undefined;
+  CreditBookTab: undefined;
+  CustomersTab: undefined;
+  ProductsTab: undefined;
 };
 
 export type RootDrawerParamList = {
@@ -98,7 +99,6 @@ export type RootDrawerParamList = {
   CreditBook: undefined;
   Reports: undefined;
   SettingsStack: undefined;
-  SimplifiedPOS: undefined;
 };
 
 export type AppNavigationParamList = {
@@ -109,11 +109,11 @@ export type AppNavigationParamList = {
   CreditBook: undefined;
   Reports: undefined;
   SettingsStack: undefined;
-  SimplifiedPOS: undefined;
   DashboardTab: undefined;
-  ProductsTab: { screen?: string; params?: object } | undefined;
-  CustomersTab: { screen?: string; params?: object } | undefined;
   InvoicesTab: { screen?: string; params?: object } | undefined;
+  CreditBookTab: undefined;
+  CustomersTab: { screen?: string; params?: object } | undefined;
+  ProductsTab: { screen?: string; params?: object } | undefined;
   DashboardMain: undefined;
   MobileLogin: undefined;
   VerifyOTP: { phone?: string; mobileNumber?: string; verificationId?: string } | undefined;
@@ -143,6 +143,7 @@ export type AppNavigationParamList = {
     amountReceived: number;
     dueDate: string;
   } | undefined;
+  SimplifiedPOS: undefined;
   AddItems: undefined;
   PurchaseList: undefined;
   PurchaseDetail: { purchaseId?: string; purchase?: any } | undefined;

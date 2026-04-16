@@ -1,9 +1,9 @@
-import React from 'react';
-import FilterSheet, { FilterSection, FilterValues } from './FilterSheet';
+import React from "react";
+import FilterSheet, { FilterSection, FilterValues } from "./FilterSheet";
 
 export interface TxnFilters {
-  status: 'all' | 'paid' | 'overdue' | 'draft' | 'sent' | 'pending';
-  type: 'all' | 'sale' | 'purchase';
+  status: "all" | "paid" | "overdue" | "draft" | "sent" | "pending";
+  type: "all" | "sale" | "purchase";
 }
 
 interface TxnFilterSheetProps {
@@ -15,26 +15,26 @@ interface TxnFilterSheetProps {
 
 const SECTIONS: FilterSection[] = [
   {
-    key: 'status',
-    title: 'Status',
-    mode: 'single',
+    key: "status",
+    title: "Status",
+    mode: "single",
     options: [
-      { id: 'all', label: 'All' },
-      { id: 'paid', label: 'Paid' },
-      { id: 'pending', label: 'Pending' },
-      { id: 'overdue', label: 'Overdue' },
-      { id: 'draft', label: 'Draft' },
-      { id: 'sent', label: 'Sent' },
+      { id: "all", label: "All" },
+      { id: "paid", label: "Paid" },
+      { id: "pending", label: "Pending" },
+      { id: "overdue", label: "Overdue" },
+      { id: "draft", label: "Draft" },
+      { id: "sent", label: "Sent" },
     ],
   },
   {
-    key: 'type',
-    title: 'Type',
-    mode: 'single',
+    key: "type",
+    title: "Type",
+    mode: "single",
     options: [
-      { id: 'all', label: 'All' },
-      { id: 'sale', label: 'Sale' },
-      { id: 'purchase', label: 'Purchase' },
+      { id: "all", label: "All" },
+      { id: "sale", label: "Sale" },
+      { id: "purchase", label: "Purchase" },
     ],
   },
 ];
@@ -47,8 +47,8 @@ const TxnFilterSheet: React.FC<TxnFilterSheetProps> = ({
 }) => {
   const handleApply = (values: FilterValues) => {
     onApply({
-      status: (values.status as TxnFilters['status']) ?? 'all',
-      type: (values.type as TxnFilters['type']) ?? 'all',
+      status: (values.status as TxnFilters["status"]) ?? "all",
+      type: (values.type as TxnFilters["type"]) ?? "all",
     });
   };
 
@@ -59,8 +59,8 @@ const TxnFilterSheet: React.FC<TxnFilterSheetProps> = ({
       title="Filter Transactions"
       sections={SECTIONS}
       initialValues={{
-        status: initialFilters?.status ?? 'all',
-        type: initialFilters?.type ?? 'all',
+        status: initialFilters?.status ?? "all",
+        type: initialFilters?.type ?? "all",
       }}
       onApply={handleApply}
     />

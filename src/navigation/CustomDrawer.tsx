@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, Switch } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -8,22 +8,15 @@ import {
 import { useThemeTokens } from '../theme/ThemeProvider';
 import { ThemeTokens } from '../theme/tokens';
 import { useSupabase } from '../contexts/SupabaseContext';
-import { useAppSettingsStore } from '../stores/appSettingsStore';
+import { supabase } from '../supabase/supabaseClient';
+import { logger } from '../utils/logger';
 import {
-  LayoutDashboard,
-  ShoppingBag,
-  Wallet,
   Settings,
-  CreditCard,
   PieChart,
-  Zap,
+  LogOut,
 } from 'lucide-react-native';
 
 const NAV_ITEMS = [
-  { key: 'Home', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'Purchases', label: 'Purchases', icon: ShoppingBag },
-  { key: 'CreditBook', label: 'Credit Book', icon: Wallet },
-  { key: 'Expenses', label: 'Expenses', icon: CreditCard },
   { key: 'Reports', label: 'Reports', icon: PieChart },
   { key: 'SettingsStack', label: 'Settings', icon: Settings },
 ];
@@ -33,28 +26,57 @@ const CustomDrawer: React.FC<DrawerContentComponentProps> = props => {
   const { tokens } = useThemeTokens();
   const styles = React.useMemo(() => createStyles(tokens), [tokens]);
   const { user } = useSupabase();
-  const { simplifiedPOSEnabled, setSimplifiedPOSEnabled } =
-    useAppSettingsStore();
+  const [signingOut, setSigningOut] = React.useState(false);
 
   const activeRoute = state.routeNames[state.index];
+
+  const handleLogout = () => {
+    if (signingOut) return;
+    Alert.alert('Log out?', 'You will need to sign in again to continue.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Log Out',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            setSigningOut(true);
+            let { error } = await supabase.auth.signOut({ scope: 'global' });
+            if (error) {
+              logger.warn('[Drawer] Global sign-out failed, retrying local', error);
+              const localResult = await supabase.auth.signOut();
+              error = localResult.error;
+            }
+            if (error) {
+              Alert.alert('Logout failed', error.message || 'Could not sign out.');
+            }
+          } catch (err) {
+            logger.error('[Drawer] Logout failed', err);
+            Alert.alert('Logout failed', 'Unexpected error. Please try again.');
+          } finally {
+            setSigningOut(false);
+          }
+        },
+      },
+    ]);
+  };
+
+  const initial = (user?.email?.[0] || 'U').toUpperCase();
 
   return (
     <DrawerContentScrollView
       {...props}
       contentContainerStyle={styles.scrollContainer}
     >
+      {/* Profile header */}
       <View style={styles.header}>
         <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {(user?.email?.[0] || 'U').toUpperCase()}
-          </Text>
+          <Text style={styles.avatarText}>{initial}</Text>
         </View>
         <Text style={styles.name}>Welcome</Text>
         <Text style={styles.email}>{user?.email || '—'}</Text>
       </View>
 
-      <View style={styles.divider} />
-
+      {/* Nav items */}
       <View style={styles.itemsContainer}>
         {NAV_ITEMS.map(item => {
           const Icon = item.icon;
@@ -74,39 +96,22 @@ const CustomDrawer: React.FC<DrawerContentComponentProps> = props => {
             />
           );
         })}
-
-        {/* ── Simplified POS entry (only shown when toggle is on) ── */}
-        {simplifiedPOSEnabled && (
-          <DrawerItem
-            label="Quick Bill POS"
-            focused={activeRoute === 'SimplifiedPOS'}
-            onPress={() => navigation.navigate('SimplifiedPOS' as never)}
-            icon={({ color }) => <Zap color={color} size={18} />}
-            labelStyle={styles.itemLabel}
-            inactiveTintColor={tokens.foreground}
-            activeTintColor={tokens.primaryForeground}
-            activeBackgroundColor={tokens.primary}
-            style={styles.item}
-          />
-        )}
-
-        {/* ── Simplified POS toggle ── */}
-        <View style={styles.toggleRow}>
-          <View style={styles.toggleIcon}>
-            <Zap size={18} color={simplifiedPOSEnabled ? tokens.primary : tokens.mutedForeground} />
-          </View>
-          <View style={styles.toggleInfo}>
-            <Text style={styles.toggleLabel}>Simplified POS</Text>
-            <Text style={styles.toggleSub}>For small product catalogs</Text>
-          </View>
-          <Switch
-            value={simplifiedPOSEnabled}
-            onValueChange={setSimplifiedPOSEnabled}
-            trackColor={{ false: tokens.border, true: 'rgba(29,185,84,0.6)' }}
-            thumbColor={simplifiedPOSEnabled ? tokens.primary : tokens.mutedForeground}
-          />
-        </View>
       </View>
+
+      {/* Logout */}
+      <Pressable
+        style={styles.logoutRow}
+        onPress={handleLogout}
+        disabled={signingOut}
+        accessibilityLabel="Log out"
+        accessibilityRole="button"
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <LogOut size={18} color={tokens.destructive} />
+        <Text style={[styles.logoutLabel, { color: tokens.destructive }]}>
+          {signingOut ? 'Signing out…' : 'Log Out'}
+        </Text>
+      </Pressable>
     </DrawerContentScrollView>
   );
 };
@@ -120,7 +125,7 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     header: {
       paddingHorizontal: 16,
-      paddingBottom: 12,
+      paddingBottom: 16,
     },
     avatar: {
       width: 64,
@@ -144,19 +149,13 @@ const createStyles = (tokens: ThemeTokens) =>
     email: {
       color: tokens.mutedForeground,
       marginTop: 2,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: tokens.border,
-      marginHorizontal: 16,
-      marginVertical: 12,
-      display: 'none', // Hide divider as color separation is enough
+      fontSize: 13,
     },
     itemsContainer: {
       backgroundColor: tokens.background,
       borderRadius: 16,
       paddingVertical: 8,
-      flex: 1, // Ensure it takes remaining space if needed
+      flex: 1,
     },
     item: {
       marginHorizontal: 8,
@@ -166,35 +165,17 @@ const createStyles = (tokens: ThemeTokens) =>
     itemLabel: {
       fontWeight: '600',
     },
-    // Simplified POS toggle row
-    toggleRow: {
+    logoutRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginHorizontal: 8,
-      marginTop: 4,
-      paddingHorizontal: 8,
-      paddingVertical: 10,
-      borderRadius: 10,
-      backgroundColor: tokens.muted,
-      opacity: 0.6,
+      gap: 10,
+      paddingHorizontal: 24,
+      paddingVertical: 16,
+      marginTop: 8,
     },
-    toggleIcon: {
-      width: 28,
-      height: 28,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 10,
-    },
-    toggleInfo: { flex: 1 },
-    toggleLabel: {
+    logoutLabel: {
+      fontSize: 15,
       fontWeight: '600',
-      fontSize: 14,
-      color: tokens.foreground,
-    },
-    toggleSub: {
-      fontSize: 11,
-      color: tokens.mutedForeground,
-      marginTop: 1,
     },
   });
 
