@@ -98,7 +98,7 @@ export const dashboardService = {
         .lte('order_date', dateEnd),
       supabase
         .from('products')
-        .select('selling_price, stock_quantity')
+        .select('purchase_price, stock_quantity')
         .eq('organization_id', orgId)
         .is('deleted_at', null),
       expensesService.getTotalExpenses(orgId, {
@@ -151,7 +151,7 @@ export const dashboardService = {
       total_amount: number;
     }[];
     const productRows = ((products as any).data ?? []) as {
-      selling_price: number;
+      purchase_price: number;
       stock_quantity: number;
     }[];
 
@@ -172,7 +172,7 @@ export const dashboardService = {
       0,
     );
     const inventoryValue = productRows.reduce(
-      (sum, r) => sum + (r.selling_price ?? 0) * (r.stock_quantity ?? 0),
+      (sum, r) => sum + (r.purchase_price ?? 0) * (r.stock_quantity ?? 0),
       0,
     );
 
