@@ -702,14 +702,12 @@ const createStyles = (tokens: ThemeTokens) => {
 
     // ── Section Card ──
     sectionCard: {
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 24,
-      borderWidth: 1,
-      borderColor: tokens.border,
       overflow: 'hidden',
-      shadowColor: '#000',
+      shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.04,
+      shadowOpacity: 0.06,
       shadowRadius: 6,
       elevation: 2,
     },

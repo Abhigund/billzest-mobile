@@ -57,7 +57,7 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingVertical: 12,
       flexDirection: 'row',
       alignItems: 'center',
-      shadowColor: '#000',
+      shadowColor: tokens.shadowColor,
       shadowOpacity: 0.25,
       shadowOffset: { width: 0, height: 4 },
       shadowRadius: 8,

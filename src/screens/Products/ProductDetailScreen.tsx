@@ -546,14 +546,13 @@ const createStyles = (tokens: ThemeTokens) => {
     heroCard: {
       margin: 16,
       marginBottom: 0,
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 24,
       padding: 20,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      shadowColor: '#000',
+      // No-Line Rule: shadow replaces border
+      shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.04,
+      shadowOpacity: 0.06,
       shadowRadius: 8,
       elevation: 2,
     },
@@ -728,13 +727,13 @@ const createStyles = (tokens: ThemeTokens) => {
     },
     statCard: {
       width: '47%',
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 16,
       padding: 14,
       overflow: 'hidden',
-      shadowColor: '#000',
+      shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.04,
+      shadowOpacity: 0.06,
       shadowRadius: 4,
       elevation: 1,
     },
@@ -806,14 +805,13 @@ const createStyles = (tokens: ThemeTokens) => {
 
     // ── Section Card ──
     sectionCard: {
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 24,
       padding: 20,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      shadowColor: '#000',
+      // No-Line Rule: shadow replaces border
+      shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.03,
+      shadowOpacity: 0.04,
       shadowRadius: 6,
       elevation: 1,
     },
@@ -910,14 +908,13 @@ const createStyles = (tokens: ThemeTokens) => {
 
     // ── Inventory: Stock Health Card ──
     stockHealthCard: {
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 24,
       overflow: 'hidden',
-      borderWidth: 1,
-      borderColor: tokens.border,
-      shadowColor: '#000',
+      // No-Line Rule: shadow replaces border
+      shadowColor: tokens.shadowColor,
       shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.04,
+      shadowOpacity: 0.06,
       shadowRadius: 6,
       elevation: 1,
     },

@@ -223,10 +223,9 @@ const createStyles = (tokens: ThemeTokens) =>
       backgroundColor: tokens.card,
       borderRadius: 24,
       padding: 24,
-      borderWidth: 1,
-      borderColor: tokens.border,
-      shadowColor: '#000',
-      shadowOpacity: 0.05,
+      // No-Line Rule: shadow elevation replaces 1px border
+      shadowColor: tokens.shadowColor,
+      shadowOpacity: 0.1,
       shadowOffset: { width: 0, height: 10 },
       shadowRadius: 20,
       elevation: 4,

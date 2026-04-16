@@ -302,7 +302,7 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       height: 48,
       borderRadius: 12,
-      borderWidth: 1,
+      // No-Line Rule: active state uses full bg colour; inactive uses tonal surface
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -321,10 +321,9 @@ const createStyles = (tokens: ThemeTokens) =>
     },
     selectInput: {
       height: 50,
-      borderWidth: 1,
-      borderColor: tokens.border,
+      backgroundColor: tokens.surface_container_low,
       borderRadius: 12,
-      backgroundColor: tokens.card,
+      // No-Line Rule: tonal surface replaces 1px border
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',

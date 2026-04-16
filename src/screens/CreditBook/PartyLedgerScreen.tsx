@@ -373,11 +373,15 @@ const createStyles = (tokens: ThemeTokens) =>
       paddingBottom: 100,
     },
     balanceCard: {
-      backgroundColor: tokens.card,
+      backgroundColor: tokens.surface_container_lowest,
       borderRadius: 16,
       padding: 20,
-      borderWidth: 1,
-      borderColor: tokens.border,
+      // No-Line Rule: tonal surface + shadow elevation
+      shadowColor: tokens.shadowColor,
+      shadowOpacity: 0.08,
+      shadowOffset: { width: 0, height: 2 },
+      shadowRadius: 8,
+      elevation: 2,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -406,9 +410,8 @@ const createStyles = (tokens: ThemeTokens) =>
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: tokens.background,
-      borderWidth: 1,
-      borderColor: tokens.border,
+      backgroundColor: tokens.surface_container_low,
+      // No-Line Rule: tonal surface replaces border
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -432,7 +435,8 @@ const createStyles = (tokens: ThemeTokens) =>
       flex: 1,
       padding: 16,
       borderRadius: 12,
-      borderWidth: 1,
+      backgroundColor: tokens.surface_container_lowest,
+      // No-Line Rule: tonal surface, colour accents passed via inline style on borderColor kept for semantic purpose only if needed
     },
     summaryLabel: {
       fontSize: 12,
@@ -461,8 +465,7 @@ const createStyles = (tokens: ThemeTokens) =>
     txnRow: {
       flexDirection: 'row',
       paddingVertical: 12,
-      borderBottomWidth: 1,
-      borderBottomColor: tokens.border,
+      // No-Line Rule: use hairline separator via rowDivider instead of bottom border
     },
     txnLeft: {
       width: 60,
@@ -530,8 +533,12 @@ const createStyles = (tokens: ThemeTokens) =>
       flexDirection: 'row',
       padding: 16,
       backgroundColor: tokens.background,
-      borderTopWidth: 1,
-      borderTopColor: tokens.border,
+      // No-Line Rule: shadow elevation replaces border
+      shadowColor: tokens.shadowColor,
+      shadowOpacity: 0.08,
+      shadowOffset: { width: 0, height: -2 },
+      shadowRadius: 8,
+      elevation: 4,
     },
     footerButtonContainer: {
       flex: 1,

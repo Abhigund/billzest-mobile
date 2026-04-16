@@ -333,7 +333,7 @@ const createStyles = (tokens: ThemeTokens) => StyleSheet.create({
     maxHeight: 250,
     zIndex: 10,
     elevation: 5,
-    shadowColor: '#000',
+    shadowColor: tokens.shadowColor,
     shadowOpacity: 0.1,
     shadowRadius: 10,
     overflow: 'hidden'
