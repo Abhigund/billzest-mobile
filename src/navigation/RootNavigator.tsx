@@ -1,7 +1,6 @@
 import React from "react";
 import {
   NavigationContainer,
-  DrawerActions,
   createNavigationContainerRef,
 } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -48,15 +47,16 @@ import { DefaultTheme, DarkTheme } from "@react-navigation/native";
 import { useThemeTokens } from "../theme/ThemeProvider";
 import {
   LayoutDashboard,
-  Package,
   Users,
   FileText,
-  Menu,
+  Wallet,
+  MoreHorizontal,
 } from "lucide-react-native";
 import { useSupabase } from "../contexts/SupabaseContext";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import CustomDrawer from "./CustomDrawer";
 import ErrorBoundary from "../components/ErrorBoundary";
+import MoreSheet, { MoreTarget } from "../components/navigation/MoreSheet";
 import {
   DashboardStackParamList,
   ProductsStackParamList,
@@ -308,90 +308,114 @@ const CreditBookStack = () => (
   </CreditBookStackNav.Navigator>
 );
 
+const CreditBookTabStack = () => <CreditBookStack />;
+
 const MainTabs = () => {
   const { tokens } = useThemeTokens();
   const insets = useSafeAreaInsets();
+  const [moreSheetVisible, setMoreSheetVisible] = React.useState(false);
+
+  const handleMoreNavigate = React.useCallback((target: MoreTarget) => {
+    if (target === 'Products') {
+      navigationRef.navigate('ProductsTab', { screen: 'ProductsMain' });
+    } else if (target === 'Purchases') {
+      navigationRef.navigate('Purchases');
+    } else if (target === 'Expenses') {
+      navigationRef.navigate('Expenses');
+    }
+  }, []);
 
   return (
-    <Tab.Navigator
-      screenOptions={({ navigation }) => ({
-        headerShown: true,
-        headerStyle: { backgroundColor: tokens.background },
-        headerTitleStyle: { color: tokens.foreground, fontWeight: "700" },
-        headerTintColor: tokens.foreground,
-        headerShadowVisible: false,
-        headerLeft: () => (
-          <Pressable
-            onPress={() =>
-              navigation.getParent()?.dispatch(DrawerActions.openDrawer())
-            }
-            accessibilityLabel="Open sidebar menu"
-            style={{ paddingHorizontal: 12, paddingVertical: 6 }}
-          >
-            <Menu color={tokens.foreground} size={22} />
-          </Pressable>
-        ),
-        tabBarHideOnKeyboard: true,
-        sceneStyle: { paddingBottom: 8 },
-        tabBarStyle: {
-          height: 56 + Math.max(insets.bottom, 8),
-          paddingTop: 8,
-          paddingBottom: Math.max(insets.bottom, 8),
-          backgroundColor: tokens.background,
-          borderTopWidth: 1,
-          borderTopColor: tokens.border,
-          elevation: 8,
-          shadowColor: tokens.shadowColor,
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
-          zIndex: 100,
-        },
-      })}
-    >
-      <Tab.Screen
-        name="DashboardTab"
-        component={DashboardTabStack}
-        options={{
-          title: "Dashboard",
+    <>
+      <Tab.Navigator
+        screenOptions={{
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <LayoutDashboard color={color} size={size} />
-          ),
+          tabBarHideOnKeyboard: true,
+          sceneStyle: { paddingBottom: 8 },
+          tabBarActiveTintColor: tokens.primary,
+          tabBarInactiveTintColor: tokens.mutedForeground,
+          tabBarStyle: {
+            height: 56 + Math.max(insets.bottom, 8),
+            paddingTop: 8,
+            paddingBottom: Math.max(insets.bottom, 8),
+            backgroundColor: tokens.background,
+            borderTopWidth: 1,
+            borderTopColor: tokens.border,
+            elevation: 8,
+            shadowColor: tokens.shadowColor,
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.08,
+            shadowRadius: 12,
+            zIndex: 100,
+          },
+        }}
+      >
+        <Tab.Screen
+          name="DashboardTab"
+          component={DashboardTabStack}
+          options={{
+            title: "Dashboard",
+            tabBarIcon: ({ color, size }) => (
+              <LayoutDashboard color={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="InvoicesTab"
+          component={InvoicesTabStack}
+          options={{
+            title: "Invoices",
+            tabBarIcon: ({ color, size }) => (
+              <FileText color={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="CreditBookTab"
+          component={CreditBookTabStack}
+          options={{
+            title: "Credit Book",
+            tabBarIcon: ({ color, size }) => (
+              <Wallet color={color} size={size} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="CustomersTab"
+          component={CustomersTabStack}
+          options={{
+            title: "Parties",
+            tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+          }}
+        />
+        <Tab.Screen
+          name="ProductsTab"
+          component={ProductsTabStack}
+          options={{
+            title: "More",
+            tabBarIcon: ({ color, size }) => (
+              <MoreHorizontal color={color} size={size} />
+            ),
+            tabBarButton: (props) => (
+              <Pressable
+                {...(props as any)}
+                onPress={() => setMoreSheetVisible(true)}
+                accessibilityLabel="More options"
+                accessibilityRole="button"
+              />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+      <MoreSheet
+        visible={moreSheetVisible}
+        onClose={() => setMoreSheetVisible(false)}
+        onNavigate={(target) => {
+          setMoreSheetVisible(false);
+          handleMoreNavigate(target);
         }}
       />
-      <Tab.Screen
-        name="ProductsTab"
-        component={ProductsTabStack}
-        options={{
-          title: "Products",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Package color={color} size={size} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="CustomersTab"
-        component={CustomersTabStack}
-        options={{
-          title: "Parties",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
-        }}
-      />
-      <Tab.Screen
-        name="InvoicesTab"
-        component={InvoicesTabStack}
-        options={{
-          title: "Invoices",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <FileText color={color} size={size} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    </>
   );
 };
 
@@ -417,28 +441,28 @@ const AppDrawerNavigator = () => {
       <Drawer.Screen
         name="Purchases"
         component={PurchaseStack}
-        options={{ title: "Purchases" }}
+        options={{ title: "Purchases", headerShown: false }}
       />
       <Drawer.Screen
         name="Vendors"
         component={VendorsStack}
-        options={{ title: "Vendors / Suppliers" }}
+        options={{ title: "Vendors / Suppliers", headerShown: false }}
       />
       <Drawer.Screen
         name="Expenses"
         component={ExpensesStack}
-        options={{ title: "Expenses" }}
+        options={{ title: "Expenses", headerShown: false }}
       />
       <Drawer.Screen
         name="CreditBook"
         component={CreditBookStack}
-        options={{ title: "Credit Book" }}
+        options={{ title: "Credit Book", headerShown: false }}
       />
       {/* OUT OF SCOPE FOR V1 — retained for future releases */}
       <Drawer.Screen
         name="Reports"
         component={ReportsScreen}
-        options={{ title: "Reports" }}
+        options={{ title: "Reports", headerShown: false }}
       />
       {/* BusinessInfo moved to SettingsStack
       <Drawer.Screen
@@ -477,12 +501,7 @@ const AppDrawerNavigator = () => {
       <Drawer.Screen
         name="SettingsStack"
         component={SettingsStackNavigator}
-        options={{ title: "Settings" }}
-      />
-      <Drawer.Screen
-        name="SimplifiedPOS"
-        component={SimplifiedPOSScreen}
-        options={{ title: "Quick Bill POS", headerShown: false }}
+        options={{ title: "Settings", headerShown: false }}
       />
     </Drawer.Navigator>
   );
