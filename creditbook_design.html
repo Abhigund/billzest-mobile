@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>BillZest | Credit Book</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error-container": "#ffdad6",
+                    "primary-container": "#1db954",
+                    "surface-container-highest": "#e1e3e4",
+                    "on-primary": "#ffffff",
+                    "inverse-on-surface": "#f0f1f2",
+                    "tertiary": "#a8353e",
+                    "surface": "#f8f9fa",
+                    "on-secondary-fixed": "#201a1a",
+                    "secondary-fixed": "#ebe0df",
+                    "outline": "#6d7b6c",
+                    "surface-dim": "#d9dadb",
+                    "on-tertiary-fixed-variant": "#881d28",
+                    "on-background": "#191c1d",
+                    "on-error": "#ffffff",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed": "#400009",
+                    "on-primary-container": "#004118",
+                    "on-surface-variant": "#3d4a3d",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#006e2d",
+                    "outline-variant": "#bccbb9",
+                    "on-secondary-container": "#696161",
+                    "primary": "#006e2d",
+                    "tertiary-container": "#ff767b",
+                    "surface-container-high": "#e7e8e9",
+                    "on-primary-fixed-variant": "#005320",
+                    "tertiary-fixed": "#ffdad9",
+                    "on-primary-fixed": "#002108",
+                    "surface-container-low": "#f3f4f5",
+                    "secondary-container": "#e8dddd",
+                    "primary-fixed": "#72fe8f",
+                    "surface-container": "#edeeef",
+                    "inverse-primary": "#53e076",
+                    "surface-bright": "#f8f9fa",
+                    "on-surface": "#191c1d",
+                    "tertiary-fixed-dim": "#ffb3b3",
+                    "on-secondary-fixed-variant": "#4c4545",
+                    "secondary-fixed-dim": "#cfc4c4",
+                    "background": "#f8f9fa",
+                    "on-error-container": "#93000a",
+                    "secondary": "#645d5c",
+                    "inverse-surface": "#2e3132",
+                    "on-tertiary-container": "#730a1b",
+                    "surface-variant": "#e1e3e4",
+                    "primary-fixed-dim": "#53e076"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1rem",
+                    "3xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Manrope', sans-serif; -webkit-font-smoothing: antialiased; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-effect { backdrop-filter: blur(20px); background-color: rgba(243, 244, 245, 0.8); }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #bccbb9; border-radius: 10px; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- Top AppBar -->
+<header class="sticky top-0 z-50 bg-[#f8f9fa] dark:bg-zinc-950 flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#1DB954]" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<div>
+<h1 class="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-none">Credit Book</h1>
+<p class="text-[11px] font-medium text-on-surface-variant uppercase tracking-widest mt-0.5">Manage balances</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface">search</span>
+</button>
+<button class="hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors p-2 rounded-full active:scale-95 duration-150">
+<span class="material-symbols-outlined text-on-surface">person_add</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-white text-xs font-bold ring-2 ring-white">
+                JD
+            </div>
+</div>
+</header>
+<main class="max-w-5xl mx-auto px-4 lg:px-6 space-y-4 pt-2">
+<!-- KPI Row: Ultra Dense -->
+<section class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-lowest h-[72px] rounded-2xl flex flex-col justify-center px-4 shadow-[0px_12px_32px_rgba(25,28,29,0.06)] relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container"></div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">You Get</p>
+<p class="text-lg font-extrabold text-primary">₹18,540</p>
+</div>
+<div class="bg-surface-container-lowest h-[72px] rounded-2xl flex flex-col justify-center px-4 shadow-[0px_12px_32px_rgba(25,28,29,0.06)] relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-tertiary"></div>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">You Pay</p>
+<p class="text-lg font-extrabold text-tertiary">₹9,230</p>
+</div>
+<div class="bg-surface-container h-[72px] rounded-2xl flex flex-col justify-center px-4">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Net Balance</p>
+<p class="text-lg font-extrabold text-on-surface">₹9,310</p>
+</div>
+</section>
+<!-- Search & Filter Row -->
+<section class="flex gap-2 items-center">
+<div class="flex-1 bg-surface-container-high rounded-full px-4 h-10 flex items-center gap-2 group focus-within:bg-surface-container-lowest transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-on-surface-variant" placeholder="Search parties..." type="text"/>
+</div>
+<button class="bg-surface-container-high px-4 h-10 rounded-full flex items-center gap-2 text-xs font-bold text-on-surface hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                All Parties
+            </button>
+</section>
+<!-- Quick Filters -->
+<section class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<button class="whitespace-nowrap bg-on-primary-container text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider">Recent</button>
+<button class="whitespace-nowrap bg-surface-container text-on-surface-variant px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-surface-container-high transition-colors">You Get (12)</button>
+<button class="whitespace-nowrap bg-surface-container text-on-surface-variant px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-surface-container-high transition-colors">You Pay (5)</button>
+<button class="whitespace-nowrap bg-surface-container text-on-surface-variant px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-surface-container-high transition-colors">Settled</button>
+</section>
+<!-- Ledger List: Maximum Density -->
+<section class="bg-surface-container-lowest rounded-3xl shadow-[0px_12px_32px_rgba(25,28,29,0.06)] overflow-hidden">
+<div class="divide-y divide-surface-container">
+<!-- Entry 1 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">RK</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Rajesh Kumar</h3>
+<p class="text-[11px] text-on-surface-variant">+91 98765 43210</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-primary">₹ 4,500</p>
+<p class="text-[10px] font-bold text-primary-container uppercase tracking-tighter">You Get • 2h ago</p>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">SA</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Suresh Agencies</h3>
+<p class="text-[11px] text-on-surface-variant">+91 88223 34455</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-tertiary">₹ 2,120</p>
+<p class="text-[10px] font-bold text-tertiary uppercase tracking-tighter">You Pay • 4h ago</p>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">MP</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Meena Patel</h3>
+<p class="text-[11px] text-on-surface-variant">+91 77665 54433</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-primary">₹ 1,890</p>
+<p class="text-[10px] font-bold text-primary-container uppercase tracking-tighter">You Get • Yesterday</p>
+</div>
+</div>
+<!-- Entry 4 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">BC</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Bharat Cements</h3>
+<p class="text-[11px] text-on-surface-variant">+91 99001 12233</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-tertiary">₹ 7,110</p>
+<p class="text-[10px] font-bold text-tertiary uppercase tracking-tighter">You Pay • 2 days ago</p>
+</div>
+</div>
+<!-- Entry 5 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">AS</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Amit Sharma</h3>
+<p class="text-[11px] text-on-surface-variant">+91 94455 66778</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-primary">₹ 12,150</p>
+<p class="text-[10px] font-bold text-primary-container uppercase tracking-tighter">You Get • 3 days ago</p>
+</div>
+</div>
+<!-- Entry 6 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">TL</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Tech Logistics</h3>
+<p class="text-[11px] text-on-surface-variant">+91 90000 12345</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-on-surface-variant">Settled</p>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Balanced • 4 days ago</p>
+</div>
+</div>
+<!-- Entry 7 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">VS</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Vijay Stores</h3>
+<p class="text-[11px] text-on-surface-variant">+91 81234 56789</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-tertiary">₹ 540</p>
+<p class="text-[10px] font-bold text-tertiary uppercase tracking-tighter">You Pay • 1 week ago</p>
+</div>
+</div>
+<!-- Entry 8 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">AR</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Ananya Rao</h3>
+<p class="text-[11px] text-on-surface-variant">+91 72233 44556</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-primary">₹ 650</p>
+<p class="text-[10px] font-bold text-primary-container uppercase tracking-tighter">You Get • 2 weeks ago</p>
+</div>
+</div>
+<!-- Entry 9 -->
+<div class="px-5 py-3 flex items-center justify-between hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface font-bold text-sm">GS</div>
+<div>
+<h3 class="font-bold text-sm text-on-surface">Global Solutions</h3>
+<p class="text-[11px] text-on-surface-variant">+91 91122 33445</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-extrabold text-on-surface-variant">Settled</p>
+<p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-tighter">Balanced • 3 weeks ago</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB: Entry -->
+<button class="fixed bottom-24 right-6 bg-gradient-to-br from-primary to-primary-container text-white px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 active:scale-90 transition-transform group z-40">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+<span class="text-xs font-bold uppercase tracking-wider">+ Entry</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white dark:bg-zinc-900 border-t border-zinc-100 dark:border-zinc-800 rounded-t-3xl shadow-[0px_-12px_32px_rgba(25,28,29,0.06)]">
+<a class="flex flex-col items-center justify-center bg-[#1DB954]/10 text-[#1DB954] rounded-xl px-4 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-wider mt-0.5 font-bold">Ledger</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-[#1DB954] transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-wider mt-0.5">Invoices</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-[#1DB954] transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-wider mt-0.5">Clients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-[#1DB954] transition-all active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Manrope'] text-[10px] uppercase tracking-wider mt-0.5">Settings</span>
+</a>
+</nav>
+</body></html>

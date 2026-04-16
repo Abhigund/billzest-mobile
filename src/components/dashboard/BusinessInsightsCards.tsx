@@ -25,10 +25,7 @@ const BusinessInsightsCards: React.FC<BusinessInsightsCardsProps> = ({
   return (
     <View style={styles.insightsRow}>
       <Pressable
-        style={({ pressed }) => [
-          styles.insightCard,
-          pressed && { opacity: 0.7 },
-        ]}
+        style={({ pressed }) => [styles.insightCard, pressed && { opacity: 0.7 }]}
         onPress={() => navigation.navigate('ProductsTab' as any, { screen: 'ProductsList' } as any)}
       >
         <View style={styles.insightHeader}>
@@ -36,16 +33,11 @@ const BusinessInsightsCards: React.FC<BusinessInsightsCardsProps> = ({
           <Text style={styles.insightLabel}>Inventory Value</Text>
         </View>
         <Text style={styles.insightValue}>
-          {isLoading
-            ? '…'
-            : `₹${Math.round(inventoryValue).toLocaleString('en-IN')}`}
+          {isLoading ? '…' : `₹${Math.round(inventoryValue).toLocaleString('en-IN')}`}
         </Text>
       </Pressable>
       <Pressable
-        style={({ pressed }) => [
-          styles.insightCard,
-          pressed && { opacity: 0.7 },
-        ]}
+        style={({ pressed }) => [styles.insightCard, pressed && { opacity: 0.7 }]}
         onPress={() => navigation.navigate('Expenses' as any, { screen: 'ExpensesMain' } as any)}
       >
         <View style={styles.insightHeader}>
@@ -53,9 +45,7 @@ const BusinessInsightsCards: React.FC<BusinessInsightsCardsProps> = ({
           <Text style={styles.insightLabel}>Total Expenses</Text>
         </View>
         <Text style={styles.insightValue}>
-          {isLoading
-            ? '…'
-            : `₹${Math.round(totalExpenses).toLocaleString('en-IN')}`}
+          {isLoading ? '…' : `₹${Math.round(totalExpenses).toLocaleString('en-IN')}`}
         </Text>
       </Pressable>
     </View>
