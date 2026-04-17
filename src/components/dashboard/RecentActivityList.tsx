@@ -198,18 +198,16 @@ const RecentActivityList: React.FC<RecentActivityListProps> = ({
                 tokens={tokens}
                 styles={styles}
                 onPress={() =>
-                  navigation.navigate("InvoicesTab", {
-                    screen: "InvoiceDetail",
-                    params: {
-                      invoiceId: entry.id,
-                      invoice: {
-                        id: entry.id,
-                        invoiceNumber: entry.reference,
-                        clientName: entry.title,
-                        date: entry.date,
-                        amount: entry.total,
-                        status: entry.status,
-                      },
+                  navigation.navigate("InvoiceDetail", {
+                    orderId: entry.id,
+                    invoiceId: entry.id,
+                    invoice: {
+                      id: entry.id,
+                      invoice_number: entry.reference,
+                      client_name: entry.title,
+                      created_at: entry.date,
+                      total_amount: entry.total,
+                      status: entry.status,
                     },
                   })
                 }

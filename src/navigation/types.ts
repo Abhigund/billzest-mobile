@@ -6,6 +6,7 @@ export type DashboardStackParamList = {
     mobileNumber?: string;
     verificationId?: string;
   };
+  InvoiceDetail: { orderId: string; invoice?: any; invoiceId?: string };
 };
 
 export type ProductsStackParamList = {

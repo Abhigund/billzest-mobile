@@ -90,6 +90,11 @@ const DashboardTabStack = () => (
       options={{ title: "Dashboard" }}
     />
     <DashboardStack.Screen
+      name="InvoiceDetail"
+      component={InvoiceDetailScreen}
+      options={{ title: "Invoice Detail" }}
+    />
+    <DashboardStack.Screen
       name="MobileLogin"
       component={MobileLoginScreen}
       options={{ headerShown: false, presentation: "fullScreenModal" }}
